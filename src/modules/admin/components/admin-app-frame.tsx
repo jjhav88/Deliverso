@@ -14,9 +14,10 @@ type AdminAppFrameProps = {
 export function AdminAppFrame({ admin, children }: AdminAppFrameProps) {
   const pathname = usePathname();
   const current = getAdminNavigationItem(pathname);
+  const title = pathname.startsWith("/admin/profile") ? "Mi perfil" : current.label;
 
   return (
-    <AdminShell title={current.label} pathname={pathname} admin={admin}>
+    <AdminShell title={title} pathname={pathname} admin={admin}>
       {children}
     </AdminShell>
   );

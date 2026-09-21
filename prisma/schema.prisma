@@ -459,6 +459,7 @@ model AdminAccount {
   authUserId  String      @unique @db.Uuid
   email       String      @unique
   displayName String?
+  avatarPath  String?
   role        AdminRole
   status      AdminStatus @default(ACTIVE)
   lastLoginAt DateTime?   @db.Timestamptz
@@ -562,6 +563,7 @@ model CustomerAccount {
   authUserId        String         @unique @db.Uuid
   email             String
   displayName       String?
+  avatarPath        String?
   phone             String?
   status            CustomerStatus @default(ACTIVE)
   lastLoginAt       DateTime?      @db.Timestamptz

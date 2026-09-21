@@ -6,10 +6,15 @@
  * - js.stripe.com, hooks.stripe.com, api.stripe.com, m.stripe.network
  * - *.supabase.co (Auth, Storage, Realtime)
  */
-export function contentSecurityPolicy(): string {
+export function contentSecurityPolicy(nodeEnv = process.env.NODE_ENV): string {
+  const scriptSrc =
+    nodeEnv === "production"
+      ? "script-src 'self' 'unsafe-inline' https://js.stripe.com"
+      : "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com";
+
   return [
     "default-src 'self'",
-    "script-src 'self' 'unsafe-inline' https://js.stripe.com",
+    scriptSrc,
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://*.supabase.co",
     "font-src 'self' data:",

@@ -9,8 +9,7 @@ import { routing } from "@/i18n/routing";
 import { isAppLocale } from "@/config/i18n";
 import { requireCustomer } from "@/modules/customer-auth/queries";
 import { CustomerProfileForm } from "@/modules/customer-auth/components/profile-form";
-import { logoutCustomerAction } from "@/modules/customer-auth/actions";
-import { Button } from "@/components/ui/button";
+import { signAvatarUrl } from "@/modules/avatars/service";
 import { listCustomerOrders, getCustomerPendingPaymentOrder } from "@/modules/orders/queries";
 import { formatMoneyFromMinorUnits } from "@/lib/money/format";
 
@@ -39,6 +38,7 @@ export default async function AccountPage({ params }: PageProps) {
   const t = await getTranslations("account");
   const ordersT = await getTranslations("orders");
   const hello = customer.displayName || customer.email;
+  const avatarUrl = await signAvatarUrl(customer.avatarPath);
   const orders = await listCustomerOrders(customer.id);
   const pending = await getCustomerPendingPaymentOrder(customer.id);
 
@@ -58,12 +58,17 @@ export default async function AccountPage({ params }: PageProps) {
                 email={customer.email}
                 displayName={customer.displayName ?? ""}
                 phone={customer.phone ?? ""}
+                avatarUrl={avatarUrl}
                 labels={{
                   email: t("email"),
                   displayName: t("displayName"),
                   phone: t("phone"),
                   submit: t("dashboard.save"),
                   pending: t("pending"),
+                  photo: t("avatar"),
+                  choosePhoto: t("chooseAvatar"),
+                  removePhoto: t("removeAvatar"),
+                  photoHelper: t("avatarHelper"),
                 }}
               />
             </div>
@@ -103,16 +108,10 @@ export default async function AccountPage({ params }: PageProps) {
               </ul>
             )}
             <p className="sr-only">{ordersT("list")}</p>
-            <form action={logoutCustomerAction} className="mt-8">
-              <Button type="submit" variant="ghost">
-                {t("dashboard.logout")}
-              </Button>
-            </form>
             <div className="mt-8">
               <h3 className="type-h3">{t("dashboard.purchaseData")}</h3>
               <p className="type-body-sm mt-2 text-muted-foreground">{t("dashboard.purchaseDataHint")}</p>
               <p className="type-body mt-3">{hello}</p>
-              <p className="type-body-sm text-muted-foreground">{customer.email}</p>
               {customer.phone ? (
                 <p className="type-body-sm text-muted-foreground">{customer.phone}</p>
               ) : null}

@@ -6,6 +6,7 @@ export type AuthenticatedAdmin = {
   authUserId: string;
   email: string;
   displayName: string | null;
+  avatarPath: string | null;
   role: AdminRole;
   status: AdminStatus;
 };
@@ -13,5 +14,6 @@ export type AuthenticatedAdmin = {
 export type PublicAdminProfile = {
   email: string;
   displayName: string | null;
+  avatarUrl: string | null;
   role: AdminRole;
 };

@@ -4,7 +4,14 @@ import { useActionState, useState } from "react";
 import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  checkoutDateSelectOptions,
+  checkoutTimeSelectOptions,
+  nextCheckoutTimeAfterDateChange,
+  resolveCheckoutSlotSelection,
+} from "@/modules/checkout/domain/date-label";
 import { emptyCheckoutActionState } from "@/modules/checkout/action-state";
 import {
   markCheckoutReady,
@@ -63,6 +70,7 @@ type CheckoutFlowProps = {
   displayEstimated: string;
   canMarkReady: boolean;
   readyMessage: string | null;
+  locale: string;
   labels: Labels;
 };
 
@@ -202,44 +210,67 @@ function FulfillmentStep({ draft, address, pickups, labels }: CheckoutFlowProps)
   );
 }
 
-function DateStep({ draft, availableDates, labels }: CheckoutFlowProps) {
+function DateStep({ draft, availableDates, labels, locale }: CheckoutFlowProps) {
   const [state, action, pending] = useActionState(setRequestedFulfillment, emptyCheckoutActionState);
-  const [date, setDate] = useState(draft.requestedDate ?? availableDates[0]?.date ?? "");
-  const slots = availableDates.find((item) => item.date === date)?.slots ?? [];
+  const dates = availableDates.filter((item) => item.slots.length > 0);
+  const initial = resolveCheckoutSlotSelection({
+    availableDates: dates,
+    requestedDate: draft.requestedDate,
+    timeWindowId: draft.timeWindowId,
+  });
+  const [date, setDate] = useState(initial.date);
+  const [timeWindowId, setTimeWindowId] = useState(initial.timeWindowId);
+  const slots = dates.find((item) => item.date === date)?.slots ?? [];
+  const dateError = state.error && !date ? state.error : undefined;
+  const timeError = state.error && date ? state.error : undefined;
 
-  if (availableDates.length === 0) {
+  if (dates.length === 0) {
     return <p className="type-body text-muted-foreground">{labels.noDates}</p>;
   }
 
   return (
-    <form action={action} className="grid gap-6">
-      <fieldset className="grid gap-2">
-        <legend className="type-label tracking-[0.12em] text-secondary">{labels.date}</legend>
-        {availableDates.map((item) => (
-          <label key={item.date} className="flex min-h-11 items-center gap-3">
-            <input
-              type="radio"
-              name="requestedDate"
-              value={item.date}
-              checked={date === item.date}
-              onChange={() => setDate(item.date)}
-            />
-            {item.date}
-          </label>
-        ))}
-      </fieldset>
-      <fieldset key={date} className="grid gap-2">
-        <legend className="type-label tracking-[0.12em] text-secondary">{labels.slot}</legend>
-        {slots.map((slot) => (
-          <label key={slot.id} className="flex min-h-11 items-center gap-3">
-            <input type="radio" name="timeWindowId" value={slot.id} defaultChecked={draft.timeWindowId === slot.id} required />
-            {slot.label ? `${slot.label} · ` : ""}
-            {slot.startTime}–{slot.endTime}
-          </label>
-        ))}
-      </fieldset>
-      {state.error ? <p role="alert" className="type-caption text-destructive">{state.error}</p> : null}
-      <Button type="submit" disabled={pending || slots.length === 0} loading={pending}>{labels.continue}</Button>
+    <form action={action} className="grid max-w-md gap-6">
+      <div className="grid gap-5 rounded-lg border border-border p-5">
+        <Select
+          name="requestedDate"
+          label={labels.date}
+          value={date}
+          error={dateError}
+          onChange={(event) => {
+            setDate(event.target.value);
+            setTimeWindowId(nextCheckoutTimeAfterDateChange());
+          }}
+          options={checkoutDateSelectOptions({
+            availableDates: dates,
+            locale,
+            placeholder: labels.selectDate,
+          })}
+        />
+        <Select
+          name="timeWindowId"
+          label={labels.slot}
+          value={timeWindowId}
+          disabled={!date}
+          error={timeError}
+          onChange={(event) => setTimeWindowId(event.target.value)}
+          options={checkoutTimeSelectOptions({
+            availableDates: dates,
+            date,
+            placeholder: labels.selectTime,
+          })}
+        />
+        {date && slots.length === 0 ? (
+          <p role="status" className="type-caption text-muted-foreground">
+            {labels.noTimes}
+          </p>
+        ) : null}
+      </div>
+      {state.error && date && slots.length > 0 && timeWindowId ? (
+        <p role="alert" className="type-caption text-destructive">{state.error}</p>
+      ) : null}
+      <Button type="submit" disabled={pending || !date || slots.length === 0 || !timeWindowId} loading={pending}>
+        {labels.continue}
+      </Button>
     </form>
   );
 }

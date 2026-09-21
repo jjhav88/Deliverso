@@ -21,6 +21,7 @@ function mapCustomer(row: {
   authUserId: string;
   email: string;
   displayName: string | null;
+  avatarPath?: string | null;
   phone: string | null;
   status: "ACTIVE" | "BLOCKED";
 }): AuthenticatedCustomer {
@@ -29,6 +30,7 @@ function mapCustomer(row: {
     authUserId: row.authUserId,
     email: row.email,
     displayName: row.displayName,
+    avatarPath: row.avatarPath ?? null,
     phone: row.phone,
     status: row.status,
   };
@@ -187,6 +189,7 @@ export async function getCustomerAccountOverview(customerId: string) {
       id: true,
       email: true,
       displayName: true,
+      avatarPath: true,
       phone: true,
       status: true,
       createdAt: true,

@@ -100,6 +100,7 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
           displayFee={model.displayFee.formatted}
           displayEstimated={model.displayEstimated.formatted}
           canMarkReady={model.canMarkReady}
+          locale={locale}
           readyMessage={
             model.readyIssues.includes("ZONE_INACTIVE")
               ? t("unavailablePostal")
@@ -138,7 +139,10 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
             noPickup: t("noPickup"),
             date: t("date"),
             slot: t("slot"),
+            selectDate: t("selectDate"),
+            selectTime: t("selectTime"),
             noDates: t("noDates"),
+            noTimes: t("noTimes"),
             customer: t("customer"),
             products: t("products"),
             fulfillment: t("fulfillment"),

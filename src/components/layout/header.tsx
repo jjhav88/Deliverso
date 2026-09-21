@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { ShoppingBag, User } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { BrandLogo } from "@/components/brand/brand-logo";
@@ -11,9 +12,13 @@ import { supportedCurrencies } from "@/config/currency";
 import { accountHref, accountLoginHref, cartHref, mainNavigation } from "@/config/navigation";
 import { Link } from "@/i18n/navigation";
 import { getCurrencyDisplayName } from "@/lib/currency/display-name";
+import { SessionIdentity } from "@/modules/account/components/session-identity";
+import { profileDisplayName } from "@/modules/account/domain/presentation";
+import { signAvatarUrl } from "@/modules/avatars/service";
 import { getLanguageSwitchItems } from "@/modules/i18n/language-switch-items";
 import { getCartItemCount } from "@/modules/cart/queries";
 import { getOptionalCustomer } from "@/modules/customer-auth/queries";
+import { logoutCustomerAction } from "@/modules/customer-auth/actions";
 import { navigationCustomerFallback } from "@/modules/customer-auth/domain/errors";
 import { canCustomerShop } from "@/modules/customer-auth/domain/status";
 import { isTransientDatabaseError } from "@/server/db/errors";
@@ -22,6 +27,23 @@ import { cn } from "@/lib/cn";
 type HeaderProps = {
   currency: CurrencyCode;
 };
+
+function CustomerAccountLink({
+  className,
+  "aria-label": ariaLabel,
+  children,
+}: {
+  href: string;
+  className?: string;
+  "aria-label"?: string;
+  children: ReactNode;
+}) {
+  return (
+    <Link href={accountHref} className={className} aria-label={ariaLabel}>
+      {children}
+    </Link>
+  );
+}
 
 export async function Header({ currency }: HeaderProps) {
   const locale = await getLocale();
@@ -61,6 +83,8 @@ export async function Header({ currency }: HeaderProps) {
     locales: localeLabels,
     unavailable: t("languageUnavailable"),
   };
+  const displayName = customer ? profileDisplayName(customer) : "";
+  const avatarUrl = customer ? await signAvatarUrl(customer.avatarPath) : null;
 
   return (
     <header
@@ -97,19 +121,32 @@ export async function Header({ currency }: HeaderProps) {
               label={t("currency")}
             />
           </div>
-          <Link
-            href={accountLink}
-            aria-label={accountLabel}
-            title={accountLabel}
-            className={cn(
-              "relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-foreground",
-              "transition-colors duration-[var(--duration-fast)] ease-[var(--easing-standard)]",
-              "hover:bg-muted",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
-            )}
-          >
-            <User aria-hidden="true" className="h-5 w-5" />
-          </Link>
+          {signedIn && customer ? (
+            <SessionIdentity
+              displayName={displayName}
+              avatarUrl={avatarUrl}
+              profileHref={accountHref}
+              profileLabel={t("account")}
+              signOutLabel={t("signOut")}
+              menuLabel={t("accountMenu")}
+              logoutAction={logoutCustomerAction}
+              profileLink={CustomerAccountLink}
+            />
+          ) : (
+            <Link
+              href={accountLink}
+              aria-label={accountLabel}
+              title={accountLabel}
+              className={cn(
+                "relative inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-foreground",
+                "transition-colors duration-[var(--duration-fast)] ease-[var(--easing-standard)]",
+                "hover:bg-muted",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
+              )}
+            >
+              <User aria-hidden="true" className="h-5 w-5" />
+            </Link>
+          )}
           <Link
             href={cartHref}
             aria-label={cartCount > 0 ? `${t("cart")} (${cartCount})` : t("cart")}

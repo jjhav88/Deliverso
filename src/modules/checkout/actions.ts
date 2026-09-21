@@ -2,7 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { isAppLocale } from "@/config/i18n";
 import { getPathname } from "@/i18n/navigation";
 import { getPrisma } from "@/server/db/prisma";
@@ -281,7 +281,12 @@ export async function setRequestedFulfillment(
     timeWindowId: formData.get("timeWindowId"),
   });
   if (!parsed.success) {
-    return { error: "Elige una fecha y un horario disponibles.", success: null };
+    const t = await getTranslations("checkout");
+    const requestedDate = formString(formData.get("requestedDate"));
+    if (!requestedDate) {
+      return { error: t("selectDateError"), success: null };
+    }
+    return { error: t("selectTimeError"), success: null };
   }
 
   const displayCurrency = await getDisplayCurrency();

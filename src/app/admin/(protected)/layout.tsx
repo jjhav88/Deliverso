@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { connection } from "next/server";
 import { AdminAppFrame } from "@/modules/admin/components/admin-app-frame";
 import { requireAdmin } from "@/modules/auth/authorization/require-admin";
+import { signAvatarUrl } from "@/modules/avatars/service";
 
 type ProtectedAdminLayoutProps = {
   children: ReactNode;
@@ -18,11 +19,14 @@ export default async function ProtectedAdminLayout({
     nextPath.startsWith("/admin") ? nextPath : "/admin",
   );
 
+  const avatarUrl = await signAvatarUrl(admin.avatarPath);
+
   return (
     <AdminAppFrame
       admin={{
         email: admin.email,
         displayName: admin.displayName,
+        avatarUrl,
         role: admin.role,
       }}
     >

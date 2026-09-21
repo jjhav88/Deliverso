@@ -50,6 +50,7 @@ export async function findActiveAdminByAuthUserId(
     authUserId: account.authUserId,
     email: account.email,
     displayName: account.displayName,
+    avatarPath: account.avatarPath,
     role: account.role,
     status: account.status,
   };

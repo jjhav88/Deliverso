@@ -17,6 +17,7 @@ import {
   ensureCustomerAccount,
   requireCustomer,
 } from "@/modules/customer-auth/queries";
+import { removeOwnedAvatar, replaceOwnedAvatar } from "@/modules/avatars/service";
 import {
   customerForgotPasswordSchema,
   customerLoginSchema,
@@ -239,6 +240,50 @@ export async function updateCustomerProfileAction(
   revalidatePath("/cuenta");
   revalidatePath("/en/account");
   return { error: null, success: "Perfil actualizado." };
+}
+
+export async function uploadCustomerAvatarAction(
+  previousState: CustomerActionState,
+  formData: FormData,
+): Promise<CustomerActionState> {
+  void previousState;
+  const customer = await requireCustomer("/cuenta");
+  const file = formData.get("avatar");
+  if (!(file instanceof File)) {
+    return { error: "Elige una foto de perfil.", success: null };
+  }
+
+  const replaced = await replaceOwnedAvatar({
+    kind: "customers",
+    ownerId: customer.id,
+    file,
+  });
+  if (!replaced.ok) {
+    return { error: replaced.error, success: null };
+  }
+
+  await getPrisma().customerAccount.update({
+    where: { id: customer.id },
+    data: { avatarPath: replaced.objectPath },
+  });
+  revalidatePath("/cuenta");
+  revalidatePath("/en/account");
+  return { error: null, success: "Foto de perfil actualizada." };
+}
+
+export async function removeCustomerAvatarAction(
+  previousState: CustomerActionState,
+): Promise<CustomerActionState> {
+  void previousState;
+  const customer = await requireCustomer("/cuenta");
+  await removeOwnedAvatar({ kind: "customers", ownerId: customer.id });
+  await getPrisma().customerAccount.update({
+    where: { id: customer.id },
+    data: { avatarPath: null },
+  });
+  revalidatePath("/cuenta");
+  revalidatePath("/en/account");
+  return { error: null, success: "Foto de perfil eliminada." };
 }
 
 export async function resendCustomerConfirmationAction(

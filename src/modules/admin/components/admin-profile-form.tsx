@@ -5,69 +5,57 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { AvatarField } from "@/modules/account/components/avatar-field";
 import { ALLOWED_AVATAR_MIME_TYPES } from "@/modules/avatars/domain/constants";
-import { emptyCustomerActionState } from "@/modules/customer-auth/action-state";
 import {
-  removeCustomerAvatarAction,
-  updateCustomerProfileAction,
-  uploadCustomerAvatarAction,
-} from "@/modules/customer-auth/actions";
+  emptyAdminProfileActionState,
+  removeAdminAvatarAction,
+  updateAdminProfileAction,
+  uploadAdminAvatarAction,
+} from "@/modules/auth/actions/profile";
 
-type ProfileFormProps = {
+type AdminProfileFormProps = {
   email: string;
   displayName: string;
-  phone: string;
+  roleLabel: string;
   avatarUrl?: string | null;
-  labels: {
-    email: string;
-    displayName: string;
-    phone: string;
-    submit: string;
-    pending: string;
-    photo: string;
-    choosePhoto: string;
-    removePhoto: string;
-    photoHelper: string;
-  };
 };
 
-export function CustomerProfileForm({
+export function AdminProfileForm({
   email,
   displayName,
-  phone,
+  roleLabel,
   avatarUrl,
-  labels,
-}: ProfileFormProps) {
+}: AdminProfileFormProps) {
   const [state, action, pending] = useActionState(
-    updateCustomerProfileAction,
-    emptyCustomerActionState,
+    updateAdminProfileAction,
+    emptyAdminProfileActionState,
   );
 
   return (
     <div className="grid max-w-md gap-8">
       <AvatarField
-        displayName={displayName}
+        displayName={displayName || email}
         avatarUrl={avatarUrl}
         accept={ALLOWED_AVATAR_MIME_TYPES.join(",")}
         labels={{
-          photo: labels.photo,
-          choose: labels.choosePhoto,
-          remove: labels.removePhoto,
-          pending: labels.pending,
-          helper: labels.photoHelper,
+          photo: "Foto de perfil",
+          choose: "Subir foto",
+          remove: "Quitar foto",
+          pending: "Un momento…",
+          helper: "JPEG, PNG o WEBP. Máximo 2 MB.",
         }}
-        uploadAction={uploadCustomerAvatarAction}
-        removeAction={removeCustomerAvatarAction}
-        initialState={emptyCustomerActionState}
+        uploadAction={uploadAdminAvatarAction}
+        removeAction={removeAdminAvatarAction}
+        initialState={emptyAdminProfileActionState}
       />
       <form action={action} className="grid gap-5">
-        <Input name="email" label={labels.email} value={email} readOnly disabled />
+        <Input name="email" label="Correo electrónico" value={email} readOnly disabled />
+        <Input name="role" label="Rol" value={roleLabel} readOnly disabled />
         <Input
           name="displayName"
-          label={labels.displayName}
+          label="Nombre para mostrar"
           defaultValue={displayName}
           disabled={pending}
         />
-        <Input name="phone" label={labels.phone} defaultValue={phone} disabled={pending} />
         {state.error ? (
           <p role="alert" className="type-caption text-destructive">
             {state.error}
@@ -79,7 +67,7 @@ export function CustomerProfileForm({
           </p>
         ) : null}
         <Button type="submit" disabled={pending} loading={pending}>
-          {pending ? labels.pending : labels.submit}
+          {pending ? "Un momento…" : "Guardar perfil"}
         </Button>
       </form>
     </div>

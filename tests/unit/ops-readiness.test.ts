@@ -220,9 +220,14 @@ describe("maintenance idempotency", () => {
 
 describe("csp", () => {
   it("allows Stripe Payment Element without a global script wildcard", () => {
-    const csp = contentSecurityPolicy();
+    const csp = contentSecurityPolicy("production");
     expect(csp).toContain("https://js.stripe.com");
     expect(csp).toContain("frame-ancestors 'none'");
     expect(csp).not.toContain("script-src *");
+    expect(csp).not.toContain("unsafe-eval");
+  });
+
+  it("allows React eval only outside production", () => {
+    expect(contentSecurityPolicy("development")).toContain("unsafe-eval");
   });
 });

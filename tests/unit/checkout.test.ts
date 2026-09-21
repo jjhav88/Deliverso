@@ -26,6 +26,13 @@ import {
   getAvailableFulfillmentDates,
   isRequestedSlotValid,
 } from "@/modules/checkout/domain/dates";
+import {
+  checkoutDateSelectOptions,
+  checkoutTimeSelectOptions,
+  formatCheckoutCalendarDate,
+  nextCheckoutTimeAfterDateChange,
+  resolveCheckoutSlotSelection,
+} from "@/modules/checkout/domain/date-label";
 import { canMarkCheckoutReady, evaluateCheckoutReady } from "@/modules/checkout/domain/ready";
 import { buildCheckoutTotals } from "@/modules/checkout/domain/summary";
 import { normalizePhone, isValidPhone } from "@/modules/customer-auth/domain/phone";
@@ -280,6 +287,112 @@ describe("lead time and timezone", () => {
         { startTime: "13:00", endTime: "18:00" },
       ]),
     ).toBe(true);
+  });
+});
+
+describe("checkout date and time selects", () => {
+  const dates = [
+    {
+      date: "2026-09-23",
+      slots: [
+        { id: "11111111-1111-4111-8111-111111111111", startTime: "10:00", endTime: "14:00" },
+        { id: "22222222-2222-4222-8222-222222222222", startTime: "16:00", endTime: "18:00" },
+      ],
+    },
+    {
+      date: "2026-09-25",
+      slots: [{ id: "33333333-3333-4333-8333-333333333333", startTime: "10:00", endTime: "14:00" }],
+    },
+    { date: "2026-09-26", slots: [] },
+  ];
+
+  it("formats locale labels and keeps the internal date value", () => {
+    const es = checkoutDateSelectOptions({
+      availableDates: dates,
+      locale: "es-MX",
+      placeholder: "Selecciona una fecha",
+    });
+    const en = checkoutDateSelectOptions({
+      availableDates: dates,
+      locale: "en-US",
+      placeholder: "Select a date",
+    });
+    expect(es[0]).toEqual({ value: "", label: "Selecciona una fecha" });
+    expect(es.map((item) => item.value)).toEqual(["", "2026-09-23", "2026-09-25"]);
+    expect(es[1]?.label).toBe(formatCheckoutCalendarDate("2026-09-23", "es-MX"));
+    expect(es[1]?.label).toMatch(/septiembre/);
+    expect(es[1]?.label).not.toBe("2026-09-23");
+    expect(en[1]?.label).toBe("Wednesday, September 23, 2026");
+  });
+
+  it("filters time windows to the selected date and resets time on date change", () => {
+    const times = checkoutTimeSelectOptions({
+      availableDates: dates,
+      date: "2026-09-23",
+      placeholder: "Selecciona un horario",
+    });
+    expect(times.map((item) => item.label)).toEqual([
+      "Selecciona un horario",
+      "10:00–14:00",
+      "16:00–18:00",
+    ]);
+    expect(checkoutTimeSelectOptions({ availableDates: dates, date: "2026-09-25", placeholder: "x" }).map((item) => item.value)).toEqual([
+      "",
+      "33333333-3333-4333-8333-333333333333",
+    ]);
+    expect(nextCheckoutTimeAfterDateChange()).toBe("");
+  });
+
+  it("preloads a still-valid draft and resets an obsolete selection", () => {
+    expect(
+      resolveCheckoutSlotSelection({
+        availableDates: dates,
+        requestedDate: "2026-09-23",
+        timeWindowId: "11111111-1111-4111-8111-111111111111",
+      }),
+    ).toEqual({
+      date: "2026-09-23",
+      timeWindowId: "11111111-1111-4111-8111-111111111111",
+    });
+    expect(
+      resolveCheckoutSlotSelection({
+        availableDates: dates,
+        requestedDate: "2026-09-23",
+        timeWindowId: "missing-window",
+      }),
+    ).toEqual({ date: "2026-09-23", timeWindowId: "" });
+    expect(
+      resolveCheckoutSlotSelection({
+        availableDates: dates,
+        requestedDate: "2026-09-26",
+        timeWindowId: "11111111-1111-4111-8111-111111111111",
+      }),
+    ).toEqual({ date: "", timeWindowId: "" });
+  });
+
+  it("keeps rejecting invalid combinations on the server", () => {
+    expect(
+      isRequestedSlotValid({
+        now: new Date("2026-09-16T12:00:00.000Z"),
+        leadMinutes: 0,
+        method: "DELIVERY",
+        date: "2026-09-23",
+        windowId: "not-for-this-date",
+        schedule,
+        blackouts: [],
+      }),
+    ).toBe(false);
+    expect(
+      isRequestedSlotValid({
+        now: new Date("2026-09-16T12:00:00.000Z"),
+        leadMinutes: 0,
+        method: "PICKUP",
+        date: "2026-09-23",
+        windowId: "w1",
+        schedule: [],
+        blackouts: [],
+      }),
+    ).toBe(false);
   });
 });
 

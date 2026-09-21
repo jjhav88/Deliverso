@@ -5,6 +5,7 @@ export type AuthenticatedCustomer = {
   authUserId: string;
   email: string;
   displayName: string | null;
+  avatarPath: string | null;
   phone: string | null;
   status: CustomerStatus;
 };
