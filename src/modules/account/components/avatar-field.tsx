@@ -51,7 +51,7 @@ export function AvatarField({
         <ProfileAvatar
           src={avatarUrl}
           displayName={displayName}
-          alt=""
+          alt={labels.photo}
           className="size-16"
         />
         <div className="grid gap-1">

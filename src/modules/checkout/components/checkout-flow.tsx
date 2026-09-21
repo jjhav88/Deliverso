@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   checkoutDateSelectOptions,
   checkoutTimeSelectOptions,
+  formatCheckoutReviewSchedule,
   nextCheckoutTimeAfterDateChange,
   resolveCheckoutSlotSelection,
 } from "@/modules/checkout/domain/date-label";
@@ -315,7 +316,11 @@ function ReviewStep(props: CheckoutFlowProps) {
             : [props.address?.street, props.address?.city, props.selectedZoneName].filter(Boolean).join(" · ")}
         </p>
         <p className="type-body-sm text-muted-foreground">
-          {props.draft.requestedDate} {props.selectedSlotLabel}
+          {formatCheckoutReviewSchedule({
+            calendarDate: props.draft.requestedDate,
+            slotLabel: props.selectedSlotLabel,
+            locale: props.locale,
+          })}
         </p>
       </section>
       <form action={notesAction} className="grid max-w-lg gap-3">

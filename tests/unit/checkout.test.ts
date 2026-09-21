@@ -30,6 +30,7 @@ import {
   checkoutDateSelectOptions,
   checkoutTimeSelectOptions,
   formatCheckoutCalendarDate,
+  formatCheckoutReviewSchedule,
   nextCheckoutTimeAfterDateChange,
   resolveCheckoutSlotSelection,
 } from "@/modules/checkout/domain/date-label";
@@ -323,6 +324,23 @@ describe("checkout date and time selects", () => {
     expect(es[1]?.label).toMatch(/septiembre/);
     expect(es[1]?.label).not.toBe("2026-09-23");
     expect(en[1]?.label).toBe("Wednesday, September 23, 2026");
+  });
+
+  it("shows a human review schedule instead of ISO", () => {
+    expect(
+      formatCheckoutReviewSchedule({
+        calendarDate: "2026-09-23",
+        slotLabel: "10:00–14:00",
+        locale: "es-MX",
+      }),
+    ).toBe(`${formatCheckoutCalendarDate("2026-09-23", "es-MX")} · 10:00–14:00`);
+    expect(
+      formatCheckoutReviewSchedule({
+        calendarDate: "2026-09-23",
+        slotLabel: "10:00–14:00",
+        locale: "en-US",
+      }),
+    ).not.toContain("2026-09-23");
   });
 
   it("filters time windows to the selected date and resets time on date change", () => {

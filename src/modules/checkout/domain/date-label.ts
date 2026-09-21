@@ -47,6 +47,17 @@ export function nextCheckoutTimeAfterDateChange(): string {
   return "";
 }
 
+export function formatCheckoutReviewSchedule(input: {
+  calendarDate: string | null;
+  slotLabel: string | null;
+  locale: string;
+}): string {
+  const dateLabel = input.calendarDate
+    ? formatCheckoutCalendarDate(input.calendarDate, input.locale)
+    : "";
+  return [dateLabel, input.slotLabel].filter(Boolean).join(" · ");
+}
+
 export function resolveCheckoutSlotSelection(input: {
   availableDates: Array<{ date: string; slots: Array<{ id: string }> }>;
   requestedDate: string | null;

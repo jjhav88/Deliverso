@@ -2,10 +2,10 @@
 
 type GlobalErrorProps = {
   error: Error & { digest?: string };
-  retry: () => void;
+  reset: () => void;
 };
 
-export default function GlobalError({ retry }: GlobalErrorProps) {
+export default function GlobalError({ reset }: GlobalErrorProps) {
   return (
     <html lang="es">
       <body style={{ margin: 0, background: "#FFF6E9", color: "#234166", fontFamily: "Georgia, serif" }}>
@@ -16,7 +16,7 @@ export default function GlobalError({ retry }: GlobalErrorProps) {
           <p>No pudimos completar esta página. Inténtalo de nuevo en un momento.</p>
           <button
             type="button"
-            onClick={() => retry()}
+            onClick={() => reset()}
             style={{ background: "#234166", color: "#FFF6E9", border: 0, padding: "12px 18px", borderRadius: 8 }}
           >
             Reintentar

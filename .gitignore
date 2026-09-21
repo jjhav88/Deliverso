@@ -66,3 +66,9 @@ next-env.d.ts
 
 # Prisma generated client — regenerate with `pnpm db:generate`
 /src/generated/prisma
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

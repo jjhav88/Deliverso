@@ -74,7 +74,7 @@ export function SessionIdentity({
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
           )}
         >
-          <ProfileAvatar src={avatarUrl} displayName={displayName} alt="" />
+          <ProfileAvatar src={avatarUrl} displayName={displayName} alt={displayName} />
           <span className="truncate type-body-sm">{displayName}</span>
         </ProfileAnchor>
         <form action={logoutAction}>
