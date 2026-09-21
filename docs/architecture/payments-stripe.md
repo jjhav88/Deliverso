@@ -78,7 +78,24 @@ El redirect de `confirmPayment()` no marca el pedido como pagado.
 stripe listen --forward-to http://localhost:3010/api/stripe/webhook
 ```
 
-Usar el `whsec_...` temporal. No hardcodearlo.
+Usar el `whsec_...` temporal solo en local. Staging/Vercel debe usar el
+signing secret del destination HTTPS, no el de `stripe listen`.
+
+## Staging Hobby
+
+El webhook remoto es la autoridad:
+
+`https://deliverso-staging.vercel.app/api/stripe/webhook`
+
+Vercel Hobby no corre cron frecuente. Si un evento no llega,
+`reconcilePendingPayments()` vive en:
+
+`POST /api/internal/maintenance`
+
+con `Authorization: Bearer <INTERNAL_CRON_SECRET>`.
+
+No es un segundo sistema de cobro: reutiliza el mismo
+`processStripePaymentIntentEvent` idempotente.
 
 Tarjetas: únicamente las oficiales de Stripe TEST MODE.
 

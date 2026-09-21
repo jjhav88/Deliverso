@@ -15,6 +15,7 @@ import { toCustomerOrderDetail } from "@/modules/orders/mappers";
 import { OrderItemsList } from "@/modules/orders/components/order-items";
 import { cancelPendingOrder } from "@/modules/orders/actions";
 import { createOrGetPaymentIntentForOrder } from "@/modules/payments/create-intent";
+import { applySucceededPaymentIntentIfNeeded } from "@/modules/payments/sync-succeeded";
 import { StripePaymentForm } from "@/modules/payments/components/payment-form";
 import { canInitializePaymentElement } from "@/modules/orders/domain/payment-status";
 import { getStripePublishableKey, shouldShowStripeTestBadge } from "@/server/stripe/env";
@@ -85,6 +86,34 @@ export default async function PaymentPage({ params }: PageProps) {
   }
 
   const intent = await createOrGetPaymentIntentForOrder(row.id);
+  if (intent.status === "succeeded") {
+    try {
+      await applySucceededPaymentIntentIfNeeded({
+        stripePaymentIntentId: row.stripePaymentIntentId ?? intent.id,
+        orderStatus: row.status,
+        paymentStatus: row.paymentStatus,
+      });
+    } catch {
+      // Keep the syncing view if the order is not marked yet.
+    }
+    const paid = await getOwnedOrderRecord({ customerId: customer.id, orderNumber });
+    if (paid && (paid.status === "PAID" || paid.paymentStatus === "SUCCEEDED")) {
+      return (
+        <Section>
+          <Container>
+            <h1 className="type-display-l">{t("title")}</h1>
+            <p className="type-body mt-4">{t("alreadyPaid")}</p>
+            <Link
+              href={{ pathname: "/pedido/[orderNumber]/confirmacion", params: { orderNumber } }}
+              className="mt-6 inline-block type-label tracking-[0.12em] text-secondary"
+            >
+              {t("seeConfirmation")}
+            </Link>
+          </Container>
+        </Section>
+      );
+    }
+  }
   const confirmationPath = getPathname({
     locale,
     href: { pathname: "/pedido/[orderNumber]/confirmacion", params: { orderNumber } },

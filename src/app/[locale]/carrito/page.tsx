@@ -12,6 +12,9 @@ import { getCartView } from "@/modules/cart/queries";
 import { getOptionalCustomer } from "@/modules/customer-auth/queries";
 import { getCustomerPendingPaymentOrder } from "@/modules/orders/queries";
 import { cancelPendingOrder } from "@/modules/orders/actions";
+import { resolveCartCheckoutMode } from "@/modules/cart/domain/pending-payment";
+import { applySucceededPaymentIntentIfNeeded } from "@/modules/payments/sync-succeeded";
+import { getStripeGateway } from "@/server/stripe/client";
 import { getCurrentCartRecord } from "@/server/cart/session";
 import { canCustomerShop } from "@/modules/customer-auth/domain/status";
 import { canEnterCheckout } from "@/modules/checkout/domain/cart-gate";
@@ -74,12 +77,38 @@ export default async function CartPage({ params }: PageProps) {
     );
   }
 
-  const cart = await getCartView({ locale, displayCurrency, rateSet });
-  const currentCart = await getCurrentCartRecord();
-  const pending =
+  let cart = await getCartView({ locale, displayCurrency, rateSet });
+  let currentCart = await getCurrentCartRecord();
+  let pending =
     currentCart?.status === "PENDING_PAYMENT" && customer
       ? await getCustomerPendingPaymentOrder(customer.id)
       : null;
+  let paymentIntentStatus: string | null = null;
+  if (pending?.stripePaymentIntentId) {
+    try {
+      await applySucceededPaymentIntentIfNeeded({
+        stripePaymentIntentId: pending.stripePaymentIntentId,
+        orderStatus: pending.status,
+        paymentStatus: pending.paymentStatus,
+      });
+      paymentIntentStatus = (
+        await getStripeGateway().retrievePaymentIntent(pending.stripePaymentIntentId)
+      ).status;
+      cart = await getCartView({ locale, displayCurrency, rateSet });
+      currentCart = await getCurrentCartRecord();
+      pending =
+        currentCart?.status === "PENDING_PAYMENT" && customer
+          ? await getCustomerPendingPaymentOrder(customer.id)
+          : null;
+    } catch {
+      paymentIntentStatus = null;
+    }
+  }
+  const checkoutMode = resolveCartCheckoutMode({
+    cartStatus: currentCart?.status,
+    pendingOrderNumber: pending?.orderNumber,
+    paymentIntentStatus,
+  });
 
   return (
     <Section>
@@ -112,9 +141,17 @@ export default async function CartPage({ params }: PageProps) {
             lineTotal: t("lineTotal"),
             checkout: t("checkout"),
             reviewCart: t("reviewCart"),
+            pendingPaymentTitle: t("pendingPaymentTitle"),
+            pendingPaymentBody: t("pendingPaymentBody"),
+            confirmingPaymentTitle: t("confirmingPaymentTitle"),
+            confirmingPaymentBody: t("confirmingPaymentBody"),
+            viewOrder: t("viewOrder"),
+            continuePayment: t("continuePayment"),
+            confirmCancelPending: t("confirmCancelPending"),
           }}
-          canCheckout={!pending && canEnterCheckout(cart)}
-          locked={Boolean(pending)}
+          canCheckout={checkoutMode === "active" && canEnterCheckout(cart)}
+          locked={checkoutMode !== "active"}
+          mode={checkoutMode}
           orderNumber={pending?.orderNumber}
           pendingLabel={t("continuePayment")}
           cancelLabel={t("cancelPending")}

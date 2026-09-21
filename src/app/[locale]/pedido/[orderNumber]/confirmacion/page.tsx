@@ -12,6 +12,7 @@ import { requireCustomer } from "@/modules/customer-auth/queries";
 import { getOwnedOrderRecord } from "@/modules/orders/queries";
 import { toCustomerOrderDetail } from "@/modules/orders/mappers";
 import { ConfirmationStatus } from "@/modules/orders/components/confirmation-status";
+import { applySucceededPaymentIntentIfNeeded } from "@/modules/payments/sync-succeeded";
 import { getStripeGateway } from "@/server/stripe/client";
 
 export const dynamic = "force-dynamic";
@@ -45,9 +46,23 @@ export default async function ConfirmationPage({ params, searchParams }: PagePro
       href: { pathname: "/pedido/[orderNumber]/confirmacion", params: { orderNumber } },
     }),
   );
-  const row = await getOwnedOrderRecord({ customerId: customer.id, orderNumber });
+  let row = await getOwnedOrderRecord({ customerId: customer.id, orderNumber });
   if (!row) {
     notFound();
+  }
+
+  try {
+    await applySucceededPaymentIntentIfNeeded({
+      stripePaymentIntentId: row.stripePaymentIntentId,
+      orderStatus: row.status,
+      paymentStatus: row.paymentStatus,
+    });
+    const refreshed = await getOwnedOrderRecord({ customerId: customer.id, orderNumber });
+    if (refreshed) {
+      row = refreshed;
+    }
+  } catch {
+    // Confirmation still polls if the fallback cannot apply yet.
   }
 
   const t = await getTranslations("confirmation");

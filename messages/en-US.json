@@ -385,8 +385,14 @@
     "register": "Create account",
     "checkout": "Continue to checkout",
     "reviewCart": "Review your cart before continuing.",
+    "pendingPaymentTitle": "Pending payment",
+    "pendingPaymentBody": "You already created an order with this cart. You can continue payment or keep exploring DELIVERSO.",
+    "confirmingPaymentTitle": "We are confirming your payment",
+    "confirmingPaymentBody": "Stripe already processed this payment. We are syncing the order.",
+    "viewOrder": "View order",
     "continuePayment": "Continue payment",
-    "cancelPending": "Cancel and return to cart"
+    "cancelPending": "Cancel pending order",
+    "confirmCancelPending": "Cancel this pending order and edit the cart again?"
   },
   "universes": {
     "meta": {

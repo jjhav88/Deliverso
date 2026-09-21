@@ -6,6 +6,11 @@ import {
   resolveHeaderCartCount,
   sumCartItemQuantities,
 } from "@/modules/cart/domain/session-read";
+import {
+  resolveCartCheckoutMode,
+  shouldOfferCancelPendingOrder,
+  shouldOfferContinuePayment,
+} from "@/modules/cart/domain/pending-payment";
 import { hashCartToken } from "@/modules/cart/domain/token";
 
 const now = new Date("2026-09-19T18:00:00.000Z");
@@ -114,3 +119,42 @@ describe("cart mutation path", () => {
     expect(writes).toEqual([]);
   });
 });
+
+describe("pending payment cart presentation", () => {
+  it("keeps an ACTIVE cart on checkout and a PENDING_PAYMENT cart on the pending block", () => {
+    expect(
+      resolveCartCheckoutMode({
+        cartStatus: "ACTIVE",
+        pendingOrderNumber: null,
+        paymentIntentStatus: null,
+      }),
+    ).toBe("active");
+    expect(
+      resolveCartCheckoutMode({
+        cartStatus: "PENDING_PAYMENT",
+        pendingOrderNumber: "DEL-260921-ABC123",
+        paymentIntentStatus: "requires_payment_method",
+      }),
+    ).toBe("pending_payment");
+    expect(shouldOfferContinuePayment("pending_payment")).toBe(true);
+    expect(shouldOfferCancelPendingOrder("pending_payment")).toBe(true);
+  });
+
+  it("does not invite another charge when Stripe already succeeded", () => {
+    expect(
+      resolveCartCheckoutMode({
+        cartStatus: "PENDING_PAYMENT",
+        pendingOrderNumber: "DEL-260921-ABC123",
+        paymentIntentStatus: "succeeded",
+      }),
+    ).toBe("confirming_payment");
+    expect(shouldOfferContinuePayment("confirming_payment")).toBe(false);
+    expect(shouldOfferCancelPendingOrder("confirming_payment")).toBe(false);
+  });
+
+  it("does not treat CHECKED_OUT as a shopper cart status", () => {
+    expect(pickShopperCart([], now)).toBeNull();
+    expect(resolveHeaderCartCount({ signedIn: true, quantities: null })).toBe(0);
+  });
+});
+

@@ -3,7 +3,7 @@
 import { useActionState } from "react";
 import Image from "next/image";
 import { Link } from "@/i18n/navigation";
-import { Button } from "@/components/ui/button";
+import { Button, buttonClassName } from "@/components/ui/button";
 import type { CartView } from "@/modules/cart/types";
 import { emptyCartActionState } from "@/modules/cart/action-state";
 import {
@@ -34,12 +34,20 @@ type CartPageViewProps = {
     lineTotal: string;
     checkout?: string;
     reviewCart?: string;
+    pendingPaymentTitle?: string;
+    pendingPaymentBody?: string;
+    confirmingPaymentTitle?: string;
+    confirmingPaymentBody?: string;
+    viewOrder?: string;
+    continuePayment?: string;
+    confirmCancelPending?: string;
   };
   canCheckout?: boolean;
   locked?: boolean;
+  mode?: "active" | "pending_payment" | "confirming_payment";
   pendingLabel?: string;
   cancelLabel?: string;
-  cancelAction?: (formData: FormData) => void;
+  cancelAction?: (formData: FormData) => void | Promise<void>;
   orderNumber?: string;
 };
 
@@ -48,6 +56,7 @@ export function CartPageView({
   labels,
   canCheckout,
   locked,
+  mode = "active",
   pendingLabel,
   cancelLabel,
   cancelAction,
@@ -99,31 +108,83 @@ export function CartPageView({
             {updateState.error || removeState.error || clearState.error}
           </p>
         ) : null}
-        {locked && orderNumber ? (
-          <Link
-            href={{ pathname: "/pago/[orderNumber]", params: { orderNumber } }}
-            className="mt-6 inline-flex type-label tracking-[0.12em] text-secondary"
-          >
-            {pendingLabel}
-          </Link>
+        {mode === "pending_payment" && orderNumber ? (
+          <div className="mt-6 grid gap-4">
+            <div>
+              <p className="type-h3">{labels.pendingPaymentTitle}</p>
+              <p className="type-body-sm mt-2 text-muted-foreground">{labels.pendingPaymentBody}</p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Link
+                href={{ pathname: "/pago/[orderNumber]", params: { orderNumber } }}
+                className={buttonClassName({ className: "w-full sm:w-auto" })}
+              >
+                {pendingLabel ?? labels.continuePayment}
+              </Link>
+              <Link
+                href="/productos"
+                className={buttonClassName({ variant: "outline", className: "w-full sm:w-auto" })}
+              >
+                {labels.keepShopping}
+              </Link>
+            </div>
+          </div>
+        ) : mode === "confirming_payment" && orderNumber ? (
+          <div className="mt-6 grid gap-4">
+            <div>
+              <p className="type-h3">{labels.confirmingPaymentTitle}</p>
+              <p className="type-body-sm mt-2 text-muted-foreground">{labels.confirmingPaymentBody}</p>
+            </div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Link
+                href={{ pathname: "/pedido/[orderNumber]/confirmacion", params: { orderNumber } }}
+                className={buttonClassName({ className: "w-full sm:w-auto" })}
+              >
+                {labels.viewOrder}
+              </Link>
+              <Link
+                href="/productos"
+                className={buttonClassName({ variant: "outline", className: "w-full sm:w-auto" })}
+              >
+                {labels.keepShopping}
+              </Link>
+            </div>
+          </div>
         ) : canCheckout ? (
-          <Link href="/checkout" className="mt-6 inline-flex type-label tracking-[0.12em] text-secondary">
-            {labels.checkout}
-          </Link>
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <Link href="/checkout" className={buttonClassName({ className: "w-full sm:w-auto" })}>
+              {labels.checkout}
+            </Link>
+            <Link
+              href="/productos"
+              className={buttonClassName({ variant: "outline", className: "w-full sm:w-auto" })}
+            >
+              {labels.keepShopping}
+            </Link>
+          </div>
         ) : labels.reviewCart && cart.items.length > 0 ? (
           <p className="mt-6 type-caption text-destructive">{labels.reviewCart}</p>
-        ) : null}
-        <Link href="/productos" className="mt-6 inline-block type-label tracking-[0.12em] text-secondary">
-          {labels.keepShopping}
-        </Link>
-        {locked && cancelAction && orderNumber ? (
-          <form action={cancelAction} className="mt-4">
+        ) : (
+          <Link href="/productos" className="mt-6 inline-block type-label tracking-[0.12em] text-secondary">
+            {labels.keepShopping}
+          </Link>
+        )}
+        {mode === "pending_payment" && cancelAction && orderNumber ? (
+          <form
+            action={cancelAction}
+            className="mt-4"
+            onSubmit={(event) => {
+              if (labels.confirmCancelPending && !window.confirm(labels.confirmCancelPending)) {
+                event.preventDefault();
+              }
+            }}
+          >
             <input type="hidden" name="orderNumber" value={orderNumber} />
             <Button type="submit" variant="ghost" size="sm">
               {cancelLabel}
             </Button>
           </form>
-        ) : (
+        ) : mode === "active" ? (
           <form
             action={clearAction}
             className="mt-4"
@@ -137,7 +198,7 @@ export function CartPageView({
               {labels.clear}
             </Button>
           </form>
-        )}
+        ) : null}
       </aside>
     </div>
   );

@@ -98,6 +98,7 @@ export async function getOwnedOrderPaymentStatuses(orderNumber: string) {
       customerId: true,
       status: true,
       paymentStatus: true,
+      stripePaymentIntentId: true,
     },
   });
 }

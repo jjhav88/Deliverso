@@ -385,8 +385,14 @@
     "register": "Crear cuenta",
     "checkout": "Continuar al checkout",
     "reviewCart": "Revisa tu carrito antes de continuar.",
+    "pendingPaymentTitle": "Pago pendiente",
+    "pendingPaymentBody": "Ya creaste un pedido con este carrito. Puedes continuar el pago o seguir explorando DELIVERSO.",
+    "confirmingPaymentTitle": "Estamos confirmando tu pago",
+    "confirmingPaymentBody": "Stripe ya procesó este pago. Estamos sincronizando el pedido.",
+    "viewOrder": "Ver pedido",
     "continuePayment": "Continuar pago",
-    "cancelPending": "Cancelar y volver al carrito"
+    "cancelPending": "Cancelar pedido pendiente",
+    "confirmCancelPending": "¿Cancelar este pedido pendiente y volver a editar el carrito?"
   },
   "universes": {
     "meta": {

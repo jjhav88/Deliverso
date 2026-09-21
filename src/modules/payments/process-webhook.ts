@@ -4,10 +4,9 @@ import { planPaymentIntentEvent } from "@/modules/orders/domain/webhook-plan";
 import { sanitizeStripeFailureMessage } from "@/modules/orders/domain/payment-status";
 import { orderPaidEventKey } from "@/modules/email/domain/event-keys";
 import { queueTransactionalEmail } from "@/modules/email/queue";
+import type { WebhookProcessResult } from "@/modules/payments/domain/webhook-http";
 
-export type WebhookProcessResult =
-  | { ok: true; result: "processed" | "duplicate" | "ignored" | "amount_mismatch" }
-  | { ok: false; reason: "invalid_signature" | "missing_order" };
+export type { WebhookProcessResult };
 
 type PaymentIntentLike = {
   id: string;
@@ -15,6 +14,7 @@ type PaymentIntentLike = {
   currency: string;
   status: string;
   last_payment_error?: { code?: string | null; message?: string | null } | null;
+  metadata?: { orderId?: string | null; orderNumber?: string | null } | null;
 };
 
 export async function processStripePaymentIntentEvent(input: {
@@ -35,16 +35,7 @@ export async function processStripePaymentIntentEvent(input: {
         return "duplicate" as const;
       }
 
-      const event = await tx.paymentWebhookEvent.create({
-        data: {
-          provider: "STRIPE",
-          providerEventId: input.providerEventId,
-          eventType: input.eventType,
-          livemode: input.livemode,
-        },
-      });
-
-      const order = await tx.order.findUnique({
+      const orderByIntent = await tx.order.findUnique({
         where: { stripePaymentIntentId: input.paymentIntent.id },
         select: {
           id: true,
@@ -55,16 +46,46 @@ export async function processStripePaymentIntentEvent(input: {
           customerEmail: true,
           customerName: true,
           locale: true,
+          stripePaymentIntentId: true,
         },
       });
+      const metadataOrderId = input.paymentIntent.metadata?.orderId?.trim() || null;
+      const orderByMetadata = !orderByIntent && metadataOrderId
+        ? await tx.order.findUnique({
+            where: { id: metadataOrderId },
+            select: {
+              id: true,
+              cartId: true,
+              status: true,
+              paymentStatus: true,
+              grandTotalMinor: true,
+              customerEmail: true,
+              customerName: true,
+              locale: true,
+              stripePaymentIntentId: true,
+            },
+          })
+        : null;
+      const order =
+        orderByIntent ??
+        (orderByMetadata &&
+        (!orderByMetadata.stripePaymentIntentId ||
+          orderByMetadata.stripePaymentIntentId === input.paymentIntent.id)
+          ? orderByMetadata
+          : null);
 
       if (!order) {
-        await tx.paymentWebhookEvent.update({
-          where: { id: event.id },
-          data: { processedAt: new Date(), processingResult: "missing_order" },
-        });
-        return "ignored" as const;
+        return "missing_order" as const;
       }
+
+      const event = await tx.paymentWebhookEvent.create({
+        data: {
+          provider: "STRIPE",
+          providerEventId: input.providerEventId,
+          eventType: input.eventType,
+          livemode: input.livemode,
+        },
+      });
 
       const plan = planPaymentIntentEvent({
         eventType: input.eventType,
@@ -106,6 +127,7 @@ export async function processStripePaymentIntentEvent(input: {
       await tx.order.update({
         where: { id: order.id },
         data: {
+          stripePaymentIntentId: order.stripePaymentIntentId ?? input.paymentIntent.id,
           paymentStatus: plan.paymentStatus,
           status: plan.orderStatus ?? undefined,
           fulfillmentStatus: plan.fulfillmentStatus ?? undefined,
@@ -172,6 +194,9 @@ export async function processStripePaymentIntentEvent(input: {
       return "processed" as const;
     });
 
+    if (outcome === "missing_order") {
+      return { ok: false, reason: "missing_order" };
+    }
     return { ok: true, result: outcome };
   } catch (error) {
     const code =

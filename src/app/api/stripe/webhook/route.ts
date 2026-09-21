@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripeGateway } from "@/server/stripe/client";
 import { processStripePaymentIntentEvent } from "@/modules/payments/process-webhook";
+import { webhookHttpStatus } from "@/modules/payments/domain/webhook-http";
 import { logInfo, logWarn } from "@/server/logging/logger";
 import { resolveRequestId } from "@/server/logging/request-id";
 
@@ -25,8 +26,21 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_signature" }, { status: 400 });
   }
 
-  if (event.type.startsWith("payment_intent.")) {
-    const paymentIntent = event.data.object as Stripe.PaymentIntent;
+  if (!event.type.startsWith("payment_intent.")) {
+    logInfo({
+      event: "STRIPE_WEBHOOK",
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      result: "ignored",
+    });
+    return NextResponse.json({ received: true, requestId }, { status: 200 });
+  }
+
+  const paymentIntent = event.data.object as Stripe.PaymentIntent;
+  const orderId = paymentIntent.metadata?.orderId || null;
+
+  try {
     const outcome = await processStripePaymentIntentEvent({
       providerEventId: event.id,
       eventType: event.type,
@@ -36,6 +50,10 @@ export async function POST(request: Request) {
         amount: paymentIntent.amount,
         currency: paymentIntent.currency,
         status: paymentIntent.status,
+        metadata: {
+          orderId: paymentIntent.metadata?.orderId,
+          orderNumber: paymentIntent.metadata?.orderNumber,
+        },
         last_payment_error: paymentIntent.last_payment_error
           ? {
               code: paymentIntent.last_payment_error.code ?? null,
@@ -44,15 +62,28 @@ export async function POST(request: Request) {
           : null,
       },
     });
+    const status = webhookHttpStatus(outcome);
     logInfo({
       event: "STRIPE_WEBHOOK",
       requestId,
       eventId: event.id,
       eventType: event.type,
       paymentIntentId: paymentIntent.id,
+      orderId: orderId ?? undefined,
       result: outcome.ok ? outcome.result : outcome.reason,
+      status: String(status),
     });
+    return NextResponse.json({ received: true, requestId }, { status });
+  } catch {
+    logWarn({
+      event: "STRIPE_WEBHOOK",
+      requestId,
+      eventId: event.id,
+      eventType: event.type,
+      paymentIntentId: paymentIntent.id,
+      orderId: orderId ?? undefined,
+      result: "transient_error",
+    });
+    return NextResponse.json({ error: "processing_failed", requestId }, { status: 500 });
   }
-
-  return NextResponse.json({ received: true, requestId }, { status: 200 });
 }

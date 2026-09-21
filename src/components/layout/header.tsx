@@ -1,4 +1,4 @@
-import { ShoppingBag, User } from "lucide-react";
+import { ShoppingCart, User } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { Container } from "@/components/layout/container";
@@ -137,7 +137,7 @@ export async function Header({ currency }: HeaderProps) {
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2",
             )}
           >
-            <ShoppingBag aria-hidden="true" className="h-5 w-5" />
+            <ShoppingCart aria-hidden="true" className="h-5 w-5" />
             {cartCount > 0 ? (
               <span className="absolute right-1 top-1 inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-medium text-accent-foreground">
                 {cartCount}

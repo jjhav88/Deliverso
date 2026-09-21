@@ -13,6 +13,7 @@ import { createOrderFromCheckoutDraft } from "@/modules/orders/create-from-draft
 import { getOwnedOrderPaymentStatuses, getOwnedOrderRecord } from "@/modules/orders/queries";
 import { toOwnedOrderPaymentStatusResult } from "@/modules/orders/domain/confirmation";
 import { createOrGetPaymentIntentForOrder } from "@/modules/payments/create-intent";
+import { applySucceededPaymentIntentIfNeeded } from "@/modules/payments/sync-succeeded";
 import { getStripeGateway } from "@/server/stripe/client";
 import { getPrisma } from "@/server/db/prisma";
 import { ORDER_CHANGED_MESSAGE, type OrderActionState } from "@/modules/orders/action-state";
@@ -135,8 +136,20 @@ export async function getOwnedOrderPaymentStatus(orderNumber: string) {
   );
 
   const order = await getOwnedOrderPaymentStatuses(orderNumber);
+  if (order) {
+    try {
+      await applySucceededPaymentIntentIfNeeded({
+        stripePaymentIntentId: order.stripePaymentIntentId,
+        orderStatus: order.status,
+        paymentStatus: order.paymentStatus,
+      });
+    } catch {
+      // Polling continues with the last known database status.
+    }
+  }
+  const refreshed = await getOwnedOrderPaymentStatuses(orderNumber);
   return toOwnedOrderPaymentStatusResult({
     customerId: customer.id,
-    order,
+    order: refreshed,
   });
 }
