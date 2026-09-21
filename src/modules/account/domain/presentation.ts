@@ -76,6 +76,56 @@ export function resolveAdminHeaderSession(input: {
   };
 }
 
+export type SessionIdentityClientProps = {
+  variant: "customer" | "admin";
+  displayName: string;
+  avatarUrl: string | null;
+  profileHref: string;
+  profileLabel: string;
+  signOutLabel: string;
+  menuLabel: string;
+};
+
+const SESSION_IDENTITY_KEYS = [
+  "variant",
+  "displayName",
+  "avatarUrl",
+  "profileHref",
+  "profileLabel",
+  "signOutLabel",
+  "menuLabel",
+] as const;
+
+export function toSessionIdentityClientProps(input: SessionIdentityClientProps): SessionIdentityClientProps {
+  return {
+    variant: input.variant,
+    displayName: input.displayName,
+    avatarUrl: input.avatarUrl,
+    profileHref: input.profileHref,
+    profileLabel: input.profileLabel,
+    signOutLabel: input.signOutLabel,
+    menuLabel: input.menuLabel,
+  };
+}
+
+export function sessionIdentityClientPropKeys(input: Record<string, unknown>): string[] {
+  return Object.keys(input).sort();
+}
+
+export function isSerializableSessionIdentityProps(input: Record<string, unknown>): boolean {
+  const keys = Object.keys(input);
+  if (keys.some((key) => !SESSION_IDENTITY_KEYS.includes(key as (typeof SESSION_IDENTITY_KEYS)[number]))) {
+    return false;
+  }
+  return SESSION_IDENTITY_KEYS.every((key) => {
+    const value = input[key];
+    if (key === "avatarUrl") {
+      return value === null || typeof value === "string";
+    }
+    return typeof value === "string";
+  });
+}
+
 export function applyProfileFields(input: {
   displayName?: string | null;
   phone?: string | null;

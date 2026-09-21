@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import { ShoppingBag, User } from "lucide-react";
 import { getLocale, getTranslations } from "next-intl/server";
 import { BrandLogo } from "@/components/brand/brand-logo";
@@ -18,7 +17,6 @@ import { signAvatarUrl } from "@/modules/avatars/service";
 import { getLanguageSwitchItems } from "@/modules/i18n/language-switch-items";
 import { getCartItemCount } from "@/modules/cart/queries";
 import { getOptionalCustomer } from "@/modules/customer-auth/queries";
-import { logoutCustomerAction } from "@/modules/customer-auth/actions";
 import { navigationCustomerFallback } from "@/modules/customer-auth/domain/errors";
 import { canCustomerShop } from "@/modules/customer-auth/domain/status";
 import { isTransientDatabaseError } from "@/server/db/errors";
@@ -27,23 +25,6 @@ import { cn } from "@/lib/cn";
 type HeaderProps = {
   currency: CurrencyCode;
 };
-
-function CustomerAccountLink({
-  className,
-  "aria-label": ariaLabel,
-  children,
-}: {
-  href: string;
-  className?: string;
-  "aria-label"?: string;
-  children: ReactNode;
-}) {
-  return (
-    <Link href={accountHref} className={className} aria-label={ariaLabel}>
-      {children}
-    </Link>
-  );
-}
 
 export async function Header({ currency }: HeaderProps) {
   const locale = await getLocale();
@@ -123,14 +104,13 @@ export async function Header({ currency }: HeaderProps) {
           </div>
           {signedIn && customer ? (
             <SessionIdentity
+              variant="customer"
               displayName={displayName}
               avatarUrl={avatarUrl}
               profileHref={accountHref}
               profileLabel={t("account")}
               signOutLabel={t("signOut")}
               menuLabel={t("accountMenu")}
-              logoutAction={logoutCustomerAction}
-              profileLink={CustomerAccountLink}
             />
           ) : (
             <Link

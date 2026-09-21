@@ -2,11 +2,14 @@ import { describe, expect, it } from "vitest";
 import {
   applyProfileFields,
   isOwnedAvatarPath,
+  isSerializableSessionIdentityProps,
   profileAvatarInitial,
   profileDisplayName,
   resolveAdminHeaderSession,
   resolveAvatarPresentation,
   resolveCustomerHeaderSession,
+  sessionIdentityClientPropKeys,
+  toSessionIdentityClientProps,
 } from "@/modules/account/domain/presentation";
 import { customerProfileSchema } from "@/modules/customer-auth/validation";
 import { adminProfileSchema } from "@/modules/auth/validation/profile-schema";
@@ -124,6 +127,61 @@ describe("profile fields", () => {
         objectPath: "customers/a1/avatar.jpg",
       }),
     ).toBe(false);
+  });
+});
+
+describe("header server-client props", () => {
+  it("only serializes data for the customer and admin menus", () => {
+    const customer = toSessionIdentityClientProps({
+      variant: "customer",
+      displayName: "Ana Pérez",
+      avatarUrl: null,
+      profileHref: "/cuenta",
+      profileLabel: "Mi cuenta",
+      signOutLabel: "Cerrar sesión",
+      menuLabel: "Menú de cuenta",
+    });
+    const admin = toSessionIdentityClientProps({
+      variant: "admin",
+      displayName: "admin@deliverso.com",
+      avatarUrl: "https://signed.example/avatar",
+      profileHref: "/admin/profile",
+      profileLabel: "Mi perfil",
+      signOutLabel: "Cerrar sesión",
+      menuLabel: "Menú de cuenta",
+    });
+    expect(isSerializableSessionIdentityProps(customer)).toBe(true);
+    expect(isSerializableSessionIdentityProps(admin)).toBe(true);
+    expect(sessionIdentityClientPropKeys(customer)).toEqual([
+      "avatarUrl",
+      "displayName",
+      "menuLabel",
+      "profileHref",
+      "profileLabel",
+      "signOutLabel",
+      "variant",
+    ]);
+    expect(isSerializableSessionIdentityProps({ ...customer, logoutAction: () => undefined })).toBe(
+      false,
+    );
+    expect(isSerializableSessionIdentityProps({ ...customer, profileLink: () => null })).toBe(false);
+  });
+
+  it("wires logout through the existing header session models", () => {
+    expect(resolveCustomerHeaderSession({ signedIn: false }).showLogout).toBe(false);
+    expect(
+      resolveCustomerHeaderSession({
+        signedIn: true,
+        displayName: "Ana",
+        email: "ana@deliverso.com",
+      }).showLogout,
+    ).toBe(true);
+    expect(
+      resolveAdminHeaderSession({
+        displayName: "Julio",
+        email: "admin@deliverso.com",
+      }).showLogout,
+    ).toBe(true);
   });
 });
 

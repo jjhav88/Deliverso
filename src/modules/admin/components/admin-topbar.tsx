@@ -1,10 +1,7 @@
-import type { ReactNode } from "react";
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { SessionIdentity } from "@/modules/account/components/session-identity";
 import { profileDisplayName } from "@/modules/account/domain/presentation";
 import { AdminMobileNav } from "@/modules/admin/components/admin-mobile-nav";
-import { logoutAdminAction } from "@/modules/auth/actions/logout";
 import type { PublicAdminProfile } from "@/modules/auth/types";
 
 type AdminTopbarProps = {
@@ -17,24 +14,6 @@ const roleLabel = {
   SUPER_ADMIN: "Super admin",
   ADMIN: "Admin",
 } as const;
-
-function AdminProfileLink({
-  href,
-  className,
-  "aria-label": ariaLabel,
-  children,
-}: {
-  href: string;
-  className?: string;
-  "aria-label"?: string;
-  children: ReactNode;
-}) {
-  return (
-    <Link href={href} className={className} aria-label={ariaLabel}>
-      {children}
-    </Link>
-  );
-}
 
 export function AdminTopbar({ title, pathname, admin }: AdminTopbarProps) {
   const displayName = profileDisplayName(admin);
@@ -49,14 +28,13 @@ export function AdminTopbar({ title, pathname, admin }: AdminTopbarProps) {
       <div className="flex min-w-0 items-center gap-3">
         <Badge variant="accent">{roleLabel[admin.role]}</Badge>
         <SessionIdentity
+          variant="admin"
           displayName={displayName}
           avatarUrl={admin.avatarUrl}
           profileHref="/admin/profile"
           profileLabel="Mi perfil"
           signOutLabel="Cerrar sesión"
           menuLabel="Menú de cuenta"
-          logoutAction={logoutAdminAction}
-          profileLink={AdminProfileLink}
         />
       </div>
     </header>
