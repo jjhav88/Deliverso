@@ -1,0 +1,51 @@
+.admin-app {
+  min-height: 100dvh;
+  background: var(--admin-background);
+  color: var(--foreground);
+}
+
+.admin-sidebar {
+  background: var(--admin-sidebar);
+  color: var(--admin-sidebar-foreground);
+}
+
+.admin-sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  min-height: 2.75rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.6rem;
+  color: var(--admin-sidebar-muted);
+  font-size: var(--font-size-label);
+  letter-spacing: 0.04em;
+}
+
+.admin-sidebar-link:hover,
+.admin-sidebar-link:focus-visible {
+  color: var(--admin-sidebar-foreground);
+  background: color-mix(in srgb, #ffffff 8%, var(--admin-sidebar));
+}
+
+.admin-sidebar-link[aria-current="page"] {
+  color: var(--admin-sidebar-foreground);
+  background: var(--admin-sidebar-active);
+  box-shadow: inset 3px 0 0 var(--admin-accent);
+}
+
+.admin-login-atmosphere {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(
+      36rem 24rem at 12% 80%,
+      color-mix(in srgb, var(--deliverso-pink) 16%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      32rem 22rem at 90% 12%,
+      color-mix(in srgb, var(--deliverso-lilac) 14%, transparent),
+      transparent 70%
+    );
+}

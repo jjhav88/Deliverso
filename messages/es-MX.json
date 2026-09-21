@@ -1,0 +1,585 @@
+{
+  "metadata": {
+    "title": "DELIVERSO",
+    "description": "Pastelería creativa donde cada sabor puede convertirse en un universo."
+  },
+  "brand": {
+    "officialTagline": "Un delicioso universo de sabores"
+  },
+  "home": {
+    "meta": {
+      "title": "DELIVERSO | Un delicioso universo de sabores",
+      "description": "Pastelería creativa donde sabor, diseño e imaginación se convierten en experiencias únicas para cada ocasión."
+    },
+    "hero": {
+      "eyebrow": "Pastelería creativa",
+      "title": "DELIVERSO",
+      "description": "Más que postres, experiencias en cada bocado.",
+      "primaryCta": "Descubrir",
+      "secondaryCta": "Explorar universos"
+    },
+    "intro": {
+      "heading": "Más que postres, experiencias creadas para recordar.",
+      "body": "En DELIVERSO combinamos técnica, creatividad y diseño para transformar cada producto en una experiencia propia. Desde una celebración especial hasta una idea completamente personalizada, cada creación comienza con un concepto y termina en sabor."
+    },
+    "featured": {
+      "eyebrow": "Selección",
+      "heading": "Destacados",
+      "intro": "Una mirada a piezas que combinan oficio gastronómico y una estética contemporánea.",
+      "cta": "Ver todos los productos",
+      "cardCta": "Ver creación",
+      "quoteCta": "Solicitar cotización",
+      "items": {
+        "chocolate-cake": {
+          "name": "Pastel de chocolate",
+          "description": "Una lectura contemporánea del cacao, con un acabado limpio para la mesa."
+        },
+        "fruit-creation": {
+          "name": "Creación frutal",
+          "description": "Capas frescas y un perfil luminoso, pensadas para ocasiones de día."
+        },
+        "special-edition": {
+          "name": "Edición especial",
+          "description": "Una pieza de ocasión, abierta a convertirse en un universo propio."
+        }
+      }
+    },
+    "universes": {
+      "eyebrow": "Universos",
+      "heading": "Cada ocasión tiene su propio universo.",
+      "body": "Color, sabor, temática y diseño pueden combinarse para crear una propuesta pensada alrededor de tu idea.",
+      "cta": "Explorar universos",
+      "items": {
+        "celebrations": {
+          "title": "Celebraciones",
+          "description": "Cumpleaños, mesas de reunión y momentos que merecen una pieza central."
+        },
+        "fantasy": {
+          "title": "Fantasía",
+          "description": "Formas, color y atmósfera para ideas imaginativas, sin atarse a una franquicia."
+        },
+        "elegance": {
+          "title": "Elegancia",
+          "description": "Composiciones serenas, paleta contenida y un acabado de pastelería fina."
+        },
+        "custom": {
+          "title": "Tu propio universo",
+          "description": "Un punto de partida abierto: la idea la pones tú; la forma la trabaja DELIVERSO."
+        }
+      }
+    },
+    "personalization": {
+      "heading": "Tú imaginas. DELIVERSO lo crea.",
+      "body": "La personalización une una idea con una creación de pastelería. Elige un concepto, define el carácter de la pieza y recibe una experiencia pensada para esa ocasión.",
+      "steps": {
+        "idea": {
+          "title": "Elige una idea",
+          "description": "Una ocasión, un color, un concepto o una referencia estética propia."
+        },
+        "craft": {
+          "title": "Personaliza tu creación",
+          "description": "Sabor, forma y presentación se alinean alrededor de esa idea."
+        },
+        "receive": {
+          "title": "Recibe tu pedido",
+          "description": "La pieza llega como una experiencia completa, no como un postre genérico."
+        }
+      }
+    },
+    "valueProposition": {
+      "heading": "Tres cualidades que sostienen cada creación.",
+      "items": {
+        "creativity": {
+          "title": "Creatividad",
+          "description": "Cada propuesta puede adaptarse a una idea propia."
+        },
+        "design": {
+          "title": "Diseño",
+          "description": "La presentación forma parte de la experiencia."
+        },
+        "flavor": {
+          "title": "Sabor",
+          "description": "La identidad visual nunca sustituye la calidad gastronómica."
+        }
+      }
+    },
+    "finalCta": {
+      "heading": "¿Qué universo tienes en mente?",
+      "body": "Descubre nuestras creaciones y encuentra el punto de partida para tu próxima experiencia.",
+      "cta": "Explorar DELIVERSO"
+    }
+  },
+  "storefront": {
+    "skipToContent": "Saltar al contenido",
+    "primaryNav": "Navegación principal",
+    "footerNav": "Navegación del pie de página",
+    "openMenu": "Abrir menú",
+    "closeMenu": "Cerrar menú",
+    "cart": "Carrito",
+    "account": "Mi cuenta",
+    "signIn": "Iniciar sesión",
+    "language": "Idioma",
+    "languageEs": "Español",
+    "languageEn": "English",
+    "languageUnavailable": "Este contenido todavía no está disponible en inglés.",
+    "currency": "Moneda",
+    "copyright": "© {year} DELIVERSO",
+    "nav": {
+      "home": "Inicio",
+      "products": "Productos",
+      "universes": "Universos",
+      "about": "Nosotros",
+      "contact": "Contacto"
+    },
+    "footer": {
+      "navigation": "Navegación",
+      "social": "Redes",
+      "contact": "Contacto",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "email": "Correo",
+      "whatsapp": "WhatsApp",
+      "address": "Dirección",
+      "terms": "Términos",
+      "privacy": "Aviso de privacidad"
+    }
+  },
+  "placeholders": {
+    "eyebrow": "En preparación",
+    "products": {
+      "title": "Productos",
+      "body": "El catálogo de DELIVERSO estará disponible próximamente."
+    },
+    "universes": {
+      "title": "Universos",
+      "body": "Las colecciones temáticas se presentarán en un módulo posterior."
+    },
+    "about": {
+      "title": "Nosotros",
+      "body": "La historia de la marca se contará en un módulo posterior."
+    },
+    "contact": {
+      "title": "Contacto",
+      "body": "El formulario de contacto se implementará más adelante."
+    },
+    "cart": {
+      "title": "Carrito",
+      "body": "El carrito se conectará cuando exista catálogo y lógica de pedido."
+    }
+  },
+  "designSystem": {
+    "meta": {
+      "title": "Design System — DELIVERSO",
+      "description": "Revisión interna de identidad, tokens y componentes fundacionales."
+    },
+    "kicker": "Herramienta interna",
+    "title": "Design System",
+    "intro": "Lenguaje visual fundacional de DELIVERSO. Esta página no es comercial y sirve para revisar primitives.",
+    "cosmosNote": "El cosmos es acento. La pastelería es protagonista.",
+    "toc": {
+      "brand": "Marca",
+      "color": "Color",
+      "typography": "Tipografía",
+      "buttons": "Botones",
+      "badges": "Badges",
+      "forms": "Formularios",
+      "cards": "Cards",
+      "product": "Product card",
+      "featured": "Featured",
+      "dark": "Superficie oscura",
+      "foundations": "Fundaciones",
+      "motion": "Motion"
+    },
+    "brand": {
+      "heading": "Marca",
+      "lightSurface": "Superficie clara",
+      "darkSurface": "Superficie oscura",
+      "iconMark": "Isotipo"
+    },
+    "color": {
+      "heading": "Paleta",
+      "semanticHeading": "Tokens semánticos",
+      "goldWarning": "Gold no se usa como texto pequeño sobre Cream: no cumple contraste AA."
+    },
+    "typography": {
+      "heading": "Tipografía",
+      "displayNote": "Cormorant Garamond — titulares editoriales",
+      "sansNote": "Manrope — interfaz, cuerpo y formularios",
+      "sampleDisplayXl": "Un delicioso universo",
+      "sampleDisplayL": "Creaciones de ocasión",
+      "sampleH1": "Sabores con identidad",
+      "sampleH2": "Pastelería creativa",
+      "sampleH3": "Sección de producto",
+      "sampleH4": "Detalle de elaboración",
+      "sampleBodyLg": "Cada creación se diseña para transformar una idea en experiencia, con oficio gastronómico y una estética contemporánea.",
+      "sampleBody": "El cuerpo de texto usa Manrope para mantener claridad en navegación, descripciones, precios y formularios.",
+      "sampleBodySm": "Texto de apoyo para fichas, ayudas y metadatos discretos.",
+      "sampleLabel": "Etiqueta",
+      "sampleCaption": "Texto auxiliar y notas de interfaz."
+    },
+    "buttons": {
+      "heading": "Botones",
+      "primary": "Primary",
+      "secondary": "Secondary",
+      "outline": "Outline",
+      "ghost": "Ghost",
+      "destructive": "Destructive",
+      "accent": "Accent",
+      "disabled": "Disabled",
+      "loading": "Loading"
+    },
+    "badges": {
+      "heading": "Badges",
+      "default": "Default",
+      "secondary": "Secondary",
+      "accent": "Accent",
+      "success": "Success",
+      "warning": "Warning",
+      "destructive": "Destructive"
+    },
+    "forms": {
+      "heading": "Formularios",
+      "nameLabel": "Nombre",
+      "namePlaceholder": "Nombre de la creación",
+      "nameHelper": "El label permanece visible; el placeholder es apoyo, no sustituto.",
+      "nameDisabled": "Campo deshabilitado",
+      "dedicationLabel": "Dedicatoria",
+      "dedicationPlaceholder": "Una nota breve para el pedido",
+      "messageLabel": "Mensaje",
+      "invalidError": "Revisa este campo para continuar.",
+      "selectLabel": "Tipo de elaboración",
+      "selectOptionStandard": "Elaboración estándar",
+      "selectOptionDedicated": "Pedido especial",
+      "focusSample": "Focus visible"
+    },
+    "cards": {
+      "heading": "Cards",
+      "title": "Primitive visual",
+      "description": "Superficie elevada para agrupar contenido sin lógica de negocio.",
+      "body": "Borde suave, sombra discreta y radio contenido. La elevación no debe competir con la fotografía."
+    },
+    "product": {
+      "heading": "Product card",
+      "demoLabel": "DEMO",
+      "name": "Tarta de cacao y vainilla",
+      "description": "Capas de cacao, crema de vainilla y un acabado limpio para mesa.",
+      "badge": "Nuevo",
+      "cta": "Ver creación"
+    },
+    "featured": {
+      "heading": "Featured",
+      "kicker": "Selección",
+      "title": "Piezas para una mesa precisa",
+      "description": "Un patrón visual para destacar creaciones elegidas posteriormente desde administración, sin saturar la fotografía.",
+      "cta": "Explorar"
+    },
+    "dark": {
+      "heading": "Superficie oscura",
+      "body": "Navy y Purple para bloques promocionales, footer y experiencias especiales. No es un theme switcher global."
+    },
+    "foundations": {
+      "heading": "Espacio, radio y sombra",
+      "spacing": "Spacing",
+      "radius": "Radius",
+      "shadow": "Shadow"
+    },
+    "motion": {
+      "heading": "Motion",
+      "body": "Transiciones cortas y easing estándar. Hover discreto; sin zoom, glow ni rebotes. Se respeta prefers-reduced-motion."
+    },
+    "icons": {
+      "heading": "Iconografía",
+      "body": "Iconos funcionales de Lucide. No se usan emojis como interfaz."
+    }
+  },
+  "catalog": {
+    "meta": {
+      "title": "Productos | DELIVERSO",
+      "description": "Creaciones donde sabor, técnica y diseño se encuentran en cada detalle."
+    },
+    "eyebrow": "Catálogo",
+    "title": "Nuestros productos",
+    "intro": "Creaciones donde sabor, técnica y diseño se encuentran en cada detalle.",
+    "search": "Buscar",
+    "searchPlaceholder": "Nombre o descripción",
+    "category": "Categoría",
+    "universe": "Universo",
+    "type": "Tipo",
+    "sort": "Orden",
+    "all": "Todos",
+    "apply": "Ver resultados",
+    "empty": "No encontramos productos con estos criterios.",
+    "emptyAll": "Aún no hay productos publicados.",
+    "seeAll": "Ver todo el catálogo",
+    "cta": "Ver creación",
+    "quote": "Solicitar cotización",
+    "quotePrice": "Precio bajo cotización",
+    "fxNote": "Conversión de referencia ECB · actualizada '{date}'",
+    "fxUnavailable": "Conversión temporalmente no disponible.",
+    "fxDetailFrom": "Conversión de referencia desde '{amount}'",
+    "fxDetailRate": "Tasa actualizada: '{date}'",
+    "configurable": "Personalizable",
+    "previous": "Anterior",
+    "next": "Siguiente",
+    "pagination": "Paginación del catálogo",
+    "breadcrumbs": "Miga de pan",
+    "home": "Inicio",
+    "products": "Productos",
+    "fromPrice": "Desde",
+    "types": {
+      "STANDARD": "Estándar",
+      "CONFIGURABLE": "Personalizable",
+      "CUSTOM_QUOTE": "Cotización"
+    },
+    "sorts": {
+      "recommended": "Recomendados",
+      "name": "Nombre",
+      "price-asc": "Precio menor",
+      "price-desc": "Precio mayor"
+    },
+    "detail": {
+      "quoteSoon": "Próximamente podrás solicitar tu cotización en línea.",
+      "consult": "Consultar producto",
+      "available": "Disponible para pedido. El checkout en línea llegará más adelante.",
+      "configurableNote": "Personaliza las opciones y agrégalo al carrito.",
+      "related": "También podría interesarte",
+      "categories": "Categorías",
+      "universes": "Universos",
+      "galleryEmpty": "Imagen de la creación",
+      "addToCart": "Agregar al carrito",
+      "quantity": "Cantidad",
+      "decrease": "Disminuir cantidad",
+      "increase": "Aumentar cantidad",
+      "estimated": "Precio estimado",
+      "requiredGroup": "Selecciona una opción.",
+      "selectUpTo": "Selecciona hasta",
+      "selectAtLeast": "Selecciona al menos",
+      "added": "Producto agregado al carrito.",
+      "viewCart": "Ver carrito",
+      "keepShopping": "Seguir comprando",
+      "loginToAdd": "Inicia sesión para agregar"
+    }
+  },
+  "cart": {
+    "title": "Carrito",
+    "empty": "Tu carrito está vacío.",
+    "discover": "Descubrir productos",
+    "subtotal": "Subtotal del carrito",
+    "keepShopping": "Seguir comprando",
+    "clear": "Vaciar carrito",
+    "confirmClear": "¿Vaciar todo el carrito?",
+    "quantity": "Cantidad",
+    "decrease": "Disminuir cantidad",
+    "increase": "Aumentar cantidad",
+    "remove": "Eliminar",
+    "unavailable": "Ya no disponible",
+    "configUnavailable": "Esta configuración ya no está disponible.",
+    "update": "Actualizar",
+    "unitPrice": "Precio unitario",
+    "lineTotal": "Total de línea",
+    "loginRequired": "Guarda tus productos en tu cuenta",
+    "login": "Iniciar sesión",
+    "register": "Crear cuenta",
+    "checkout": "Continuar al checkout",
+    "reviewCart": "Revisa tu carrito antes de continuar.",
+    "continuePayment": "Continuar pago",
+    "cancelPending": "Cancelar y volver al carrito"
+  },
+  "universes": {
+    "meta": {
+      "title": "Universos | DELIVERSO",
+      "description": "Cada ocasión puede tener su propio universo de sabor, color y diseño."
+    },
+    "eyebrow": "Universos",
+    "title": "Universos DELIVERSO",
+    "intro": "Cada ocasión puede tener su propio universo de sabor, color y diseño.",
+    "cta": "Explorar",
+    "empty": "Aún no hay universos activos.",
+    "emptyProducts": "Este universo espera su primera creación publicada.",
+    "products": "Creaciones de este universo",
+    "breadcrumbs": "Miga de pan",
+    "home": "Inicio",
+    "list": "Universos"
+  },
+  "legal": {
+    "terms": {
+      "title": "Términos y condiciones",
+      "body": "Este texto es un marcador estructural. El contenido legal definitivo de DELIVERSO se publicará antes de Checkout."
+    },
+    "privacy": {
+      "title": "Aviso de privacidad",
+      "body": "Este texto es un marcador estructural. El aviso de privacidad definitivo de DELIVERSO se publicará antes de Checkout."
+    }
+  },
+  "account": {
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "confirmPassword": "Confirmar contraseña",
+    "passwordHelp": "Mínimo 8 caracteres. La contraseña nunca se guarda en DELIVERSO.",
+    "displayName": "Nombre para mostrar",
+    "phone": "Teléfono",
+    "pending": "Un momento…",
+    "blocked": "Tu cuenta no puede continuar compras.",
+    "login": {
+      "title": "Iniciar sesión",
+      "intro": "Entra con tu cuenta de cliente para guardar productos en el carrito.",
+      "submit": "Iniciar sesión",
+      "noAccount": "¿No tienes cuenta?",
+      "register": "Crear cuenta",
+      "forgot": "Olvidé mi contraseña"
+    },
+    "register": {
+      "title": "Crear cuenta",
+      "intro": "Regístrate para agregar productos al carrito. Te enviaremos un enlace de confirmación.",
+      "submit": "Crear cuenta",
+      "accept": "He leído y acepto",
+      "and": "y",
+      "terms": "los términos",
+      "privacy": "el aviso de privacidad",
+      "checkEmail": "Revisa tu correo",
+      "checkEmailBody": "Te enviamos un enlace para confirmar tu cuenta. Si puedes crear o recuperar una cuenta con este correo, recibirás las instrucciones correspondientes.",
+      "home": "Volver al inicio",
+      "hasAccount": "¿Ya tienes cuenta?",
+      "login": "Iniciar sesión"
+    },
+    "forgot": {
+      "title": "Recuperar contraseña",
+      "intro": "Escribe tu correo y te enviaremos instrucciones si existe una cuenta.",
+      "submit": "Enviar instrucciones"
+    },
+    "reset": {
+      "title": "Nueva contraseña",
+      "intro": "Elige una contraseña nueva para tu cuenta.",
+      "submit": "Guardar contraseña"
+    },
+    "dashboard": {
+      "title": "Mi cuenta",
+      "hello": "Hola, {name}",
+      "profile": "Mi perfil",
+      "orders": "Mis pedidos",
+      "ordersEmpty": "Todavía no tienes pedidos.",
+      "pendingPayment": "Tienes un pedido pendiente de pago.",
+      "continuePayment": "Continuar pago",
+      "logout": "Cerrar sesión",
+      "save": "Guardar perfil",
+      "cart": "Ver carrito",
+      "purchaseData": "Datos utilizados para comprar",
+      "purchaseDataHint": "El checkout usa tu nombre y teléfono. Todavía no guardamos un directorio de direcciones."
+    }
+  },
+  "checkout": {
+    "title": "Checkout",
+    "steps": {
+      "contact": "Datos",
+      "fulfillment": "Entrega",
+      "date": "Fecha",
+      "review": "Revisar"
+    },
+    "summary": "Resumen del pedido",
+    "subtotal": "Subtotal",
+    "deliveryFee": "Entrega",
+    "estimated": "Total estimado",
+    "name": "Nombre",
+    "email": "Correo",
+    "phone": "Teléfono",
+    "continue": "Continuar",
+    "method": "Método",
+    "delivery": "Entrega",
+    "pickup": "Recogida",
+    "useMethod": "Usar este método",
+    "postalCode": "Código postal",
+    "unavailablePostal": "No tenemos entrega disponible en este código postal.",
+    "minimumOrder": "Esta zona requiere un pedido mínimo de {amount}.",
+    "state": "Estado",
+    "city": "Ciudad",
+    "locality": "Colonia",
+    "street": "Calle",
+    "exterior": "Número exterior",
+    "interior": "Número interior",
+    "reference": "Referencia",
+    "pickupPoint": "Punto de recogida",
+    "noPickup": "Todavía no hay puntos de recogida activos.",
+    "date": "Fecha",
+    "slot": "Horario",
+    "noDates": "No hay fechas disponibles por ahora.",
+    "customer": "Cliente",
+    "products": "Productos",
+    "fulfillment": "Entrega o recogida",
+    "notes": "Notas para tu pedido",
+    "saveNotes": "Guardar notas",
+    "confirm": "Confirmar datos para pago",
+    "ready": "Tu checkout está listo. El cobro se procesará en MXN.",
+    "continuePayment": "Continuar al pago",
+    "paymentCurrencyNote": "El cobro se procesará en MXN.",
+    "backCart": "Volver al carrito"
+  },
+  "payment": {
+    "title": "Pago",
+    "order": "Pedido",
+    "products": "Productos",
+    "chargeMxn": "Total del pedido",
+    "displayReference": "Equivalente de referencia: {amount}",
+    "mxnNote": "El cobro se procesará en MXN.",
+    "secure": "Pago seguro procesado por Stripe",
+    "pay": "Pagar {amount}",
+    "processing": "Procesando pago...",
+    "loadingForm": "Cargando formulario de pago...",
+    "loadingPay": "Cargando pago...",
+    "failed": "No fue posible completar el pago.",
+    "cancelReturn": "Cancelar y volver al carrito",
+    "alreadyPaid": "Este pedido ya está pagado.",
+    "seeConfirmation": "Ver confirmación",
+    "expired": "Este pedido expiró. Puedes volver al carrito y continuar.",
+    "cancelled": "Este pedido fue cancelado.",
+    "backCart": "Volver al carrito",
+    "testMode": "Stripe Test Mode",
+    "loadError": "No pudimos cargar el formulario de pago. Intenta actualizar la página.",
+    "syncingPaid": "Este pago ya fue procesado. Estamos sincronizando el estado del pedido.",
+    "refreshStatus": "Actualizar estado"
+  },
+  "confirmation": {
+    "title": "Confirmación de pedido",
+    "order": "Número de pedido",
+    "paid": "Pago confirmado",
+    "thanks": "¡Gracias por tu pedido! Hemos recibido correctamente tu pago y tu pedido ya está registrado en DELIVERSO.",
+    "processing": "Estamos confirmando tu pago.",
+    "verifying": "Estamos verificando tu pago…",
+    "verifyingTitle": "Estamos verificando tu pago…",
+    "verifyingHint": "Esto normalmente tarda solo unos segundos. No cierres esta ventana.",
+    "syncing": "Este pago ya fue procesado. Estamos sincronizando el estado del pedido.",
+    "delayed": "Tu pago está tardando un poco más de lo habitual en confirmarse.",
+    "delayedHint": "No es necesario que vuelvas a pagar.",
+    "delayedAccount": "Puedes consultar su estado desde Mi cuenta.",
+    "failed": "No fue posible completar el pago.",
+    "retry": "Reintentar pago",
+    "detail": "Ver detalle",
+    "total": "Total pagado MXN",
+    "status": "Estado",
+    "method": "Método de entrega/recogida",
+    "date": "Fecha solicitada",
+    "slot": "Franja horaria",
+    "statusPaid": "Pagado",
+    "statusPending": "Pendiente de confirmación",
+    "delivery": "Entrega",
+    "pickup": "Recogida",
+    "viewOrder": "Ver mi pedido",
+    "keepExploring": "Seguir explorando",
+    "viewOrders": "Ver mis pedidos"
+  },
+  "orders": {
+    "list": "Lista de pedidos",
+    "detailTitle": "Detalle del pedido",
+    "back": "Volver a mi cuenta",
+    "status": "Pedido",
+    "payment": "Pago",
+    "products": "Productos",
+    "totals": "Totales",
+    "subtotal": "Subtotal",
+    "delivery": "Entrega",
+    "charged": "Total cobrado",
+    "historicDisplay": "Al crear el pedido se mostró aprox. {amount} con tasa de referencia {provider} {rate} ({date}).",
+    "customer": "Cliente",
+    "fulfillment": "Entrega o recogida"
+  }
+}

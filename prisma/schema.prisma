@@ -1,0 +1,1045 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ProductType {
+  STANDARD
+  CONFIGURABLE
+  CUSTOM_QUOTE
+}
+
+enum ProductStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum OptionSelectionType {
+  SINGLE
+  MULTIPLE
+}
+
+enum MediaKind {
+  IMAGE
+}
+
+enum ProductMediaRole {
+  PRIMARY
+  GALLERY
+}
+
+enum HeroTone {
+  AUTO
+  LIGHT
+  DARK
+}
+
+model BusinessLine {
+  id        String   @id @default(uuid()) @db.Uuid
+  isActive  Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now()) @db.Timestamptz
+  updatedAt DateTime @updatedAt @db.Timestamptz
+
+  translations BusinessLineTranslation[]
+  categories   Category[]
+  products     Product[]
+
+  @@index([sortOrder])
+}
+
+model BusinessLineTranslation {
+  id             String  @id @default(uuid()) @db.Uuid
+  businessLineId String  @db.Uuid
+  locale         String
+  name           String
+  slug           String
+  description    String?
+
+  businessLine BusinessLine @relation(fields: [businessLineId], references: [id], onDelete: Cascade)
+
+  @@unique([businessLineId, locale])
+  @@unique([locale, slug])
+}
+
+model Category {
+  id             String   @id @default(uuid()) @db.Uuid
+  businessLineId String   @db.Uuid
+  isActive       Boolean  @default(true)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now()) @db.Timestamptz
+  updatedAt      DateTime @updatedAt @db.Timestamptz
+
+  businessLine BusinessLine          @relation(fields: [businessLineId], references: [id], onDelete: Restrict)
+  translations CategoryTranslation[]
+  products     ProductCategory[]
+
+  @@index([businessLineId])
+  @@index([sortOrder])
+}
+
+model CategoryTranslation {
+  id          String  @id @default(uuid()) @db.Uuid
+  categoryId  String  @db.Uuid
+  locale      String
+  name        String
+  slug        String
+  description String?
+
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@unique([categoryId, locale])
+  @@unique([locale, slug])
+}
+
+model Universe {
+  id                   String   @id @default(uuid()) @db.Uuid
+  isActive             Boolean  @default(true)
+  sortOrder            Int      @default(0)
+  featuredMediaAssetId String?  @db.Uuid
+  createdAt            DateTime @default(now()) @db.Timestamptz
+  updatedAt            DateTime @updatedAt @db.Timestamptz
+
+  translations       UniverseTranslation[]
+  products           ProductUniverse[]
+  featuredMedia      MediaAsset?            @relation(fields: [featuredMediaAssetId], references: [id], onDelete: SetNull)
+  featuredPlacements HomeFeaturedUniverse[]
+
+  @@index([sortOrder])
+  @@index([featuredMediaAssetId])
+}
+
+model UniverseTranslation {
+  id          String  @id @default(uuid()) @db.Uuid
+  universeId  String  @db.Uuid
+  locale      String
+  name        String
+  slug        String
+  description String?
+
+  universe Universe @relation(fields: [universeId], references: [id], onDelete: Cascade)
+
+  @@unique([universeId, locale])
+  @@unique([locale, slug])
+}
+
+model Collection {
+  id        String    @id @default(uuid()) @db.Uuid
+  isActive  Boolean   @default(true)
+  sortOrder Int       @default(0)
+  startsAt  DateTime? @db.Timestamptz
+  endsAt    DateTime? @db.Timestamptz
+  createdAt DateTime  @default(now()) @db.Timestamptz
+  updatedAt DateTime  @updatedAt @db.Timestamptz
+
+  translations CollectionTranslation[]
+  products     ProductCollection[]
+
+  @@index([isActive, sortOrder])
+}
+
+model CollectionTranslation {
+  id           String  @id @default(uuid()) @db.Uuid
+  collectionId String  @db.Uuid
+  locale       String
+  name         String
+  slug         String
+  description  String?
+
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@unique([collectionId, locale])
+  @@unique([locale, slug])
+}
+
+model Product {
+  id                     String        @id @default(uuid()) @db.Uuid
+  businessLineId         String        @db.Uuid
+  type                   ProductType
+  status                 ProductStatus @default(DRAFT)
+  minimumLeadTimeMinutes Int?
+  publishedAt            DateTime?     @db.Timestamptz
+  archivedAt             DateTime?     @db.Timestamptz
+  createdAt              DateTime      @default(now()) @db.Timestamptz
+  updatedAt              DateTime      @updatedAt @db.Timestamptz
+
+  businessLine       BusinessLine           @relation(fields: [businessLineId], references: [id], onDelete: Restrict)
+  translations       ProductTranslation[]
+  categories         ProductCategory[]
+  universes          ProductUniverse[]
+  collections        ProductCollection[]
+  variants           ProductVariant[]
+  optionGroups       ProductOptionGroup[]
+  media              ProductMedia[]
+  heroShowcaseItems  HomeHeroShowcaseItem[]
+  featuredPlacements HomeFeaturedProduct[]
+  cartItems          CartItem[]
+  orderItems         OrderItem[]
+
+  @@index([status])
+  @@index([businessLineId])
+}
+
+model ProductTranslation {
+  id               String  @id @default(uuid()) @db.Uuid
+  productId        String  @db.Uuid
+  locale           String
+  name             String
+  slug             String
+  shortDescription String?
+  description      String?
+  seoTitle         String?
+  seoDescription   String?
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, locale])
+  @@unique([locale, slug])
+}
+
+model ProductCategory {
+  productId  String @db.Uuid
+  categoryId String @db.Uuid
+  sortOrder  Int    @default(0)
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  category Category @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([productId, categoryId])
+  @@index([sortOrder])
+}
+
+model ProductUniverse {
+  productId  String @db.Uuid
+  universeId String @db.Uuid
+  sortOrder  Int    @default(0)
+
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  universe Universe @relation(fields: [universeId], references: [id], onDelete: Cascade)
+
+  @@id([productId, universeId])
+  @@index([sortOrder])
+}
+
+model ProductCollection {
+  productId    String @db.Uuid
+  collectionId String @db.Uuid
+  sortOrder    Int    @default(0)
+
+  product    Product    @relation(fields: [productId], references: [id], onDelete: Cascade)
+  collection Collection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+
+  @@id([productId, collectionId])
+  @@index([sortOrder])
+}
+
+model ProductVariant {
+  id           String   @id @default(uuid()) @db.Uuid
+  productId    String   @db.Uuid
+  sku          String?  @unique
+  isDefault    Boolean  @default(false)
+  isActive     Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  priceMinor   Int?
+  currencyCode String   @default("MXN")
+  createdAt    DateTime @default(now()) @db.Timestamptz
+  updatedAt    DateTime @updatedAt @db.Timestamptz
+
+  product      Product                     @relation(fields: [productId], references: [id], onDelete: Cascade)
+  translations ProductVariantTranslation[]
+  media        ProductMedia[]
+  cartItems    CartItem[]
+  orderItems   OrderItem[]
+
+  @@index([productId, sortOrder])
+}
+
+model ProductVariantTranslation {
+  id        String @id @default(uuid()) @db.Uuid
+  variantId String @db.Uuid
+  locale    String
+  name      String
+
+  variant ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+
+  @@unique([variantId, locale])
+}
+
+model ProductOptionGroup {
+  id            String              @id @default(uuid()) @db.Uuid
+  productId     String              @db.Uuid
+  code          String
+  selectionType OptionSelectionType
+  isRequired    Boolean             @default(false)
+  minSelections Int                 @default(0)
+  maxSelections Int                 @default(1)
+  sortOrder     Int                 @default(0)
+  isActive      Boolean             @default(true)
+
+  product      Product                         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  translations ProductOptionGroupTranslation[]
+  options      ProductOption[]
+
+  @@unique([productId, code])
+  @@index([productId, sortOrder])
+}
+
+model ProductOptionGroupTranslation {
+  id            String  @id @default(uuid()) @db.Uuid
+  optionGroupId String  @db.Uuid
+  locale        String
+  name          String
+  description   String?
+
+  optionGroup ProductOptionGroup @relation(fields: [optionGroupId], references: [id], onDelete: Cascade)
+
+  @@unique([optionGroupId, locale])
+}
+
+model ProductOption {
+  id              String   @id @default(uuid()) @db.Uuid
+  optionGroupId   String   @db.Uuid
+  code            String
+  priceDeltaMinor Int      @default(0)
+  isActive        Boolean  @default(true)
+  sortOrder       Int      @default(0)
+  createdAt       DateTime @default(now()) @db.Timestamptz
+  updatedAt       DateTime @updatedAt @db.Timestamptz
+
+  optionGroup      ProductOptionGroup         @relation(fields: [optionGroupId], references: [id], onDelete: Cascade)
+  translations     ProductOptionTranslation[]
+  cartItemOptions  CartItemOption[]
+  orderItemOptions OrderItemOption[]
+
+  @@unique([optionGroupId, code])
+  @@index([optionGroupId, sortOrder])
+}
+
+model ProductOptionTranslation {
+  id          String  @id @default(uuid()) @db.Uuid
+  optionId    String  @db.Uuid
+  locale      String
+  name        String
+  description String?
+
+  option ProductOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+
+  @@unique([optionId, locale])
+}
+
+model MediaAsset {
+  id               String    @id @default(uuid()) @db.Uuid
+  kind             MediaKind
+  bucket           String
+  objectPath       String
+  originalFilename String?
+  mimeType         String?
+  width            Int?
+  height           Int?
+  sizeBytes        Int?
+  createdAt        DateTime  @default(now()) @db.Timestamptz
+  updatedAt        DateTime  @updatedAt @db.Timestamptz
+
+  translations      MediaAssetTranslation[]
+  productMedia      ProductMedia[]
+  heroShowcaseItems HomeHeroShowcaseItem[]
+  universes         Universe[]
+
+  @@unique([bucket, objectPath])
+  @@index([createdAt])
+}
+
+model MediaAssetTranslation {
+  id           String  @id @default(uuid()) @db.Uuid
+  mediaAssetId String  @db.Uuid
+  locale       String
+  altText      String?
+
+  mediaAsset MediaAsset @relation(fields: [mediaAssetId], references: [id], onDelete: Cascade)
+
+  @@unique([mediaAssetId, locale])
+}
+
+model ProductMedia {
+  id           String           @id @default(uuid()) @db.Uuid
+  productId    String           @db.Uuid
+  variantId    String?          @db.Uuid
+  mediaAssetId String           @db.Uuid
+  role         ProductMediaRole
+  sortOrder    Int              @default(0)
+
+  product    Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  variant    ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  mediaAsset MediaAsset      @relation(fields: [mediaAssetId], references: [id], onDelete: Restrict)
+
+  @@index([productId, role, sortOrder])
+}
+
+model HomeHero {
+  id        String    @id @default(uuid()) @db.Uuid
+  isActive  Boolean   @default(false)
+  tone      HeroTone  @default(AUTO)
+  startsAt  DateTime? @db.Timestamptz
+  endsAt    DateTime? @db.Timestamptz
+  createdAt DateTime  @default(now()) @db.Timestamptz
+  updatedAt DateTime  @updatedAt @db.Timestamptz
+
+  showcaseItems HomeHeroShowcaseItem[]
+
+  @@index([isActive])
+}
+
+model HomeHeroShowcaseItem {
+  id           String    @id @default(uuid()) @db.Uuid
+  homeHeroId   String    @db.Uuid
+  productId    String?   @db.Uuid
+  mediaAssetId String?   @db.Uuid
+  sortOrder    Int       @default(0)
+  isActive     Boolean   @default(true)
+  startsAt     DateTime? @db.Timestamptz
+  endsAt       DateTime? @db.Timestamptz
+  createdAt    DateTime  @default(now()) @db.Timestamptz
+  updatedAt    DateTime  @updatedAt @db.Timestamptz
+
+  homeHero   HomeHero    @relation(fields: [homeHeroId], references: [id], onDelete: Cascade)
+  product    Product?    @relation(fields: [productId], references: [id], onDelete: SetNull)
+  mediaAsset MediaAsset? @relation(fields: [mediaAssetId], references: [id], onDelete: SetNull)
+
+  @@index([isActive, sortOrder])
+  @@index([homeHeroId, isActive, sortOrder])
+}
+
+model HomeFeaturedProduct {
+  id        String    @id @default(uuid()) @db.Uuid
+  productId String    @db.Uuid
+  sortOrder Int       @default(0)
+  isActive  Boolean   @default(true)
+  startsAt  DateTime? @db.Timestamptz
+  endsAt    DateTime? @db.Timestamptz
+  createdAt DateTime  @default(now()) @db.Timestamptz
+  updatedAt DateTime  @updatedAt @db.Timestamptz
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([isActive, sortOrder])
+}
+
+model HomeFeaturedUniverse {
+  id         String    @id @default(uuid()) @db.Uuid
+  universeId String    @db.Uuid
+  sortOrder  Int       @default(0)
+  isActive   Boolean   @default(true)
+  startsAt   DateTime? @db.Timestamptz
+  endsAt     DateTime? @db.Timestamptz
+  createdAt  DateTime  @default(now()) @db.Timestamptz
+  updatedAt  DateTime  @updatedAt @db.Timestamptz
+
+  universe Universe @relation(fields: [universeId], references: [id], onDelete: Cascade)
+
+  @@index([isActive, sortOrder])
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+}
+
+enum AdminStatus {
+  ACTIVE
+  DISABLED
+}
+
+model AdminAccount {
+  id          String      @id @default(uuid()) @db.Uuid
+  authUserId  String      @unique @db.Uuid
+  email       String      @unique
+  displayName String?
+  role        AdminRole
+  status      AdminStatus @default(ACTIVE)
+  lastLoginAt DateTime?   @db.Timestamptz
+  createdAt   DateTime    @default(now()) @db.Timestamptz
+  updatedAt   DateTime    @updatedAt @db.Timestamptz
+
+  auditLogs AdminAuditLog[]
+
+  @@index([status])
+  @@index([role])
+}
+
+model AdminAuditLog {
+  id           String   @id @default(uuid()) @db.Uuid
+  actorAdminId String?  @db.Uuid
+  action       String
+  resourceType String?
+  resourceId   String?
+  metadata     Json?
+  createdAt    DateTime @default(now()) @db.Timestamptz
+
+  actor AdminAccount? @relation(fields: [actorAdminId], references: [id], onDelete: SetNull)
+
+  @@index([actorAdminId])
+  @@index([action])
+  @@index([createdAt])
+}
+
+model HomePage {
+  id                   String   @id @db.Uuid
+  isActive             Boolean  @default(true)
+  showIntroduction     Boolean  @default(true)
+  showFeaturedProducts Boolean  @default(true)
+  showUniverses        Boolean  @default(true)
+  showPersonalization  Boolean  @default(true)
+  showValueProposition Boolean  @default(true)
+  showFinalCta         Boolean  @default(true)
+  createdAt            DateTime @default(now()) @db.Timestamptz
+  updatedAt            DateTime @updatedAt @db.Timestamptz
+
+  translations HomePageTranslation[]
+}
+
+model HomePageTranslation {
+  id                         String  @id @default(uuid()) @db.Uuid
+  homePageId                 String  @db.Uuid
+  locale                     String
+  heroEyebrow                String?
+  heroHeadline               String?
+  heroDescription            String?
+  introductionTitle          String?
+  introductionBody           String?
+  featuredEyebrow            String?
+  featuredTitle              String?
+  universesTitle             String?
+  universesDescription       String?
+  personalizationTitle       String?
+  personalizationDescription String?
+  finalCtaTitle              String?
+  finalCtaDescription        String?
+
+  homePage HomePage @relation(fields: [homePageId], references: [id], onDelete: Cascade)
+
+  @@unique([homePageId, locale])
+}
+
+model SiteSettings {
+  id              String   @id @db.Uuid
+  contactEmail    String?
+  whatsapp        String?
+  physicalAddress String?
+  createdAt       DateTime @default(now()) @db.Timestamptz
+  updatedAt       DateTime @updatedAt @db.Timestamptz
+}
+
+enum SocialPlatform {
+  FACEBOOK
+  INSTAGRAM
+  TIKTOK
+}
+
+model SocialLink {
+  id        String         @id @default(uuid()) @db.Uuid
+  platform  SocialPlatform @unique
+  url       String
+  isActive  Boolean        @default(true)
+  sortOrder Int            @default(0)
+  createdAt DateTime       @default(now()) @db.Timestamptz
+  updatedAt DateTime       @updatedAt @db.Timestamptz
+
+  @@index([isActive, sortOrder])
+}
+
+enum CustomerStatus {
+  ACTIVE
+  BLOCKED
+}
+
+model CustomerAccount {
+  id                String         @id @default(uuid()) @db.Uuid
+  authUserId        String         @unique @db.Uuid
+  email             String
+  displayName       String?
+  phone             String?
+  status            CustomerStatus @default(ACTIVE)
+  lastLoginAt       DateTime?      @db.Timestamptz
+  termsAcceptedAt   DateTime?      @db.Timestamptz
+  privacyAcceptedAt DateTime?      @db.Timestamptz
+  createdAt         DateTime       @default(now()) @db.Timestamptz
+  updatedAt         DateTime       @updatedAt @db.Timestamptz
+
+  carts          Cart[]
+  checkoutDrafts CheckoutDraft[]
+  orders         Order[]
+
+  @@index([status])
+  @@index([email])
+}
+
+enum CartStatus {
+  ACTIVE
+  PENDING_PAYMENT
+  CHECKED_OUT
+  ABANDONED
+}
+
+model Cart {
+  id         String     @id @default(uuid()) @db.Uuid
+  tokenHash  String     @unique
+  status     CartStatus @default(ACTIVE)
+  customerId String?    @db.Uuid
+  expiresAt  DateTime   @db.Timestamptz
+  createdAt  DateTime   @default(now()) @db.Timestamptz
+  updatedAt  DateTime   @updatedAt @db.Timestamptz
+
+  items          CartItem[]
+  customer       CustomerAccount? @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  checkoutDrafts CheckoutDraft[]
+  orders         Order[]
+
+  @@index([status])
+  @@index([expiresAt])
+  @@index([customerId, status])
+}
+
+model CartItem {
+  id               String   @id @default(uuid()) @db.Uuid
+  cartId           String   @db.Uuid
+  productId        String   @db.Uuid
+  variantId        String   @db.Uuid
+  quantity         Int
+  configurationKey String
+  createdAt        DateTime @default(now()) @db.Timestamptz
+  updatedAt        DateTime @updatedAt @db.Timestamptz
+
+  cart    Cart             @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Product          @relation(fields: [productId], references: [id], onDelete: Restrict)
+  variant ProductVariant   @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  options CartItemOption[]
+
+  @@unique([cartId, productId, variantId, configurationKey])
+  @@index([cartId])
+  @@index([productId])
+}
+
+model CartItemOption {
+  id         String @id @default(uuid()) @db.Uuid
+  cartItemId String @db.Uuid
+  optionId   String @db.Uuid
+
+  cartItem CartItem      @relation(fields: [cartItemId], references: [id], onDelete: Cascade)
+  option   ProductOption @relation(fields: [optionId], references: [id], onDelete: Restrict)
+
+  @@unique([cartItemId, optionId])
+}
+
+enum CheckoutDraftStatus {
+  IN_PROGRESS
+  READY_FOR_PAYMENT
+  CONVERTED_TO_ORDER
+  EXPIRED
+}
+
+enum FulfillmentMethod {
+  DELIVERY
+  PICKUP
+}
+
+model CheckoutDraft {
+  id                String              @id @default(uuid()) @db.Uuid
+  customerId        String              @db.Uuid
+  cartId            String              @db.Uuid
+  status            CheckoutDraftStatus @default(IN_PROGRESS)
+  contactName       String?
+  contactEmail      String?
+  contactPhone      String?
+  fulfillmentMethod FulfillmentMethod?
+  deliveryZoneId    String?             @db.Uuid
+  pickupLocationId  String?             @db.Uuid
+  requestedDate     DateTime?           @db.Date
+  timeWindowId      String?             @db.Uuid
+  customerNotes     String?
+  expiresAt         DateTime            @db.Timestamptz
+  createdAt         DateTime            @default(now()) @db.Timestamptz
+  updatedAt         DateTime            @updatedAt @db.Timestamptz
+
+  customer       CustomerAccount        @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  cart           Cart                   @relation(fields: [cartId], references: [id], onDelete: Restrict)
+  address        CheckoutAddress?
+  deliveryZone   DeliveryZone?          @relation(fields: [deliveryZoneId], references: [id], onDelete: Restrict)
+  pickupLocation PickupLocation?        @relation(fields: [pickupLocationId], references: [id], onDelete: Restrict)
+  timeWindow     FulfillmentTimeWindow? @relation(fields: [timeWindowId], references: [id], onDelete: Restrict)
+  order          Order?
+
+  @@index([customerId, status])
+  @@index([cartId, status])
+  @@index([expiresAt])
+}
+
+model CheckoutAddress {
+  id              String   @id @default(uuid()) @db.Uuid
+  checkoutDraftId String   @unique @db.Uuid
+  countryCode     String
+  postalCode      String
+  state           String
+  city            String
+  locality        String?
+  street          String
+  exteriorNumber  String?
+  interiorNumber  String?
+  reference       String?
+  createdAt       DateTime @default(now()) @db.Timestamptz
+  updatedAt       DateTime @updatedAt @db.Timestamptz
+
+  checkoutDraft CheckoutDraft @relation(fields: [checkoutDraftId], references: [id], onDelete: Cascade)
+}
+
+model DeliveryZone {
+  id                String   @id @default(uuid()) @db.Uuid
+  name              String
+  isActive          Boolean  @default(true)
+  sortOrder         Int      @default(0)
+  deliveryFeeMinor  Int
+  minimumOrderMinor Int?
+  createdAt         DateTime @default(now()) @db.Timestamptz
+  updatedAt         DateTime @updatedAt @db.Timestamptz
+
+  postalCodes DeliveryPostalCode[]
+  drafts      CheckoutDraft[]
+  orders      Order[]
+
+  @@index([isActive, sortOrder])
+}
+
+model DeliveryPostalCode {
+  id             String @id @default(uuid()) @db.Uuid
+  deliveryZoneId String @db.Uuid
+  countryCode    String
+  postalCode     String
+
+  zone DeliveryZone @relation(fields: [deliveryZoneId], references: [id], onDelete: Cascade)
+
+  @@unique([countryCode, postalCode])
+  @@index([deliveryZoneId])
+}
+
+model PickupLocation {
+  id           String   @id @default(uuid()) @db.Uuid
+  name         String
+  isActive     Boolean  @default(true)
+  sortOrder    Int      @default(0)
+  addressLine  String
+  city         String
+  state        String
+  postalCode   String
+  countryCode  String
+  instructions String?
+  createdAt    DateTime @default(now()) @db.Timestamptz
+  updatedAt    DateTime @updatedAt @db.Timestamptz
+
+  drafts CheckoutDraft[]
+  orders Order[]
+
+  @@index([isActive, sortOrder])
+}
+
+model FulfillmentWeeklySchedule {
+  id                String            @id @default(uuid()) @db.Uuid
+  fulfillmentMethod FulfillmentMethod
+  dayOfWeek         Int
+  isActive          Boolean           @default(true)
+  createdAt         DateTime          @default(now()) @db.Timestamptz
+  updatedAt         DateTime          @updatedAt @db.Timestamptz
+
+  windows FulfillmentTimeWindow[]
+
+  @@unique([fulfillmentMethod, dayOfWeek])
+}
+
+model FulfillmentTimeWindow {
+  id         String   @id @default(uuid()) @db.Uuid
+  scheduleId String   @db.Uuid
+  label      String?
+  startTime  String
+  endTime    String
+  isActive   Boolean  @default(true)
+  sortOrder  Int      @default(0)
+  createdAt  DateTime @default(now()) @db.Timestamptz
+  updatedAt  DateTime @updatedAt @db.Timestamptz
+
+  schedule FulfillmentWeeklySchedule @relation(fields: [scheduleId], references: [id], onDelete: Cascade)
+  drafts   CheckoutDraft[]
+
+  @@index([scheduleId, sortOrder])
+}
+
+model FulfillmentBlackoutDate {
+  id                String             @id @default(uuid()) @db.Uuid
+  date              DateTime           @db.Date
+  fulfillmentMethod FulfillmentMethod?
+  reason            String?
+  isActive          Boolean            @default(true)
+  createdAt         DateTime           @default(now()) @db.Timestamptz
+  updatedAt         DateTime           @updatedAt @db.Timestamptz
+
+  @@index([date, isActive])
+}
+
+model ExchangeRateSnapshot {
+  id            String    @id @default(uuid()) @db.Uuid
+  baseCurrency  String
+  quoteCurrency String
+  rate          Decimal   @db.Decimal(30, 15)
+  provider      String
+  source        String
+  sourceDate    DateTime  @db.Date
+  fetchedAt     DateTime  @db.Timestamptz
+  expiresAt     DateTime? @db.Timestamptz
+  createdAt     DateTime  @default(now()) @db.Timestamptz
+
+  @@unique([baseCurrency, quoteCurrency, provider, sourceDate])
+  @@index([baseCurrency, quoteCurrency])
+  @@index([fetchedAt])
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  CANCELLED
+  EXPIRED
+}
+
+enum PaymentStatus {
+  NOT_STARTED
+  REQUIRES_PAYMENT_METHOD
+  REQUIRES_ACTION
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  CANCELED
+}
+
+enum FulfillmentStatus {
+  PENDING
+  CONFIRMED
+  IN_PRODUCTION
+  READY
+  OUT_FOR_DELIVERY
+  COMPLETED
+  CANCELLED
+}
+
+model Order {
+  id                         String            @id @default(uuid()) @db.Uuid
+  orderNumber                String            @unique
+  customerId                 String            @db.Uuid
+  cartId                     String            @db.Uuid
+  checkoutDraftId            String            @unique @db.Uuid
+  status                     OrderStatus       @default(PENDING_PAYMENT)
+  paymentStatus              PaymentStatus     @default(NOT_STARTED)
+  fulfillmentStatus          FulfillmentStatus @default(PENDING)
+  currencyCode               String            @default("MXN")
+  itemsSubtotalMinor         Int
+  deliveryFeeMinor           Int
+  grandTotalMinor            Int
+  displayCurrencyCode        String?
+  displayTotalMinor          Int?
+  displayExchangeRate        Decimal?          @db.Decimal(30, 15)
+  displayExchangeProvider    String?
+  displayExchangeSourceDate  DateTime?         @db.Date
+  customerName               String
+  customerEmail              String
+  locale                     String            @default("es-MX")
+  customerPhone              String?
+  fulfillmentMethod          FulfillmentMethod
+  requestedDate              DateTime          @db.Date
+  timeWindowLabel            String?
+  timeWindowStart            String
+  timeWindowEnd              String
+  customerNotes              String?
+  deliveryZoneId             String?           @db.Uuid
+  deliveryZoneName           String?
+  pickupLocationId           String?           @db.Uuid
+  pickupLocationName         String?
+  pickupAddressSnapshot      String?
+  pickupInstructionsSnapshot String?
+  stripePaymentIntentId      String?           @unique
+  paidAt                     DateTime?         @db.Timestamptz
+  cancelledAt                DateTime?         @db.Timestamptz
+  expiresAt                  DateTime          @db.Timestamptz
+  createdAt                  DateTime          @default(now()) @db.Timestamptz
+  updatedAt                  DateTime          @updatedAt @db.Timestamptz
+
+  customer        CustomerAccount  @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  cart            Cart             @relation(fields: [cartId], references: [id], onDelete: Restrict)
+  checkoutDraft   CheckoutDraft    @relation(fields: [checkoutDraftId], references: [id], onDelete: Restrict)
+  deliveryZone    DeliveryZone?    @relation(fields: [deliveryZoneId], references: [id], onDelete: SetNull)
+  pickupLocation  PickupLocation?  @relation(fields: [pickupLocationId], references: [id], onDelete: SetNull)
+  items           OrderItem[]
+  address         OrderAddress?
+  paymentAttempts PaymentAttempt[]
+  events          OrderEvent[]
+
+  @@index([customerId, createdAt])
+  @@index([status])
+  @@index([paymentStatus])
+  @@index([fulfillmentStatus])
+  @@index([customerEmail])
+  @@index([expiresAt])
+}
+
+model OrderItem {
+  id                       String      @id @default(uuid()) @db.Uuid
+  orderId                  String      @db.Uuid
+  productId                String?     @db.Uuid
+  variantId                String?     @db.Uuid
+  productType              ProductType
+  quantity                 Int
+  baseUnitPriceMinor       Int
+  optionsDeltaMinor        Int
+  configuredUnitPriceMinor Int
+  lineTotalMinor           Int
+  currencyCode             String      @default("MXN")
+  productNameEs            String
+  productNameEn            String?
+  productSlugEs            String?
+  productSlugEn            String?
+  variantNameEs            String?
+  variantNameEn            String?
+  primaryImageSnapshot     String?
+  sortOrder                Int         @default(0)
+
+  order   Order             @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product Product?          @relation(fields: [productId], references: [id], onDelete: SetNull)
+  variant ProductVariant?   @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  options OrderItemOption[]
+
+  @@index([orderId, sortOrder])
+}
+
+model OrderItemOption {
+  id              String  @id @default(uuid()) @db.Uuid
+  orderItemId     String  @db.Uuid
+  optionGroupId   String? @db.Uuid
+  optionId        String? @db.Uuid
+  groupNameEs     String
+  groupNameEn     String?
+  optionNameEs    String
+  optionNameEn    String?
+  priceDeltaMinor Int
+  sortOrder       Int     @default(0)
+
+  orderItem OrderItem      @relation(fields: [orderItemId], references: [id], onDelete: Cascade)
+  option    ProductOption? @relation(fields: [optionId], references: [id], onDelete: SetNull)
+
+  @@index([orderItemId, sortOrder])
+}
+
+model OrderAddress {
+  id             String  @id @default(uuid()) @db.Uuid
+  orderId        String  @unique @db.Uuid
+  countryCode    String
+  postalCode     String
+  state          String
+  city           String
+  locality       String?
+  street         String
+  exteriorNumber String?
+  interiorNumber String?
+  reference      String?
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model PaymentAttempt {
+  id                      String        @id @default(uuid()) @db.Uuid
+  orderId                 String        @db.Uuid
+  provider                String        @default("STRIPE")
+  providerPaymentIntentId String
+  amountMinor             Int
+  currencyCode            String
+  status                  PaymentStatus
+  failureCode             String?
+  failureMessage          String?
+  createdAt               DateTime      @default(now()) @db.Timestamptz
+  updatedAt               DateTime      @updatedAt @db.Timestamptz
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
+  @@index([providerPaymentIntentId])
+}
+
+model PaymentWebhookEvent {
+  id               String    @id @default(uuid()) @db.Uuid
+  provider         String    @default("STRIPE")
+  providerEventId  String    @unique
+  eventType        String
+  livemode         Boolean   @default(false)
+  receivedAt       DateTime  @default(now()) @db.Timestamptz
+  processedAt      DateTime? @db.Timestamptz
+  processingResult String?
+  createdAt        DateTime  @default(now()) @db.Timestamptz
+
+  @@index([eventType])
+  @@index([receivedAt])
+}
+
+model OrderEvent {
+  id        String   @id @default(uuid()) @db.Uuid
+  orderId   String   @db.Uuid
+  type      String
+  metadata  Json?
+  createdAt DateTime @default(now()) @db.Timestamptz
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([orderId, createdAt])
+}
+
+enum EmailOutboxStatus {
+  PENDING
+  PROCESSING
+  SENT
+  FAILED
+  DEAD
+}
+
+enum EmailTemplateType {
+  CUSTOMER_WELCOME
+  ORDER_PAID
+  ORDER_CONFIRMED
+  ORDER_IN_PRODUCTION
+  ORDER_READY
+  ORDER_OUT_FOR_DELIVERY
+  ORDER_COMPLETED
+}
+
+model EmailOutbox {
+  id                  String            @id @default(uuid()) @db.Uuid
+  eventKey            String            @unique
+  template            EmailTemplateType
+  recipientEmail      String
+  recipientName       String?
+  locale              String
+  referenceType       String?
+  referenceId         String?
+  status              EmailOutboxStatus @default(PENDING)
+  attemptCount        Int               @default(0)
+  nextAttemptAt       DateTime?         @db.Timestamptz
+  provider            String?
+  providerMessageId   String?
+  lastErrorCode       String?
+  lastErrorMessage    String?
+  sentAt              DateTime?         @db.Timestamptz
+  processingStartedAt DateTime?         @db.Timestamptz
+  createdAt           DateTime          @default(now()) @db.Timestamptz
+  updatedAt           DateTime          @updatedAt @db.Timestamptz
+
+  @@index([status, nextAttemptAt])
+  @@index([status, processingStartedAt])
+  @@index([createdAt])
+  @@index([template])
+}

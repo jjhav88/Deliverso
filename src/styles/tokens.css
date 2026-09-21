@@ -1,0 +1,134 @@
+:root {
+  --deliverso-cream: #fff6e9;
+  --deliverso-navy: #234166;
+  --deliverso-purple: #44294e;
+  --deliverso-gold: #dda333;
+  --deliverso-lilac: #a38cbf;
+  --deliverso-pink: #ee92a6;
+
+  --background: var(--deliverso-cream);
+  --foreground: var(--deliverso-navy);
+
+  --surface: var(--deliverso-cream);
+  --surface-elevated: color-mix(in srgb, #ffffff 62%, var(--deliverso-cream));
+  --surface-subtle: color-mix(in srgb, var(--deliverso-navy) 6%, var(--deliverso-cream));
+
+  --primary: var(--deliverso-navy);
+  --primary-hover: color-mix(in srgb, var(--deliverso-navy) 78%, var(--deliverso-purple));
+  --primary-foreground: var(--deliverso-cream);
+
+  --secondary: var(--deliverso-purple);
+  --secondary-hover: color-mix(in srgb, var(--deliverso-purple) 82%, #000000);
+  --secondary-foreground: var(--deliverso-cream);
+
+  --accent: var(--deliverso-gold);
+  --accent-foreground: var(--deliverso-navy);
+
+  --muted: var(--surface-subtle);
+  --muted-foreground: color-mix(
+    in srgb,
+    var(--deliverso-navy) 72%,
+    var(--deliverso-cream)
+  );
+
+  --border: color-mix(in srgb, var(--deliverso-navy) 14%, var(--deliverso-cream));
+  --border-strong: color-mix(in srgb, var(--deliverso-navy) 28%, var(--deliverso-cream));
+
+  --destructive: #7a3344;
+  --destructive-foreground: var(--deliverso-cream);
+
+  --success: #3f6b58;
+  --success-foreground: var(--deliverso-cream);
+
+  --warning: #8a5b12;
+  --warning-foreground: var(--deliverso-cream);
+
+  --focus-ring: var(--deliverso-navy);
+
+  --surface-dark: color-mix(in srgb, var(--deliverso-navy) 78%, var(--deliverso-purple));
+  --surface-dark-elevated: color-mix(
+    in srgb,
+    var(--deliverso-purple) 42%,
+    var(--deliverso-navy)
+  );
+  --surface-dark-foreground: var(--deliverso-cream);
+
+  --ds-radius-sm: 0.25rem;
+  --ds-radius-md: 0.5rem;
+  --ds-radius-lg: 0.75rem;
+  --ds-radius-xl: 1rem;
+  --ds-radius-full: 9999px;
+
+  --elevation-sm: 0 1px 2px color-mix(in srgb, var(--deliverso-navy) 8%, transparent);
+  --elevation-md: 0 10px 28px color-mix(in srgb, var(--deliverso-navy) 10%, transparent);
+  --elevation-lg: 0 18px 44px color-mix(in srgb, var(--deliverso-navy) 12%, transparent);
+
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --easing-standard: cubic-bezier(0.22, 1, 0.36, 1);
+  --easing-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --page-gutter: 1rem;
+  --section-space: 4rem;
+  --content-max: 72rem;
+  --content-max-narrow: 42rem;
+  --content-max-wide: 88rem;
+  --header-height: 4rem;
+
+  --admin-sidebar: var(--deliverso-navy);
+  --admin-sidebar-foreground: var(--deliverso-cream);
+  --admin-sidebar-muted: color-mix(in srgb, var(--deliverso-cream) 68%, var(--deliverso-navy));
+  --admin-sidebar-active: color-mix(in srgb, var(--deliverso-gold) 22%, var(--deliverso-navy));
+  --admin-accent: var(--deliverso-gold);
+  --admin-background: var(--deliverso-cream);
+  --admin-surface: color-mix(in srgb, #ffffff 70%, var(--deliverso-cream));
+  --admin-topbar-height: 3.75rem;
+
+  --font-size-display-xl: clamp(2.5rem, 1.7rem + 3.2vw, 4.25rem);
+  --font-size-display-l: clamp(2.125rem, 1.55rem + 2.2vw, 3.25rem);
+  --font-size-h1: clamp(1.875rem, 1.45rem + 1.6vw, 2.75rem);
+  --font-size-h2: clamp(1.5rem, 1.28rem + 0.9vw, 2.125rem);
+  --font-size-h3: clamp(1.25rem, 1.15rem + 0.45vw, 1.5rem);
+  --font-size-h4: 1.125rem;
+  --font-size-body-lg: 1.125rem;
+  --font-size-body: 1rem;
+  --font-size-body-sm: 0.875rem;
+  --font-size-label: 0.8125rem;
+  --font-size-caption: 0.75rem;
+}
+
+@media (min-width: 768px) {
+  :root {
+    --page-gutter: 1.5rem;
+    --section-space: 5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  :root {
+    --page-gutter: 2rem;
+    --section-space: 6rem;
+    --header-height: 4.25rem;
+  }
+}
+
+.surface-dark {
+  background: var(--surface-dark);
+  color: var(--surface-dark-foreground);
+  --background: var(--surface-dark);
+  --foreground: var(--surface-dark-foreground);
+  --surface: var(--surface-dark);
+  --surface-elevated: var(--surface-dark-elevated);
+  --surface-subtle: color-mix(in srgb, #ffffff 8%, var(--surface-dark));
+  --primary: var(--deliverso-cream);
+  --primary-hover: color-mix(in srgb, var(--deliverso-cream) 88%, var(--deliverso-gold));
+  --primary-foreground: var(--deliverso-navy);
+  --muted: color-mix(in srgb, #ffffff 8%, var(--surface-dark));
+  --muted-foreground: color-mix(in srgb, var(--deliverso-cream) 72%, var(--deliverso-navy));
+  --border: color-mix(in srgb, var(--deliverso-cream) 16%, transparent);
+  --border-strong: color-mix(in srgb, var(--deliverso-cream) 28%, transparent);
+  --focus-ring: var(--deliverso-gold);
+  --elevation-sm: 0 1px 2px color-mix(in srgb, #000000 28%, transparent);
+  --elevation-md: 0 12px 32px color-mix(in srgb, #000000 32%, transparent);
+}
