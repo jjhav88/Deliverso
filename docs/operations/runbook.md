@@ -45,7 +45,15 @@ Authorization: Bearer <secret>
 
 Jobs: recover stale email, reconcile payments, expire pending orders, expire checkout drafts, abandon carts.
 
-Vercel Cron (futuro, no activado como deployment):
+Vercel Hobby no ejecuta Cron Jobs. En staging las rutas existen pero hay que invocarlas a mano o con un scheduler externo:
+
+```
+GET|POST /api/internal/email-dispatch
+GET|POST /api/internal/maintenance
+Authorization: Bearer <INTERNAL_CRON_SECRET|CRON_SECRET>
+```
+
+Propuesta futura (plan Pro o scheduler externo):
 
 - email-dispatch cada 5 minutos
 - maintenance cada 30 minutos
