@@ -49,6 +49,7 @@ model BusinessLine {
   translations BusinessLineTranslation[]
   categories   Category[]
   products     Product[]
+  promotions   PromotionBusinessLine[]
 
   @@index([sortOrder])
 }
@@ -78,6 +79,7 @@ model Category {
   businessLine BusinessLine          @relation(fields: [businessLineId], references: [id], onDelete: Restrict)
   translations CategoryTranslation[]
   products     ProductCategory[]
+  promotions   PromotionCategory[]
 
   @@index([businessLineId])
   @@index([sortOrder])
@@ -109,6 +111,7 @@ model Universe {
   products           ProductUniverse[]
   featuredMedia      MediaAsset?            @relation(fields: [featuredMediaAssetId], references: [id], onDelete: SetNull)
   featuredPlacements HomeFeaturedUniverse[]
+  promotions         PromotionUniverse[]
 
   @@index([sortOrder])
   @@index([featuredMediaAssetId])
@@ -180,6 +183,7 @@ model Product {
   featuredPlacements HomeFeaturedProduct[]
   cartItems          CartItem[]
   orderItems         OrderItem[]
+  promotions         PromotionProduct[]
 
   @@index([status])
   @@index([businessLineId])
@@ -466,7 +470,9 @@ model AdminAccount {
   createdAt   DateTime    @default(now()) @db.Timestamptz
   updatedAt   DateTime    @updatedAt @db.Timestamptz
 
-  auditLogs AdminAuditLog[]
+  auditLogs         AdminAuditLog[]
+  createdPromotions Promotion[]     @relation("PromotionCreatedBy")
+  updatedPromotions Promotion[]     @relation("PromotionUpdatedBy")
 
   @@index([status])
   @@index([role])
@@ -572,9 +578,10 @@ model CustomerAccount {
   createdAt         DateTime       @default(now()) @db.Timestamptz
   updatedAt         DateTime       @updatedAt @db.Timestamptz
 
-  carts          Cart[]
-  checkoutDrafts CheckoutDraft[]
-  orders         Order[]
+  carts                 Cart[]
+  checkoutDrafts        CheckoutDraft[]
+  orders                Order[]
+  promotionReservations PromotionReservation[]
 
   @@index([status])
   @@index([email])
@@ -588,22 +595,25 @@ enum CartStatus {
 }
 
 model Cart {
-  id         String     @id @default(uuid()) @db.Uuid
-  tokenHash  String     @unique
-  status     CartStatus @default(ACTIVE)
-  customerId String?    @db.Uuid
-  expiresAt  DateTime   @db.Timestamptz
-  createdAt  DateTime   @default(now()) @db.Timestamptz
-  updatedAt  DateTime   @updatedAt @db.Timestamptz
+  id                  String     @id @default(uuid()) @db.Uuid
+  tokenHash           String     @unique
+  status              CartStatus @default(ACTIVE)
+  customerId          String?    @db.Uuid
+  selectedPromotionId String?    @db.Uuid
+  expiresAt           DateTime   @db.Timestamptz
+  createdAt           DateTime   @default(now()) @db.Timestamptz
+  updatedAt           DateTime   @updatedAt @db.Timestamptz
 
-  items          CartItem[]
-  customer       CustomerAccount? @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  checkoutDrafts CheckoutDraft[]
-  orders         Order[]
+  items             CartItem[]
+  customer          CustomerAccount? @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  selectedPromotion Promotion?       @relation(fields: [selectedPromotionId], references: [id], onDelete: SetNull)
+  checkoutDrafts    CheckoutDraft[]
+  orders            Order[]
 
   @@index([status])
   @@index([expiresAt])
   @@index([customerId, status])
+  @@index([selectedPromotionId])
 }
 
 model CartItem {
@@ -650,34 +660,37 @@ enum FulfillmentMethod {
 }
 
 model CheckoutDraft {
-  id                String              @id @default(uuid()) @db.Uuid
-  customerId        String              @db.Uuid
-  cartId            String              @db.Uuid
-  status            CheckoutDraftStatus @default(IN_PROGRESS)
-  contactName       String?
-  contactEmail      String?
-  contactPhone      String?
-  fulfillmentMethod FulfillmentMethod?
-  deliveryZoneId    String?             @db.Uuid
-  pickupLocationId  String?             @db.Uuid
-  requestedDate     DateTime?           @db.Date
-  timeWindowId      String?             @db.Uuid
-  customerNotes     String?
-  expiresAt         DateTime            @db.Timestamptz
-  createdAt         DateTime            @default(now()) @db.Timestamptz
-  updatedAt         DateTime            @updatedAt @db.Timestamptz
+  id                  String              @id @default(uuid()) @db.Uuid
+  customerId          String              @db.Uuid
+  cartId              String              @db.Uuid
+  status              CheckoutDraftStatus @default(IN_PROGRESS)
+  contactName         String?
+  contactEmail        String?
+  contactPhone        String?
+  fulfillmentMethod   FulfillmentMethod?
+  deliveryZoneId      String?             @db.Uuid
+  pickupLocationId    String?             @db.Uuid
+  requestedDate       DateTime?           @db.Date
+  timeWindowId        String?             @db.Uuid
+  customerNotes       String?
+  selectedPromotionId String?             @db.Uuid
+  expiresAt           DateTime            @db.Timestamptz
+  createdAt           DateTime            @default(now()) @db.Timestamptz
+  updatedAt           DateTime            @updatedAt @db.Timestamptz
 
-  customer       CustomerAccount        @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  cart           Cart                   @relation(fields: [cartId], references: [id], onDelete: Restrict)
-  address        CheckoutAddress?
-  deliveryZone   DeliveryZone?          @relation(fields: [deliveryZoneId], references: [id], onDelete: Restrict)
-  pickupLocation PickupLocation?        @relation(fields: [pickupLocationId], references: [id], onDelete: Restrict)
-  timeWindow     FulfillmentTimeWindow? @relation(fields: [timeWindowId], references: [id], onDelete: Restrict)
-  order          Order?
+  customer          CustomerAccount        @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  cart              Cart                   @relation(fields: [cartId], references: [id], onDelete: Restrict)
+  selectedPromotion Promotion?             @relation(fields: [selectedPromotionId], references: [id], onDelete: SetNull)
+  address           CheckoutAddress?
+  deliveryZone      DeliveryZone?          @relation(fields: [deliveryZoneId], references: [id], onDelete: Restrict)
+  pickupLocation    PickupLocation?        @relation(fields: [pickupLocationId], references: [id], onDelete: Restrict)
+  timeWindow        FulfillmentTimeWindow? @relation(fields: [timeWindowId], references: [id], onDelete: Restrict)
+  order             Order?
 
   @@index([customerId, status])
   @@index([cartId, status])
   @@index([expiresAt])
+  @@index([selectedPromotionId])
 }
 
 model CheckoutAddress {
@@ -834,57 +847,66 @@ enum FulfillmentStatus {
 }
 
 model Order {
-  id                         String            @id @default(uuid()) @db.Uuid
-  orderNumber                String            @unique
-  customerId                 String            @db.Uuid
-  cartId                     String            @db.Uuid
-  checkoutDraftId            String            @unique @db.Uuid
-  status                     OrderStatus       @default(PENDING_PAYMENT)
-  paymentStatus              PaymentStatus     @default(NOT_STARTED)
-  fulfillmentStatus          FulfillmentStatus @default(PENDING)
-  currencyCode               String            @default("MXN")
-  itemsSubtotalMinor         Int
-  deliveryFeeMinor           Int
-  grandTotalMinor            Int
-  displayCurrencyCode        String?
-  displayTotalMinor          Int?
-  displayExchangeRate        Decimal?          @db.Decimal(30, 15)
-  displayExchangeProvider    String?
-  displayExchangeSourceDate  DateTime?         @db.Date
-  customerName               String
-  customerEmail              String
-  locale                     String            @default("es-MX")
-  customerPhone              String?
-  fulfillmentMethod          FulfillmentMethod
-  requestedDate              DateTime          @db.Date
-  timeWindowLabel            String?
-  timeWindowStart            String
-  timeWindowEnd              String
-  customerNotes              String?
-  deliveryZoneId             String?           @db.Uuid
-  deliveryZoneName           String?
-  pickupLocationId           String?           @db.Uuid
-  pickupLocationName         String?
-  pickupAddressSnapshot      String?
-  pickupInstructionsSnapshot String?
-  stripePaymentIntentId      String?           @unique
-  paidAt                     DateTime?         @db.Timestamptz
-  cancelledAt                DateTime?         @db.Timestamptz
-  expiresAt                  DateTime          @db.Timestamptz
-  createdAt                  DateTime          @default(now()) @db.Timestamptz
-  updatedAt                  DateTime          @updatedAt @db.Timestamptz
+  id                             String                @id @default(uuid()) @db.Uuid
+  orderNumber                    String                @unique
+  customerId                     String                @db.Uuid
+  cartId                         String                @db.Uuid
+  checkoutDraftId                String                @unique @db.Uuid
+  status                         OrderStatus           @default(PENDING_PAYMENT)
+  paymentStatus                  PaymentStatus         @default(NOT_STARTED)
+  fulfillmentStatus              FulfillmentStatus     @default(PENDING)
+  currencyCode                   String                @default("MXN")
+  itemsSubtotalMinor             Int
+  deliveryFeeMinor               Int
+  promotionId                    String?               @db.Uuid
+  promotionCodeSnapshot          String?
+  promotionLabelSnapshot         String?
+  promotionBenefitType           PromotionBenefitType?
+  promotionDiscountMinor         Int                   @default(0)
+  promotionEligibleSubtotalMinor Int?
+  grandTotalMinor                Int
+  displayCurrencyCode            String?
+  displayTotalMinor              Int?
+  displayExchangeRate            Decimal?              @db.Decimal(30, 15)
+  displayExchangeProvider        String?
+  displayExchangeSourceDate      DateTime?             @db.Date
+  customerName                   String
+  customerEmail                  String
+  locale                         String                @default("es-MX")
+  customerPhone                  String?
+  fulfillmentMethod              FulfillmentMethod
+  requestedDate                  DateTime              @db.Date
+  timeWindowLabel                String?
+  timeWindowStart                String
+  timeWindowEnd                  String
+  customerNotes                  String?
+  deliveryZoneId                 String?               @db.Uuid
+  deliveryZoneName               String?
+  pickupLocationId               String?               @db.Uuid
+  pickupLocationName             String?
+  pickupAddressSnapshot          String?
+  pickupInstructionsSnapshot     String?
+  stripePaymentIntentId          String?               @unique
+  paidAt                         DateTime?             @db.Timestamptz
+  cancelledAt                    DateTime?             @db.Timestamptz
+  expiresAt                      DateTime              @db.Timestamptz
+  createdAt                      DateTime              @default(now()) @db.Timestamptz
+  updatedAt                      DateTime              @updatedAt @db.Timestamptz
 
-  customer        CustomerAccount  @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  cart            Cart             @relation(fields: [cartId], references: [id], onDelete: Restrict)
-  checkoutDraft   CheckoutDraft    @relation(fields: [checkoutDraftId], references: [id], onDelete: Restrict)
-  deliveryZone    DeliveryZone?    @relation(fields: [deliveryZoneId], references: [id], onDelete: SetNull)
-  pickupLocation  PickupLocation?  @relation(fields: [pickupLocationId], references: [id], onDelete: SetNull)
-  items           OrderItem[]
-  address         OrderAddress?
-  paymentAttempts PaymentAttempt[]
-  events          OrderEvent[]
+  customer             CustomerAccount       @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  cart                 Cart                  @relation(fields: [cartId], references: [id], onDelete: Restrict)
+  checkoutDraft        CheckoutDraft         @relation(fields: [checkoutDraftId], references: [id], onDelete: Restrict)
+  deliveryZone         DeliveryZone?         @relation(fields: [deliveryZoneId], references: [id], onDelete: SetNull)
+  pickupLocation       PickupLocation?       @relation(fields: [pickupLocationId], references: [id], onDelete: SetNull)
+  promotion            Promotion?            @relation(fields: [promotionId], references: [id], onDelete: SetNull)
+  promotionReservation PromotionReservation?
+  items                OrderItem[]
+  address              OrderAddress?
+  paymentAttempts      PaymentAttempt[]
+  events               OrderEvent[]
 
   @@index([customerId, createdAt])
+  @@index([promotionId])
   @@index([status])
   @@index([paymentStatus])
   @@index([fulfillmentStatus])
@@ -1044,4 +1066,152 @@ model EmailOutbox {
   @@index([status, processingStartedAt])
   @@index([createdAt])
   @@index([template])
+}
+
+enum PromotionMode {
+  CODE
+  AUTOMATIC
+}
+
+enum PromotionBenefitType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_DELIVERY
+}
+
+enum PromotionStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum PromotionScopeType {
+  ORDER
+  PRODUCT
+  CATEGORY
+  UNIVERSE
+  BUSINESS_LINE
+}
+
+enum PromotionReservationStatus {
+  RESERVED
+  CONSUMED
+  RELEASED
+}
+
+model Promotion {
+  id                    String               @id @default(uuid()) @db.Uuid
+  internalName          String
+  mode                  PromotionMode
+  status                PromotionStatus      @default(DRAFT)
+  normalizedCode        String?              @unique
+  benefitType           PromotionBenefitType
+  percentageBps         Int?
+  fixedAmountMinor      Int?
+  minSubtotalMinor      Int?
+  maxDiscountMinor      Int?
+  startsAt              DateTime?            @db.Timestamptz
+  endsAt                DateTime?            @db.Timestamptz
+  usageLimitTotal       Int?
+  usageLimitPerCustomer Int?
+  priority              Int                  @default(0)
+  scopeType             PromotionScopeType   @default(ORDER)
+  createdAt             DateTime             @default(now()) @db.Timestamptz
+  updatedAt             DateTime             @updatedAt @db.Timestamptz
+  createdByAdminId      String?              @db.Uuid
+  updatedByAdminId      String?              @db.Uuid
+
+  translations   PromotionTranslation[]
+  products       PromotionProduct[]
+  categories     PromotionCategory[]
+  universes      PromotionUniverse[]
+  businessLines  PromotionBusinessLine[]
+  reservations   PromotionReservation[]
+  carts          Cart[]
+  checkoutDrafts CheckoutDraft[]
+  orders         Order[]
+  createdBy      AdminAccount?           @relation("PromotionCreatedBy", fields: [createdByAdminId], references: [id], onDelete: SetNull)
+  updatedBy      AdminAccount?           @relation("PromotionUpdatedBy", fields: [updatedByAdminId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([startsAt])
+  @@index([endsAt])
+  @@index([mode, status])
+}
+
+model PromotionTranslation {
+  id          String  @id @default(uuid()) @db.Uuid
+  promotionId String  @db.Uuid
+  locale      String
+  label       String
+  description String?
+
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+
+  @@unique([promotionId, locale])
+}
+
+model PromotionProduct {
+  promotionId String @db.Uuid
+  productId   String @db.Uuid
+
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@id([promotionId, productId])
+  @@index([productId])
+}
+
+model PromotionCategory {
+  promotionId String @db.Uuid
+  categoryId  String @db.Uuid
+
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  category  Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@id([promotionId, categoryId])
+  @@index([categoryId])
+}
+
+model PromotionUniverse {
+  promotionId String @db.Uuid
+  universeId  String @db.Uuid
+
+  promotion Promotion @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  universe  Universe  @relation(fields: [universeId], references: [id], onDelete: Cascade)
+
+  @@id([promotionId, universeId])
+  @@index([universeId])
+}
+
+model PromotionBusinessLine {
+  promotionId    String @db.Uuid
+  businessLineId String @db.Uuid
+
+  promotion    Promotion    @relation(fields: [promotionId], references: [id], onDelete: Cascade)
+  businessLine BusinessLine @relation(fields: [businessLineId], references: [id], onDelete: Cascade)
+
+  @@id([promotionId, businessLineId])
+  @@index([businessLineId])
+}
+
+model PromotionReservation {
+  id          String                     @id @default(uuid()) @db.Uuid
+  promotionId String                     @db.Uuid
+  customerId  String                     @db.Uuid
+  orderId     String                     @unique @db.Uuid
+  status      PromotionReservationStatus @default(RESERVED)
+  expiresAt   DateTime                   @db.Timestamptz
+  createdAt   DateTime                   @default(now()) @db.Timestamptz
+  consumedAt  DateTime?                  @db.Timestamptz
+  releasedAt  DateTime?                  @db.Timestamptz
+
+  promotion Promotion       @relation(fields: [promotionId], references: [id], onDelete: Restrict)
+  customer  CustomerAccount @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  order     Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([promotionId, status, expiresAt])
+  @@index([customerId, status, expiresAt])
+  @@index([status, expiresAt])
 }

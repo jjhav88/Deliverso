@@ -99,6 +99,12 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
           displaySubtotal={model.displaySubtotal.formatted}
           displayFee={model.displayFee.formatted}
           displayEstimated={model.displayEstimated.formatted}
+          displayPromotion={
+            model.totals.promotionDiscountMinor > 0
+              ? `−${formatMoneyFromMinorUnits(model.totals.promotionDiscountMinor, "MXN", locale)}`
+              : model.totals.promotionLabel
+          }
+          promotionInvalidated={model.totals.promotionInvalidated}
           canMarkReady={model.canMarkReady}
           locale={locale}
           readyMessage={
@@ -119,6 +125,8 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
             subtotal: t("subtotal"),
             delivery: t("deliveryFee"),
             estimated: t("estimated"),
+            promotion: t("promotion"),
+            promotionUnavailable: t("promotionUnavailable"),
             name: t("name"),
             email: t("email"),
             phone: t("phone"),

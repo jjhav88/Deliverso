@@ -34,6 +34,19 @@ test.describe("storefront smoke", () => {
     const response = await page.goto("/carrito");
     expect(response?.ok()).toBeTruthy();
     await expect(page.locator("main")).toBeVisible();
+    await expect(
+      page.getByText(/Guarda tus productos|Save your products|código promocional|promo code/i).first(),
+    ).toBeVisible();
+  });
+
+  test("checkout redirects when anonymous", async ({ page }) => {
+    await page.goto("/checkout");
+    await expect(page).toHaveURL(/iniciar-sesion|account\/login|checkout/);
+  });
+
+  test("admin promotions protected", async ({ page }) => {
+    await page.goto("/admin/promotions");
+    await expect(page).toHaveURL(/admin\/login/);
   });
 });
 

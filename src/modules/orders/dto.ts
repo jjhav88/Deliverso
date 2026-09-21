@@ -34,6 +34,9 @@ export type CustomerOrderItem = {
 export type CustomerOrderDetail = CustomerOrderSummary & {
   itemsSubtotalMinor: number;
   deliveryFeeMinor: number;
+  promotionLabelSnapshot: string | null;
+  promotionCodeSnapshot: string | null;
+  promotionDiscountMinor: number;
   customerName: string;
   customerEmail: string;
   customerPhone: string | null;
@@ -86,4 +89,8 @@ export type AdminOrderDetail = CustomerOrderDetail & {
   cartId: string;
   stripePaymentIntentId: string | null;
   events: Array<{ type: string; createdAt: string }>;
+  promotionId: string | null;
+  promotionBenefitType: string | null;
+  promotionEligibleSubtotalMinor: number | null;
+  promotionReservationStatus: string | null;
 };

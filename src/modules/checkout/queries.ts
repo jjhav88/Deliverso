@@ -45,6 +45,7 @@ export type CheckoutDraftRecord = {
   requestedDate: string | null;
   timeWindowId: string | null;
   customerNotes: string | null;
+  selectedPromotionId: string | null;
   expiresAt: Date;
 };
 
@@ -112,6 +113,7 @@ export async function getOrCreateCheckoutDraft() {
       data: {
         expiresAt,
         contactEmail: customer.email,
+        selectedPromotionId: cart.selectedPromotionId,
       },
       include: { address: true },
     });
@@ -133,6 +135,7 @@ export async function getOrCreateCheckoutDraft() {
       contactName: customer.displayName,
       contactEmail: customer.email,
       contactPhone: customer.phone,
+      selectedPromotionId: cart.selectedPromotionId,
       expiresAt,
     },
     include: { address: true },
@@ -155,6 +158,7 @@ function mapDraft(row: {
   requestedDate: Date | null;
   timeWindowId: string | null;
   customerNotes: string | null;
+  selectedPromotionId: string | null;
   expiresAt: Date;
 }): CheckoutDraftRecord {
   return {
@@ -171,6 +175,7 @@ function mapDraft(row: {
     requestedDate: row.requestedDate ? calendarDateFromDb(row.requestedDate) : null,
     timeWindowId: row.timeWindowId,
     customerNotes: row.customerNotes,
+    selectedPromotionId: row.selectedPromotionId,
     expiresAt: row.expiresAt,
   };
 }
@@ -349,11 +354,32 @@ export async function buildCheckoutPageModel(input: {
   const selectedPickup = created.draft.pickupLocationId
     ? catalog.pickups.find((item) => item.id === created.draft.pickupLocationId) ?? null
     : null;
-  const totals = buildCheckoutTotals({
+  const baseTotals = buildCheckoutTotals({
     itemsSubtotalMinor: cart.subtotal.amountMinor,
     method: created.draft.fulfillmentMethod,
     zoneFeeMinor: selectedZone?.deliveryFeeMinor,
   });
+  const { resolveCartPromotion } = await import("@/modules/promotions/resolve");
+  const promotion = await resolveCartPromotion({
+    customerId: created.customer.id,
+    selectedPromotionId: created.draft.selectedPromotionId ?? created.cart.selectedPromotionId,
+    items: cart.items
+      .filter((item) => item.valid && item.lineTotal)
+      .map((item) => ({ productId: item.productId, lineTotalMinor: item.lineTotal!.amountMinor })),
+    subtotalMinor: cart.subtotal.amountMinor,
+    locale: input.locale,
+    deliveryFeeMinor: baseTotals.deliveryFeeMinor,
+    fulfillmentMethod: created.draft.fulfillmentMethod,
+  });
+  const totals = {
+    itemsSubtotalMinor: baseTotals.itemsSubtotalMinor,
+    deliveryFeeMinor: baseTotals.deliveryFeeMinor,
+    estimatedTotalMinor: promotion.totals.grandTotalMinor,
+    promotionDiscountMinor: promotion.totals.promotionDiscountMinor,
+    promotionLabel: promotion.quote?.label ?? null,
+    promotionCode: promotion.quote?.normalizedCode ?? null,
+    promotionInvalidated: promotion.invalidated,
+  };
   const availableDates: AvailableDate[] = created.draft.fulfillmentMethod
     ? getAvailableFulfillmentDates({
         now: new Date(),

@@ -90,7 +90,7 @@ export const adminNavigation: readonly AdminNavigationItem[] = [
     href: "/admin/promotions",
     label: "Promociones",
     icon: BadgePercent,
-    availability: "soon",
+    availability: "ready",
   },
   {
     id: "settings",

@@ -17,11 +17,13 @@ import {
 } from "@/modules/checkout/queries";
 import { generateOrderNumber } from "@/modules/orders/domain/order-number";
 import { buildOrderItemSnapshots } from "@/modules/orders/snapshots";
+import { resolveCartPromotion } from "@/modules/promotions/resolve";
+import { createPromotionReservation } from "@/modules/promotions/reservation";
 import type { AppLocale } from "@/config/i18n";
 
 export type CreateOrderResult =
   | { ok: true; orderId: string; orderNumber: string; alreadyExisted: boolean }
-  | { ok: false; code: "CHANGED" | "NOT_READY" | "NO_DRAFT" | "CART_LOCKED" };
+  | { ok: false; code: "CHANGED" | "NOT_READY" | "NO_DRAFT" | "CART_LOCKED" | "PROMOTION_UNAVAILABLE" | "ZERO_VALUE" };
 
 const cartItemInclude = {
   product: {
@@ -81,7 +83,7 @@ export async function createOrderFromCheckoutDraft(input: {
     where: { id: input.checkoutDraftId },
     include: {
       address: true,
-      cart: { select: { id: true, status: true, customerId: true } },
+      cart: { select: { id: true, status: true, customerId: true, selectedPromotionId: true } },
     },
   });
 
@@ -173,11 +175,37 @@ export async function createOrderFromCheckoutDraft(input: {
     return { ok: false, code: "CHANGED" };
   }
 
-  const totals = buildCheckoutTotals({
+  const baseTotals = buildCheckoutTotals({
     itemsSubtotalMinor: cart.subtotal.amountMinor,
     method: draft.fulfillmentMethod,
     zoneFeeMinor: selectedZone?.deliveryFeeMinor,
   });
+  const promotion = await resolveCartPromotion({
+    customerId: draft.customerId,
+    selectedPromotionId: draft.selectedPromotionId ?? draft.cart.selectedPromotionId,
+    items: cart.items
+      .filter((item) => item.valid && item.lineTotal)
+      .map((item) => ({ productId: item.productId, lineTotalMinor: item.lineTotal!.amountMinor })),
+    subtotalMinor: cart.subtotal.amountMinor,
+    locale: input.locale,
+    deliveryFeeMinor: baseTotals.deliveryFeeMinor,
+    fulfillmentMethod: draft.fulfillmentMethod,
+  });
+  if (promotion.invalidated) {
+    await prisma.checkoutDraft.update({
+      where: { id: draft.id },
+      data: { status: "IN_PROGRESS", selectedPromotionId: null },
+    });
+    return { ok: false, code: "PROMOTION_UNAVAILABLE" };
+  }
+  if (promotion.totals.grandTotalMinor <= 0) {
+    return { ok: false, code: "ZERO_VALUE" };
+  }
+  const totals = {
+    itemsSubtotalMinor: baseTotals.itemsSubtotalMinor,
+    deliveryFeeMinor: baseTotals.deliveryFeeMinor,
+    estimatedTotalMinor: promotion.totals.grandTotalMinor,
+  };
 
   const itemRows = await prisma.cartItem.findMany({
     where: { cartId: draft.cartId },
@@ -247,6 +275,12 @@ export async function createOrderFromCheckoutDraft(input: {
             currencyCode: "MXN",
             itemsSubtotalMinor: totals.itemsSubtotalMinor,
             deliveryFeeMinor: totals.deliveryFeeMinor,
+            promotionId: promotion.quote?.promotionId ?? null,
+            promotionCodeSnapshot: promotion.quote?.normalizedCode ?? null,
+            promotionLabelSnapshot: promotion.quote?.label ?? null,
+            promotionBenefitType: promotion.quote?.benefitType ?? null,
+            promotionDiscountMinor: promotion.totals.promotionDiscountMinor,
+            promotionEligibleSubtotalMinor: promotion.quote?.eligibleSubtotalMinor ?? null,
             grandTotalMinor: totals.estimatedTotalMinor,
             displayCurrencyCode:
               display && !display.unavailable ? display.currency : null,
@@ -329,6 +363,19 @@ export async function createOrderFromCheckoutDraft(input: {
           data: { status: "CONVERTED_TO_ORDER" },
         });
 
+        if (promotion.quote?.isEligible && promotion.quote.reason !== "DELIVERY_PENDING") {
+          const reserved = await createPromotionReservation(tx, {
+            promotionId: promotion.quote.promotionId,
+            customerId: draft.customerId,
+            orderId: order.id,
+            expiresAt,
+            now: new Date(),
+          });
+          if (!reserved.ok) {
+            throw new Error("PROMOTION_LIMIT");
+          }
+        }
+
         return order;
       });
 
@@ -339,6 +386,9 @@ export async function createOrderFromCheckoutDraft(input: {
         alreadyExisted: created.orderNumber !== orderNumber,
       };
     } catch (error) {
+      if (error instanceof Error && error.message === "PROMOTION_LIMIT") {
+        return { ok: false, code: "PROMOTION_UNAVAILABLE" };
+      }
       if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
         const raced = await prisma.order.findUnique({
           where: { checkoutDraftId: draft.id },

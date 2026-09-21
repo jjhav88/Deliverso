@@ -187,6 +187,8 @@ Documentos:
 - [ADR-014](../adr/ADR-014-orders-and-stripe.md)
 - [Emails transaccionales](./transactional-email.md)
 - [ADR-015](../adr/ADR-015-transactional-email-outbox.md)
+- [Promociones](../modules/promotions.md)
+- [ADR-017](../adr/ADR-017-promotions-engine.md)
 
 La Home **no** está conectada a Prisma. Sin `DATABASE_URL` el storefront
 sigue funcionando con datos demo.

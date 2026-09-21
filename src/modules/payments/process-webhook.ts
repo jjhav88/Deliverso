@@ -172,6 +172,8 @@ export async function processStripePaymentIntentEvent(input: {
       });
 
       if (plan.paymentStatus === "SUCCEEDED") {
+        const { consumePromotionReservation } = await import("@/modules/promotions/reservation");
+        await consumePromotionReservation(tx, order.id);
         await queueTransactionalEmail(
           {
             template: "ORDER_PAID",

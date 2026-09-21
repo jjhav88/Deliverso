@@ -148,6 +148,13 @@ export default async function CartPage({ params }: PageProps) {
             viewOrder: t("viewOrder"),
             continuePayment: t("continuePayment"),
             confirmCancelPending: t("confirmCancelPending"),
+            promoTitle: t("promoTitle"),
+            promoApply: t("promoApply"),
+            promoApplied: t("promoApplied"),
+            promoRemove: t("promoRemove"),
+            promoUnavailable: t("promoUnavailable"),
+            promoDeliveryHint: t("promoDeliveryHint"),
+            promotion: t("promotion"),
           }}
           canCheckout={checkoutMode === "active" && canEnterCheckout(cart)}
           locked={checkoutMode !== "active"}

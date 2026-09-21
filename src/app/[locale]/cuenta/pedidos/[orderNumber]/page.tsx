@@ -76,6 +76,14 @@ export default async function CustomerOrderDetailPage({ params }: PageProps) {
             <p className="type-body tabular-nums">
               {t("delivery")}: {formatMoneyFromMinorUnits(order.deliveryFeeMinor, "MXN", locale)}
             </p>
+            {order.promotionDiscountMinor > 0 ? (
+              <p className="type-body tabular-nums">
+                {t("promotion")}
+                {order.promotionCodeSnapshot ? ` ${order.promotionCodeSnapshot}` : ""}
+                {order.promotionLabelSnapshot ? ` · ${order.promotionLabelSnapshot}` : ""}
+                : −{formatMoneyFromMinorUnits(order.promotionDiscountMinor, "MXN", locale)}
+              </p>
+            ) : null}
             <p className="type-h3 tabular-nums">
               {t("charged")}: {formatMoneyFromMinorUnits(order.grandTotalMinor, "MXN", locale)}
             </p>

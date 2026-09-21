@@ -28,6 +28,7 @@ export function emptyCartView(
     subtotal: emptySubtotal,
     displaySubtotal: toDisplayOrIdentity(emptySubtotal, locale, displayCurrency, rateSet),
     issues: [],
+    promotion: null,
   };
 }
 
@@ -218,6 +219,15 @@ export async function getCartView(input: {
     .filter((item) => item.valid && item.lineTotal)
     .reduce((sum, item) => sum + (item.lineTotal?.amountMinor ?? 0), 0);
   const subtotal = { amountMinor: subtotalMinor, currency: "MXN" as const };
+  const promotion = cart.customerId
+    ? await attachCartPromotion({
+        customerId: cart.customerId,
+        selectedPromotionId: cart.selectedPromotionId ?? null,
+        items,
+        subtotalMinor,
+        locale: input.locale,
+      })
+    : null;
 
   return {
     items,
@@ -230,6 +240,39 @@ export async function getCartView(input: {
       input.rateSet,
     ),
     issues: items.flatMap((item) => item.issues),
+    promotion,
+  };
+}
+
+async function attachCartPromotion(input: {
+  customerId: string;
+  selectedPromotionId: string | null;
+  items: CartItemView[];
+  subtotalMinor: number;
+  locale: AppLocale;
+}): Promise<import("@/modules/cart/types").CartPromotionView | null> {
+  const { resolveCartPromotion } = await import("@/modules/promotions/resolve");
+  const resolved = await resolveCartPromotion({
+    customerId: input.customerId,
+    selectedPromotionId: input.selectedPromotionId,
+    items: input.items
+      .filter((item) => item.valid && item.lineTotal)
+      .map((item) => ({ productId: item.productId, lineTotalMinor: item.lineTotal!.amountMinor })),
+    subtotalMinor: input.subtotalMinor,
+    locale: input.locale,
+  });
+  if (!resolved.quote && !resolved.invalidated) {
+    return null;
+  }
+  return {
+    applied: Boolean(resolved.quote?.isEligible && (resolved.quote.totalDiscountMinor > 0 || resolved.quote.reason === "DELIVERY_PENDING")),
+    code: resolved.selectedWasCode ? resolved.quote?.normalizedCode ?? null : null,
+    label: resolved.quote?.label ?? null,
+    automatic: Boolean(resolved.quote && !resolved.selectedWasCode),
+    discountMinor: resolved.quote?.discountMinor ?? 0,
+    deliveryHint: resolved.quote?.reason === "DELIVERY_PENDING",
+    invalidated: resolved.invalidated,
+    estimatedTotalMinor: resolved.totals.grandTotalMinor,
   };
 }
 

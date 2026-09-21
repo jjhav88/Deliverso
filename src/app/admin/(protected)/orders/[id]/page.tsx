@@ -82,10 +82,38 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
         <p className="type-body tabular-nums">
           Entrega: {formatMoneyFromMinorUnits(order.deliveryFeeMinor, "MXN", "es-MX")}
         </p>
+        {order.promotionDiscountMinor > 0 ? (
+          <p className="type-body tabular-nums">
+            Promoción{order.promotionCodeSnapshot ? ` ${order.promotionCodeSnapshot}` : ""}
+            {order.promotionLabelSnapshot ? ` · ${order.promotionLabelSnapshot}` : ""}
+            : −{formatMoneyFromMinorUnits(order.promotionDiscountMinor, "MXN", "es-MX")}
+          </p>
+        ) : null}
         <p className="type-h3 tabular-nums">
           Total: {formatMoneyFromMinorUnits(order.grandTotalMinor, "MXN", "es-MX")}
         </p>
       </section>
+
+      {order.promotionDiscountMinor > 0 || order.promotionId ? (
+        <section className="grid gap-3 rounded-lg border border-border bg-[var(--admin-surface)] p-6">
+          <h3 className="type-h3">Promoción (snapshot)</h3>
+          <p className="type-body">{order.promotionLabelSnapshot ?? "—"}</p>
+          <p className="type-body-sm text-muted-foreground">Código: {order.promotionCodeSnapshot ?? "—"}</p>
+          <p className="type-body-sm text-muted-foreground">Beneficio: {order.promotionBenefitType ?? "—"}</p>
+          <p className="type-body-sm tabular-nums">
+            Descuento: {formatMoneyFromMinorUnits(order.promotionDiscountMinor, "MXN", "es-MX")}
+          </p>
+          <p className="type-body-sm tabular-nums">
+            Subtotal elegible:{" "}
+            {order.promotionEligibleSubtotalMinor != null
+              ? formatMoneyFromMinorUnits(order.promotionEligibleSubtotalMinor, "MXN", "es-MX")
+              : "—"}
+          </p>
+          <p className="type-body-sm text-muted-foreground">
+            Reserva/redención: {order.promotionReservationStatus ?? "—"}
+          </p>
+        </section>
+      ) : null}
 
       <section className="grid gap-3 rounded-lg border border-border bg-[var(--admin-surface)] p-6">
         <h3 className="type-h3">Fulfillment</h3>

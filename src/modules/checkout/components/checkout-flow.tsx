@@ -69,6 +69,8 @@ type CheckoutFlowProps = {
   displaySubtotal: string;
   displayFee: string;
   displayEstimated: string;
+  displayPromotion?: string | null;
+  promotionInvalidated?: boolean;
   canMarkReady: boolean;
   readyMessage: string | null;
   locale: string;
@@ -108,6 +110,12 @@ export function CheckoutFlow(props: CheckoutFlowProps) {
             <dt>{props.labels.delivery}</dt>
             <dd className="tabular-nums">{props.displayFee}</dd>
           </div>
+          {props.displayPromotion ? (
+            <div className="flex justify-between gap-3">
+              <dt>{props.labels.promotion ?? "Promoción"}</dt>
+              <dd className="tabular-nums">{props.displayPromotion}</dd>
+            </div>
+          ) : null}
           <div className="flex justify-between gap-3 type-body font-medium">
             <dt>{props.labels.estimated}</dt>
             <dd className="tabular-nums">{props.displayEstimated}</dd>
@@ -336,6 +344,11 @@ function ReviewStep(props: CheckoutFlowProps) {
           {props.labels.saveNotes}
         </Button>
       </form>
+      {props.promotionInvalidated ? (
+        <p role="alert" className="type-caption text-destructive">
+          {props.labels.promotionUnavailable ?? "La promoción ya no está disponible. Actualizamos el total de tu pedido."}
+        </p>
+      ) : null}
       {props.readyMessage ? (
         <p role="alert" className="type-caption text-destructive">{props.readyMessage}</p>
       ) : null}

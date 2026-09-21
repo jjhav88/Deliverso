@@ -15,6 +15,9 @@ type OrderSnapshotRow = {
   itemsSubtotalMinor: number;
   deliveryFeeMinor: number;
   grandTotalMinor: number;
+  promotionLabelSnapshot?: string | null;
+  promotionCodeSnapshot?: string | null;
+  promotionDiscountMinor?: number;
   deliveryZoneName: string | null;
   pickupLocationName: string | null;
   pickupAddressSnapshot: string | null;
@@ -70,6 +73,9 @@ export function toOrderEmailView(row: OrderSnapshotRow): OrderEmailView {
     itemsSubtotalMinor: row.itemsSubtotalMinor,
     deliveryFeeMinor: row.deliveryFeeMinor,
     grandTotalMinor: row.grandTotalMinor,
+    promotionLabel: row.promotionLabelSnapshot ?? null,
+    promotionCode: row.promotionCodeSnapshot ?? null,
+    promotionDiscountMinor: row.promotionDiscountMinor ?? 0,
     addressSummary,
     addressLines: formatAddressLines({
       street: row.address?.street,

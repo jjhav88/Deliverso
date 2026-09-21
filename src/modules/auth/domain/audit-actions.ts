@@ -39,6 +39,11 @@ export const adminAuditActions = [
   "CHECKOUT_EXPIRED",
   "CART_ABANDONED",
   "EMAIL_STALE_RECOVERED",
+  "PROMOTION_CREATED",
+  "PROMOTION_UPDATED",
+  "PROMOTION_ACTIVATED",
+  "PROMOTION_PAUSED",
+  "PROMOTION_ARCHIVED",
 ] as const;
 
 export type AdminAuditAction = (typeof adminAuditActions)[number];

@@ -29,10 +29,22 @@ export type CartItemView = {
   issues: CartIssue[];
 };
 
+export type CartPromotionView = {
+  applied: boolean;
+  code: string | null;
+  label: string | null;
+  automatic: boolean;
+  discountMinor: number;
+  deliveryHint: boolean;
+  invalidated: boolean;
+  estimatedTotalMinor: number;
+};
+
 export type CartView = {
   items: CartItemView[];
   itemCount: number;
   subtotal: MoneyAmount;
   displaySubtotal: DisplayMoney;
   issues: CartIssue[];
+  promotion: CartPromotionView | null;
 };

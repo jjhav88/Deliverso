@@ -68,6 +68,9 @@ export type OrderEmailView = {
   itemsSubtotalMinor: number;
   deliveryFeeMinor: number;
   grandTotalMinor: number;
+  promotionLabel?: string | null;
+  promotionCode?: string | null;
+  promotionDiscountMinor?: number;
   fulfillmentMethod: "DELIVERY" | "PICKUP";
   requestedDate: string;
   timeWindow: string;

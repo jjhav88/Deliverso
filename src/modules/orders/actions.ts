@@ -56,7 +56,12 @@ export async function startOrderPayment(
   if (!result.ok) {
     revalidateOrderSurfaces();
     return {
-      error: result.code === "CHANGED" ? ORDER_CHANGED_MESSAGE : "No pudimos crear el pedido.",
+      error:
+        result.code === "CHANGED"
+          ? ORDER_CHANGED_MESSAGE
+          : result.code === "PROMOTION_UNAVAILABLE"
+            ? "La promoción ya no está disponible. Actualizamos el total de tu pedido."
+            : "No pudimos crear el pedido.",
       success: null,
     };
   }
@@ -120,6 +125,8 @@ export async function cancelPendingOrder(formData: FormData): Promise<void> {
     await tx.orderEvent.create({
       data: { orderId: order.id, type: "ORDER_CANCELLED" },
     });
+    const { releasePromotionReservation } = await import("@/modules/promotions/reservation");
+    await releasePromotionReservation(tx, order.id);
   });
 
   revalidateOrderSurfaces();

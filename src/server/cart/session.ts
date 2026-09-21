@@ -16,6 +16,7 @@ export type CartRecord = {
   id: string;
   status: "ACTIVE" | "PENDING_PAYMENT" | "CHECKED_OUT" | "ABANDONED";
   customerId: string | null;
+  selectedPromotionId: string | null;
   expiresAt: Date;
 };
 
@@ -30,7 +31,7 @@ async function loadCustomerShopperCarts(
   return getPrisma().cart.findMany({
     where: { customerId, status: { in: statuses } },
     orderBy: [{ status: "desc" }, { updatedAt: "desc" }],
-    select: { id: true, status: true, customerId: true, expiresAt: true, tokenHash: true },
+    select: { id: true, status: true, customerId: true, selectedPromotionId: true, expiresAt: true, tokenHash: true },
   });
 }
 
@@ -39,6 +40,7 @@ function toCartRecord(row: CartRow): CartRecord {
     id: row.id,
     status: row.status,
     customerId: row.customerId,
+    selectedPromotionId: row.selectedPromotionId,
     expiresAt: row.expiresAt,
   };
 }
@@ -152,7 +154,7 @@ export async function getOrCreateCurrentCart(): Promise<CartRecord | null> {
       customerId: customer.id,
       expiresAt: new Date(now.getTime() + CART_TTL_MS),
     },
-    select: { id: true, status: true, customerId: true, expiresAt: true },
+    select: { id: true, status: true, customerId: true, selectedPromotionId: true, expiresAt: true },
   });
   await writeCartToken(raw);
   return cart;
@@ -185,6 +187,7 @@ export async function readLegacyCookieCart() {
       id: true,
       status: true,
       customerId: true,
+      selectedPromotionId: true,
       expiresAt: true,
     },
   });

@@ -18,6 +18,7 @@ export type LogFields = {
   skipped?: number;
   failed?: number;
   code?: string | null;
+  reason?: string;
 };
 
 const forbiddenKeys = /secret|password|authorization|cookie|token|phone|address|recipient|email|client_secret|api[_-]?key|service.?role|whsec_|sk_live_|sk_test_/i;

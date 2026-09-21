@@ -392,7 +392,14 @@
     "viewOrder": "View order",
     "continuePayment": "Continue payment",
     "cancelPending": "Cancel pending order",
-    "confirmCancelPending": "Cancel this pending order and edit the cart again?"
+    "confirmCancelPending": "Cancel this pending order and edit the cart again?",
+    "promoTitle": "Have a promo code?",
+    "promoApply": "Apply",
+    "promoApplied": "Promotion applied",
+    "promoRemove": "Remove",
+    "promoUnavailable": "This code is not available.",
+    "promoDeliveryHint": "Free delivery when you choose a valid delivery.",
+    "promotion": "Promotion"
   },
   "universes": {
     "meta": {
@@ -492,6 +499,8 @@
     "subtotal": "Subtotal",
     "deliveryFee": "Delivery",
     "estimated": "Estimated total",
+    "promotion": "Promotion",
+    "promotionUnavailable": "This promotion is no longer available. We updated your order total.",
     "name": "Name",
     "email": "Email",
     "phone": "Phone",
@@ -594,6 +603,7 @@
     "totals": "Totals",
     "subtotal": "Subtotal",
     "delivery": "Delivery",
+    "promotion": "Promotion",
     "charged": "Amount charged",
     "historicDisplay": "When the order was created it showed about {amount} with reference rate {provider} {rate} ({date}).",
     "customer": "Customer",

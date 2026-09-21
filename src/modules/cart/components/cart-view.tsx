@@ -12,6 +12,7 @@ import {
   updateCartItemQuantityAction,
 } from "@/modules/cart/actions";
 import { QuantitySelector } from "@/modules/catalog/components/quantity-selector";
+import { PromotionCodeForm } from "@/modules/cart/components/promotion-code-form";
 import { useState } from "react";
 
 type CartPageViewProps = {
@@ -41,6 +42,14 @@ type CartPageViewProps = {
     viewOrder?: string;
     continuePayment?: string;
     confirmCancelPending?: string;
+    promoTitle?: string;
+    promoApply?: string;
+    promoApplied?: string;
+    promoRemove?: string;
+    promoUnavailable?: string;
+    promoDeliveryHint?: string;
+    promotion?: string;
+    estimated?: string;
   };
   canCheckout?: boolean;
   locked?: boolean;
@@ -103,6 +112,24 @@ export function CartPageView({
       <aside className="h-fit rounded-lg border border-border p-5">
         <p className="type-label tracking-[0.12em] text-secondary">{labels.subtotal}</p>
         <p className="type-h2 mt-3 tabular-nums">{cart.displaySubtotal.formatted}</p>
+        {cart.promotion?.applied && cart.promotion.discountMinor > 0 ? (
+          <p className="mt-2 type-body-sm tabular-nums text-secondary">
+            {labels.promotion ?? "Promoción"} −{(cart.promotion.discountMinor / 100).toFixed(2)}
+          </p>
+        ) : null}
+        {mode === "active" ? (
+          <PromotionCodeForm
+            promotion={cart.promotion}
+            labels={{
+              title: labels.promoTitle ?? "¿Tienes un código promocional?",
+              apply: labels.promoApply ?? "Aplicar",
+              applied: labels.promoApplied ?? "Promoción aplicada",
+              remove: labels.promoRemove ?? "Quitar",
+              unavailable: labels.promoUnavailable ?? "Este código no está disponible.",
+              deliveryHint: labels.promoDeliveryHint ?? "Envío gratis al elegir entrega válida.",
+            }}
+          />
+        ) : null}
         {(updateState.error || removeState.error || clearState.error) ? (
           <p role="alert" className="mt-3 type-caption text-destructive">
             {updateState.error || removeState.error || clearState.error}

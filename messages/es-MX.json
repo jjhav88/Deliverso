@@ -392,7 +392,14 @@
     "viewOrder": "Ver pedido",
     "continuePayment": "Continuar pago",
     "cancelPending": "Cancelar pedido pendiente",
-    "confirmCancelPending": "¿Cancelar este pedido pendiente y volver a editar el carrito?"
+    "confirmCancelPending": "¿Cancelar este pedido pendiente y volver a editar el carrito?",
+    "promoTitle": "¿Tienes un código promocional?",
+    "promoApply": "Aplicar",
+    "promoApplied": "Promoción aplicada",
+    "promoRemove": "Quitar",
+    "promoUnavailable": "Este código no está disponible.",
+    "promoDeliveryHint": "Envío gratis al elegir entrega válida.",
+    "promotion": "Promoción"
   },
   "universes": {
     "meta": {
@@ -492,6 +499,8 @@
     "subtotal": "Subtotal",
     "deliveryFee": "Entrega",
     "estimated": "Total estimado",
+    "promotion": "Promoción",
+    "promotionUnavailable": "La promoción ya no está disponible. Actualizamos el total de tu pedido.",
     "name": "Nombre",
     "email": "Correo",
     "phone": "Teléfono",
@@ -594,6 +603,7 @@
     "totals": "Totales",
     "subtotal": "Subtotal",
     "delivery": "Entrega",
+    "promotion": "Promoción",
     "charged": "Total cobrado",
     "historicDisplay": "Al crear el pedido se mostró aprox. {amount} con tasa de referencia {provider} {rate} ({date}).",
     "customer": "Cliente",

@@ -105,6 +105,7 @@ export async function getAdminOrderDetail(id: string): Promise<AdminOrderDetail 
         include: { options: { orderBy: { sortOrder: "asc" } } },
       },
       events: { orderBy: { createdAt: "asc" } },
+      promotionReservation: { select: { status: true } },
     },
   });
   return row ? toAdminOrderDetail(row) : null;

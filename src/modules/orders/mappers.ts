@@ -25,6 +25,12 @@ type OrderRow = {
   customerNotes: string | null;
   itemsSubtotalMinor: number;
   deliveryFeeMinor: number;
+  promotionId?: string | null;
+  promotionCodeSnapshot?: string | null;
+  promotionLabelSnapshot?: string | null;
+  promotionBenefitType?: string | null;
+  promotionDiscountMinor?: number;
+  promotionEligibleSubtotalMinor?: number | null;
   grandTotalMinor: number;
   requestedDate: Date;
   timeWindowLabel: string | null;
@@ -72,6 +78,7 @@ type OrderRow = {
     }>;
   }>;
   events?: Array<{ type: string; createdAt: Date }>;
+  promotionReservation?: { status: string } | null;
 };
 
 function localizedName(locale: string, es: string, en: string | null): string {
@@ -97,6 +104,9 @@ export function toCustomerOrderDetail(row: OrderRow, locale: string): CustomerOr
     ...toCustomerOrderSummary(row),
     itemsSubtotalMinor: row.itemsSubtotalMinor,
     deliveryFeeMinor: row.deliveryFeeMinor,
+    promotionLabelSnapshot: row.promotionLabelSnapshot ?? null,
+    promotionCodeSnapshot: row.promotionCodeSnapshot ?? null,
+    promotionDiscountMinor: row.promotionDiscountMinor ?? 0,
     customerName: row.customerName,
     customerEmail: row.customerEmail,
     customerPhone: row.customerPhone,
@@ -161,5 +171,9 @@ export function toAdminOrderDetail(row: OrderRow, locale = "es-MX"): AdminOrderD
       type: event.type,
       createdAt: event.createdAt.toISOString(),
     })),
+    promotionId: row.promotionId ?? null,
+    promotionBenefitType: row.promotionBenefitType ?? null,
+    promotionEligibleSubtotalMinor: row.promotionEligibleSubtotalMinor ?? null,
+    promotionReservationStatus: row.promotionReservation?.status ?? null,
   };
 }

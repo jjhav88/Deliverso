@@ -74,6 +74,8 @@ export async function expirePendingOrderIfNeeded(
     await tx.orderEvent.create({
       data: { orderId: order.id, type: "ORDER_EXPIRED" },
     });
+    const { releasePromotionReservation } = await import("@/modules/promotions/reservation");
+    await releasePromotionReservation(tx, order.id);
   });
 
   return "expired";

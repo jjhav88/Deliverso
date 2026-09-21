@@ -73,6 +73,12 @@ export function orderDetailsHtml(view: OrderEmailView): string {
         <td style="padding:8px 18px 0 18px;">
           ${moneyRow(labels.subtotal, moneyMxn(view.itemsSubtotalMinor))}
           ${moneyRow(labels.delivery, moneyMxn(view.deliveryFeeMinor))}
+          ${view.promotionDiscountMinor && view.promotionDiscountMinor > 0
+            ? moneyRow(
+                `${labels.promotion}${view.promotionCode ? ` ${escapeHtml(view.promotionCode)}` : ""}`,
+                `−${moneyMxn(view.promotionDiscountMinor)}`,
+              )
+            : ""}
         </td>
       </tr>
       <tr>
@@ -124,6 +130,9 @@ export function orderDetailsText(view: OrderEmailView): string {
     items,
     `${labels.subtotal}: ${moneyMxn(view.itemsSubtotalMinor)}`,
     `${labels.delivery}: ${moneyMxn(view.deliveryFeeMinor)}`,
+    view.promotionDiscountMinor && view.promotionDiscountMinor > 0
+      ? `${labels.promotion}${view.promotionCode ? ` ${view.promotionCode}` : ""}: −${moneyMxn(view.promotionDiscountMinor)}`
+      : "",
     `${labels.total}: ${moneyMxn(view.grandTotalMinor)} MXN`,
     view.fulfillmentMethod === "PICKUP" ? labels.pickup : labels.deliveryTitle,
     `${labels.date}: ${date}`,
@@ -138,6 +147,7 @@ const es = {
   order: "Pedido",
   subtotal: "Subtotal",
   delivery: "Entrega",
+  promotion: "Promoción",
   total: "Total pagado",
   deliveryTitle: "Entrega",
   pickup: "Recogida",
@@ -151,6 +161,7 @@ const en = {
   order: "Order",
   subtotal: "Subtotal",
   delivery: "Delivery",
+  promotion: "Promotion",
   total: "Amount paid",
   deliveryTitle: "Delivery",
   pickup: "Pickup",

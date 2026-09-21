@@ -273,6 +273,32 @@ describe("templates", () => {
     expect(configurable.html).not.toContain("opt_");
   });
 
+  it("renders CODE and AUTOMATIC promotion rows in ES and EN text", () => {
+    const codeEs = {
+      ...sampleOrderView("es-MX", "delivery"),
+      promotionLabel: "Bienvenida",
+      promotionCode: "STAGING10",
+      promotionDiscountMinor: 4000,
+      grandTotalMinor: 36000,
+    };
+    const automaticEn = {
+      ...sampleOrderView("en-US", "delivery"),
+      promotionLabel: "Welcome treat",
+      promotionCode: null,
+      promotionDiscountMinor: 4000,
+      grandTotalMinor: 36000,
+    };
+    const renderedCode = renderTransactionalEmail({ template: "ORDER_PAID", order: codeEs });
+    const renderedAutomatic = renderTransactionalEmail({ template: "ORDER_PAID", order: automaticEn });
+    expect(renderedCode.html).toContain("Promoción STAGING10");
+    expect(renderedCode.html).toContain("−$40.00");
+    expect(renderedCode.text).toContain("Promoción STAGING10: −$40.00");
+    expect(renderedCode.html).not.toContain("promo_");
+    expect(renderedAutomatic.html).toContain("Promotion");
+    expect(renderedAutomatic.html).not.toContain("STAGING10");
+    expect(renderedAutomatic.text).toContain("Promotion: −$40.00");
+  });
+
   it("keeps sandbox only on the subject", () => {
     const view = sampleOrderView("es-MX", "delivery");
     const rendered = renderTransactionalEmail({ template: "ORDER_OUT_FOR_DELIVERY", order: view });

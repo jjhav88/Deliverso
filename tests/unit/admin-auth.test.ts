@@ -55,6 +55,7 @@ describe("admin navigation", () => {
     ]);
     expect(getAdminNavigationItem("/admin/home").id).toBe("home");
     expect(getAdminNavigationItem("/admin").id).toBe("dashboard");
+    expect(adminNavigation.find((item) => item.id === "promotions")?.availability).toBe("ready");
   });
 });
 
