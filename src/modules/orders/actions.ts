@@ -118,10 +118,12 @@ export async function cancelPendingOrder(formData: FormData): Promise<void> {
         cancelledAt: new Date(),
       },
     });
-    await tx.cart.update({
-      where: { id: order.cartId },
-      data: { status: "ACTIVE" },
-    });
+    if (order.cartId) {
+      await tx.cart.update({
+        where: { id: order.cartId },
+        data: { status: "ACTIVE" },
+      });
+    }
     await tx.orderEvent.create({
       data: { orderId: order.id, type: "ORDER_CANCELLED" },
     });

@@ -13,6 +13,7 @@ export type CustomerOrderSummary = {
   requestedDate: string;
   grandTotalMinor: number;
   currencyCode: "MXN";
+  customOrder: boolean;
 };
 
 export type CustomerOrderItemOption = {
@@ -86,11 +87,13 @@ export type AdminOrderSummary = {
 export type AdminOrderDetail = CustomerOrderDetail & {
   id: string;
   customerId: string;
-  cartId: string;
+  cartId: string | null;
   stripePaymentIntentId: string | null;
   events: Array<{ type: string; createdAt: string }>;
   promotionId: string | null;
   promotionBenefitType: string | null;
   promotionEligibleSubtotalMinor: number | null;
   promotionReservationStatus: string | null;
+  quotationId: string | null;
+  quotationNumberSnapshot: string | null;
 };

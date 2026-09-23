@@ -1,4 +1,4 @@
-import type { OrderEmailView, WelcomeEmailView } from "@/modules/email/domain/types";
+import type { OrderEmailView, QuoteEmailView, WelcomeEmailView } from "@/modules/email/domain/types";
 
 export const sampleOrderVariants = ["delivery", "pickup", "multi", "configurable"] as const;
 export type SampleOrderVariant = (typeof sampleOrderVariants)[number];
@@ -61,6 +61,23 @@ export function sampleOrderView(
     displayExchangeProvider: null,
     displayExchangeSourceDate: null,
     items,
+  };
+}
+
+export function sampleQuoteView(locale = "es-MX"): QuoteEmailView {
+  return {
+    quoteNumber: "COT-260923-AB23CD",
+    productName: locale === "en-US" ? "Custom celebration cake" : "Pastel de celebración personalizado",
+    requestTitle: locale === "en-US" ? "Golden anniversary" : "Aniversario dorado",
+    requestDescription:
+      locale === "en-US"
+        ? "A three-tier cake with gold leaf and fresh peaches."
+        : "Un pastel de tres pisos con hoja de oro y duraznos frescos.",
+    locale,
+    quotedSubtotalMinor: 450000,
+    deliveryFeeMinor: 25000,
+    quotedTotalMinor: 475000,
+    validUntil: "2026-10-01T18:00:00.000Z",
   };
 }
 

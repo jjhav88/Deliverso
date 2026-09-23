@@ -342,6 +342,7 @@
     },
     "detail": {
       "quoteSoon": "Próximamente podrás solicitar tu cotización en línea.",
+      "quoteHint": "Cuéntanos cómo imaginas tu creación. Nuestro equipo te enviará una propuesta.",
       "consult": "Consultar producto",
       "available": "Disponible para pedido. El checkout en línea llegará más adelante.",
       "configurableNote": "Personaliza las opciones y agrégalo al carrito.",
@@ -484,7 +485,9 @@
       "save": "Guardar perfil",
       "cart": "Ver carrito",
       "purchaseData": "Datos utilizados para comprar",
-      "purchaseDataHint": "El checkout usa tu nombre y teléfono. Todavía no guardamos un directorio de direcciones."
+      "purchaseDataHint": "El checkout usa tu nombre y teléfono. Todavía no guardamos un directorio de direcciones.",
+      "quotes": "Mis cotizaciones",
+      "customOrder": "Pedido personalizado"
     }
   },
   "checkout": {
@@ -607,6 +610,52 @@
     "charged": "Total cobrado",
     "historicDisplay": "Al crear el pedido se mostró aprox. {amount} con tasa de referencia {provider} {rate} ({date}).",
     "customer": "Cliente",
-    "fulfillment": "Entrega o recogida"
+    "fulfillment": "Entrega o recogida",
+    "customOrder": "Pedido personalizado"
+  },
+  "quotations": {
+    "title": "Cotizaciones",
+    "empty": "Aún no tienes solicitudes de cotización.",
+    "newTitle": "Solicitar cotización",
+    "detailTitle": "Cotización",
+    "product": "Producto",
+    "requestTitle": "Título de la solicitud",
+    "description": "Cuéntanos cómo imaginas tu creación",
+    "descriptionHelp": "Describe sabores, estilo, tamaño o cualquier detalle que tengas en mente.",
+    "eventDate": "Fecha del evento (opcional)",
+    "guestCount": "Número de personas (opcional)",
+    "notes": "Notas",
+    "attachments": "Imágenes de referencia",
+    "attachmentsHelp": "JPEG, PNG o WEBP. Máximo 5 archivos de 5 MB.",
+    "submit": "Enviar solicitud",
+    "status": "Estado",
+    "total": "Total cotizado",
+    "validUntil": "Válida hasta",
+    "view": "Ver detalle",
+    "subtotal": "Subtotal",
+    "delivery": "Entrega",
+    "fulfillment": "Entrega o recogida",
+    "message": "Mensaje",
+    "accept": "Aceptar cotización",
+    "decline": "Rechazar",
+    "declineConfirm": "¿Rechazar esta cotización?",
+    "cancel": "Cancelar solicitud",
+    "cancelConfirm": "¿Cancelar esta solicitud?",
+    "reply": "Responder",
+    "replyPlaceholder": "Escribe tu respuesta",
+    "addressTitle": "Dirección de entrega",
+    "street": "Calle",
+    "exterior": "Número exterior",
+    "interior": "Número interior",
+    "locality": "Colonia",
+    "city": "Ciudad",
+    "state": "Estado",
+    "postalCode": "Código postal",
+    "reference": "Referencias",
+    "saveAddress": "Guardar dirección",
+    "timeline": "Actividad",
+    "attachmentsSection": "Referencias",
+    "offerMessage": "Mensaje de la propuesta",
+    "back": "Volver a cotizaciones"
   }
 }

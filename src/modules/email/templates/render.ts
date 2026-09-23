@@ -1,14 +1,25 @@
-import { exploreUrl, orderAccountUrl } from "@/modules/email/domain/links";
+import { exploreUrl, orderAccountUrl, quoteAccountUrl } from "@/modules/email/domain/links";
 import { getEmailHeadline, getEmailIntro } from "@/modules/email/domain/presentation";
 import { getEmailSubject } from "@/modules/email/domain/subjects";
 import type {
   EmailTemplateType,
   OrderEmailView,
+  QuoteEmailView,
   RenderedEmail,
   WelcomeEmailView,
 } from "@/modules/email/domain/types";
 import { emailShell } from "@/modules/email/templates/layout";
 import { orderDetailsHtml, orderDetailsText } from "@/modules/email/templates/order-body";
+import { quoteDetailsHtml, quoteDetailsText } from "@/modules/email/templates/quote-body";
+
+const quoteTemplates = new Set<EmailTemplateType>([
+  "QUOTE_RECEIVED",
+  "QUOTE_NEEDS_INFO",
+  "QUOTE_OFFERED",
+  "QUOTE_ACCEPTED",
+  "QUOTE_DECLINED",
+  "QUOTE_EXPIRED",
+]);
 
 function localeCopy(locale: string) {
   return locale === "en-US"
@@ -43,6 +54,39 @@ export function renderWelcomeEmail(
       view.locale === "en-US"
         ? "This is a transactional email about your order."
         : "Este es un correo transaccional relacionado con tu pedido.",
+    ].join("\n\n"),
+  };
+}
+
+export function renderQuoteEmail(
+  template: EmailTemplateType,
+  view: QuoteEmailView,
+  publicUrl: string | undefined,
+): RenderedEmail {
+  const title = getEmailHeadline(template, view.locale);
+  const intro = getEmailIntro(template, view.locale);
+  const href = quoteAccountUrl({
+    publicUrl,
+    locale: view.locale,
+    quoteNumber: view.quoteNumber,
+  });
+  const cta = view.locale === "en-US" ? "View quote" : "Ver cotización";
+  return {
+    subject: getEmailSubject(template, view.locale),
+    html: emailShell({
+      locale: view.locale,
+      eyebrow: view.quoteNumber,
+      title,
+      intro,
+      bodyHtml: quoteDetailsHtml(view),
+      ctaLabel: cta,
+      ctaHref: href,
+    }),
+    text: [
+      title,
+      intro,
+      quoteDetailsText(view),
+      `${cta}: ${href}`,
     ].join("\n\n"),
   };
 }
@@ -88,10 +132,17 @@ export function renderTransactionalEmail(input: {
   template: EmailTemplateType;
   welcome?: WelcomeEmailView;
   order?: OrderEmailView;
+  quote?: QuoteEmailView;
   publicUrl?: string;
 }): RenderedEmail {
   if (input.template === "CUSTOMER_WELCOME") {
     return renderWelcomeEmail(input.welcome ?? { customerName: null, locale: "es-MX" }, input.publicUrl);
+  }
+  if (quoteTemplates.has(input.template)) {
+    if (!input.quote) {
+      throw new Error("QUOTE_EMAIL_VIEW_REQUIRED");
+    }
+    return renderQuoteEmail(input.template, input.quote, input.publicUrl);
   }
   if (!input.order) {
     throw new Error("ORDER_EMAIL_VIEW_REQUIRED");

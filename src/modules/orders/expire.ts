@@ -67,10 +67,12 @@ export async function expirePendingOrderIfNeeded(
         paymentStatus: current.paymentStatus === "SUCCEEDED" ? current.paymentStatus : "CANCELED",
       },
     });
-    await tx.cart.update({
-      where: { id: order.cartId },
-      data: { status: "ACTIVE" },
-    });
+    if (order.cartId) {
+      await tx.cart.update({
+        where: { id: order.cartId },
+        data: { status: "ACTIVE" },
+      });
+    }
     await tx.orderEvent.create({
       data: { orderId: order.id, type: "ORDER_EXPIRED" },
     });

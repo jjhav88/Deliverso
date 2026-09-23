@@ -66,6 +66,26 @@ export async function resolveLocaleSwitch(
     };
   }
 
+  if (input.pathname === "/cotizaciones/[quoteNumber]" && input.slug) {
+    return {
+      available: true,
+      href: getPathname({
+        locale: input.to,
+        href: { pathname: "/cotizaciones/[quoteNumber]", params: { quoteNumber: input.slug } },
+      }),
+    };
+  }
+
+  if (input.pathname === "/cotizaciones/nueva/[productSlug]" && input.slug) {
+    return {
+      available: true,
+      href: getPathname({
+        locale: input.to,
+        href: { pathname: "/cotizaciones/nueva/[productSlug]", params: { productSlug: input.slug } },
+      }),
+    };
+  }
+
   const pathname: StaticAppPathname =
     input.pathname === "/productos/[slug]"
       ? "/productos"
@@ -75,7 +95,10 @@ export async function resolveLocaleSwitch(
             input.pathname === "/pedido/[orderNumber]/confirmacion" ||
             input.pathname === "/cuenta/pedidos/[orderNumber]"
           ? "/cuenta"
-          : input.pathname;
+          : input.pathname === "/cotizaciones/[quoteNumber]" ||
+              input.pathname === "/cotizaciones/nueva/[productSlug]"
+            ? "/cotizaciones"
+            : input.pathname;
 
   return {
     available: true,

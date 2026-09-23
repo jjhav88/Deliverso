@@ -48,6 +48,31 @@ test.describe("storefront smoke", () => {
     await page.goto("/admin/promotions");
     await expect(page).toHaveURL(/admin\/login/);
   });
+
+  test("quote list requires login", async ({ page }) => {
+    await page.goto("/cotizaciones");
+    await expect(page).toHaveURL(/iniciar-sesion|account\/login/);
+  });
+
+  test("anonymous quote request redirects to login", async ({ page }) => {
+    await page.goto("/cotizaciones/nueva/pastel-personalizado");
+    await expect(page).toHaveURL(/iniciar-sesion|account\/login/);
+  });
+
+  test("CUSTOM_QUOTE detail shows quote CTA when published", async ({ page }) => {
+    await page.goto("/productos?type=CUSTOM_QUOTE");
+    const product = page.locator("main a[href*='/productos/'], main a[href*='/products/']").first();
+    if ((await product.count()) === 0) {
+      return;
+    }
+    await product.click();
+    await expect(page.getByRole("link", { name: /Solicitar cotización|Request a quote/ })).toBeVisible();
+  });
+
+  test("admin quotations protected", async ({ page }) => {
+    await page.goto("/admin/quotations");
+    await expect(page).toHaveURL(/admin\/login/);
+  });
 });
 
 test.describe("ops smoke", () => {

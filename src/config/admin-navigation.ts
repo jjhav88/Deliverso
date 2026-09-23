@@ -9,6 +9,7 @@ import {
   ShoppingBag,
   Sparkles,
   Users,
+  FilePenLine,
 } from "lucide-react";
 
 export const adminNavigationIds = [
@@ -18,6 +19,7 @@ export const adminNavigationIds = [
   "products",
   "universes",
   "orders",
+  "quotations",
   "customers",
   "promotions",
   "settings",
@@ -76,6 +78,13 @@ export const adminNavigation: readonly AdminNavigationItem[] = [
     href: "/admin/orders",
     label: "Pedidos",
     icon: ShoppingBag,
+    availability: "ready",
+  },
+  {
+    id: "quotations",
+    href: "/admin/quotations",
+    label: "Cotizaciones",
+    icon: FilePenLine,
     availability: "ready",
   },
   {

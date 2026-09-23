@@ -342,6 +342,7 @@
     },
     "detail": {
       "quoteSoon": "You will soon be able to request a quote online.",
+      "quoteHint": "Tell us how you imagine your creation. Our team will send you a proposal.",
       "consult": "Enquire about this product",
       "available": "Available to order. Online checkout will come later.",
       "configurableNote": "Choose the options and add it to the cart.",
@@ -484,7 +485,9 @@
       "save": "Save profile",
       "cart": "View cart",
       "purchaseData": "Details used for purchasing",
-      "purchaseDataHint": "Checkout uses your name and phone. We do not store an address book yet."
+      "purchaseDataHint": "Checkout uses your name and phone. We do not store an address book yet.",
+      "quotes": "My quotes",
+      "customOrder": "Custom order"
     }
   },
   "checkout": {
@@ -607,6 +610,52 @@
     "charged": "Amount charged",
     "historicDisplay": "When the order was created it showed about {amount} with reference rate {provider} {rate} ({date}).",
     "customer": "Customer",
-    "fulfillment": "Delivery or pickup"
+    "fulfillment": "Delivery or pickup",
+    "customOrder": "Custom order"
+  },
+  "quotations": {
+    "title": "Quotes",
+    "empty": "You do not have any quote requests yet.",
+    "newTitle": "Request a quote",
+    "detailTitle": "Quote",
+    "product": "Product",
+    "requestTitle": "Request title",
+    "description": "Tell us how you imagine your creation",
+    "descriptionHelp": "Describe flavors, style, size or any detail you have in mind.",
+    "eventDate": "Event date (optional)",
+    "guestCount": "Number of guests (optional)",
+    "notes": "Notes",
+    "attachments": "Reference images",
+    "attachmentsHelp": "JPEG, PNG or WEBP. Up to 5 files, 5 MB each.",
+    "submit": "Send request",
+    "status": "Status",
+    "total": "Quoted total",
+    "validUntil": "Valid until",
+    "view": "View details",
+    "subtotal": "Subtotal",
+    "delivery": "Delivery",
+    "fulfillment": "Fulfillment",
+    "message": "Message",
+    "accept": "Accept quote",
+    "decline": "Decline",
+    "declineConfirm": "Decline this quote?",
+    "cancel": "Cancel request",
+    "cancelConfirm": "Cancel this request?",
+    "reply": "Reply",
+    "replyPlaceholder": "Write your reply",
+    "addressTitle": "Delivery address",
+    "street": "Street",
+    "exterior": "Exterior number",
+    "interior": "Interior number",
+    "locality": "Neighborhood",
+    "city": "City",
+    "state": "State",
+    "postalCode": "Postal code",
+    "reference": "References",
+    "saveAddress": "Save address",
+    "timeline": "Activity",
+    "attachmentsSection": "References",
+    "offerMessage": "Proposal message",
+    "back": "Back to quotes"
   }
 }

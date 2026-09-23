@@ -102,6 +102,7 @@ export default async function AccountPage({ params }: PageProps) {
                       {new Date(order.createdAt).toLocaleDateString(locale)} · {order.status} ·{" "}
                       {formatMoneyFromMinorUnits(order.grandTotalMinor, "MXN", locale)} · {order.fulfillmentMethod} ·{" "}
                       {order.requestedDate}
+                      {order.customOrder ? ` · ${t("dashboard.customOrder")}` : ""}
                     </p>
                   </li>
                 ))}
@@ -116,7 +117,10 @@ export default async function AccountPage({ params }: PageProps) {
                 <p className="type-body-sm text-muted-foreground">{customer.phone}</p>
               ) : null}
             </div>
-            <Link href="/carrito" className="mt-6 inline-block type-label tracking-[0.12em] text-secondary">
+            <Link href="/cotizaciones" className="mt-6 inline-block type-label tracking-[0.12em] text-secondary">
+              {t("dashboard.quotes")}
+            </Link>
+            <Link href="/carrito" className="mt-6 ml-6 inline-block type-label tracking-[0.12em] text-secondary">
               {t("dashboard.cart")}
             </Link>
           </section>

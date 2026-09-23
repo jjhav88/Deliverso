@@ -23,6 +23,18 @@ export function exploreUrl(publicUrl: string | undefined, locale: string): strin
   return locale === "en-US" ? `${base}/en/products` : `${base}/productos`;
 }
 
+export function quoteAccountPath(locale: string, quoteNumber: string): string {
+  return locale === "en-US" ? `/en/quotes/${quoteNumber}` : `/cotizaciones/${quoteNumber}`;
+}
+
+export function quoteAccountUrl(input: {
+  publicUrl: string | undefined;
+  locale: string;
+  quoteNumber: string;
+}): string {
+  return `${appBaseUrl(input.publicUrl)}${quoteAccountPath(input.locale, input.quoteNumber)}`;
+}
+
 export function emailLogoPolicy(publicLogoUrl: string | undefined): "wordmark" | "https" {
   if (!publicLogoUrl) {
     return "wordmark";

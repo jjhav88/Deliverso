@@ -18,6 +18,12 @@ export const emailTemplateTypes = [
   "ORDER_READY",
   "ORDER_OUT_FOR_DELIVERY",
   "ORDER_COMPLETED",
+  "QUOTE_RECEIVED",
+  "QUOTE_NEEDS_INFO",
+  "QUOTE_OFFERED",
+  "QUOTE_ACCEPTED",
+  "QUOTE_DECLINED",
+  "QUOTE_EXPIRED",
 ] as const;
 export type EmailTemplateType = (typeof emailTemplateTypes)[number];
 
@@ -89,6 +95,18 @@ export type OrderEmailView = {
 export type WelcomeEmailView = {
   customerName: string | null;
   locale: string;
+};
+
+export type QuoteEmailView = {
+  quoteNumber: string;
+  productName: string;
+  requestTitle: string | null;
+  requestDescription: string;
+  locale: string;
+  quotedSubtotalMinor: number | null;
+  deliveryFeeMinor: number | null;
+  quotedTotalMinor: number | null;
+  validUntil: string | null;
 };
 
 export type RenderedEmail = {

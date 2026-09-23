@@ -35,5 +35,17 @@ export function getEmailSubject(
         return en ? "Order complete" : "Pedido completado";
       }
       return en ? "Your order was delivered" : "Tu pedido fue entregado";
+    case "QUOTE_RECEIVED":
+      return en ? "We received your quote request" : "Recibimos tu solicitud de cotización";
+    case "QUOTE_NEEDS_INFO":
+      return en ? "We need a bit more information" : "Necesitamos un poco más de información";
+    case "QUOTE_OFFERED":
+      return en ? "Your DELIVERSO quote is ready" : "Tu cotización DELIVERSO está lista";
+    case "QUOTE_ACCEPTED":
+      return en ? "We received your quote acceptance" : "Recibimos tu aceptación de cotización";
+    case "QUOTE_DECLINED":
+      return en ? "Your quote was declined" : "Tu cotización fue rechazada";
+    case "QUOTE_EXPIRED":
+      return en ? "Your quote has expired" : "Tu cotización expiró";
   }
 }

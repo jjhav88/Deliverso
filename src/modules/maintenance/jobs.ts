@@ -101,6 +101,8 @@ export async function runMaintenanceJobs(): Promise<MaintenanceJobResult[]> {
   results.push({ name: "releaseExpiredPromotionReservations", ...released });
   results.push(await expireStaleCheckoutDraftsJob());
   results.push(await abandonStaleCartsJob());
+  const expiredQuotes = await (await import("@/modules/quotations/expire")).expireQuotations();
+  results.push({ name: "expireQuotations", ...expiredQuotes });
 
   for (const result of results) {
     logInfo({

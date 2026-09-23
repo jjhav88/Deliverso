@@ -14,7 +14,10 @@ type OrderRow = {
   id: string;
   orderNumber: string;
   customerId: string;
-  cartId: string;
+  cartId: string | null;
+  customOrder?: boolean;
+  quotationId?: string | null;
+  quotationNumberSnapshot?: string | null;
   status: OrderStatus;
   paymentStatus: PaymentStatus;
   fulfillmentStatus: FulfillmentStatus;
@@ -96,6 +99,7 @@ export function toCustomerOrderSummary(row: OrderRow): CustomerOrderSummary {
     requestedDate: calendarDateFromDb(row.requestedDate),
     grandTotalMinor: row.grandTotalMinor,
     currencyCode: "MXN",
+    customOrder: row.customOrder ?? false,
   };
 }
 
@@ -175,5 +179,7 @@ export function toAdminOrderDetail(row: OrderRow, locale = "es-MX"): AdminOrderD
     promotionBenefitType: row.promotionBenefitType ?? null,
     promotionEligibleSubtotalMinor: row.promotionEligibleSubtotalMinor ?? null,
     promotionReservationStatus: row.promotionReservation?.status ?? null,
+    quotationId: row.quotationId ?? null,
+    quotationNumberSnapshot: row.quotationNumberSnapshot ?? null,
   };
 }

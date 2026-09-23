@@ -19,6 +19,8 @@ export async function createOrGetPaymentIntentForOrder(
       grandTotalMinor: true,
       stripePaymentIntentId: true,
       status: true,
+      quotationId: true,
+      quotationNumberSnapshot: true,
     },
   });
 
@@ -41,6 +43,9 @@ export async function createOrGetPaymentIntentForOrder(
         orderId: order.id,
         orderNumber: order.orderNumber,
         customerId: order.customerId,
+        ...(order.quotationId
+          ? { quotationId: order.quotationId, quoteNumber: order.quotationNumberSnapshot ?? "" }
+          : {}),
       },
     },
     paymentIntentIdempotencyKey(order.id),

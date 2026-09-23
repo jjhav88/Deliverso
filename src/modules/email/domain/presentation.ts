@@ -76,6 +76,18 @@ export function getEmailHeadline(
         return en ? "Order complete" : "Pedido completado";
       }
       return en ? "Your order was delivered" : "Tu pedido fue entregado";
+    case "QUOTE_RECEIVED":
+      return en ? "We received your quote request" : "Recibimos tu solicitud de cotización";
+    case "QUOTE_NEEDS_INFO":
+      return en ? "We need a bit more information" : "Necesitamos un poco más de información";
+    case "QUOTE_OFFERED":
+      return en ? "Your DELIVERSO quote is ready" : "Tu cotización DELIVERSO está lista";
+    case "QUOTE_ACCEPTED":
+      return en ? "Your quote was accepted" : "Tu cotización fue aceptada";
+    case "QUOTE_DECLINED":
+      return en ? "Quote declined" : "Cotización rechazada";
+    case "QUOTE_EXPIRED":
+      return en ? "This quote has expired" : "Esta cotización expiró";
   }
 }
 
@@ -124,6 +136,30 @@ export function getEmailIntro(
       return en
         ? "We hope you enjoy every bite. Thank you for letting us be part of your moment."
         : "Esperamos que disfrutes cada bocado. Gracias por dejarnos formar parte de tu momento.";
+    case "QUOTE_RECEIVED":
+      return en
+        ? "Our team will review your idea and write back with next steps."
+        : "Nuestro equipo revisará tu idea y te escribirá con los siguientes pasos.";
+    case "QUOTE_NEEDS_INFO":
+      return en
+        ? "To continue, we need a few more details about your creation."
+        : "Para continuar, necesitamos algunos detalles más sobre tu creación.";
+    case "QUOTE_OFFERED":
+      return en
+        ? "Review the proposed amount, fulfillment and validity, then accept or decline."
+        : "Revisa el importe, la entrega y la vigencia. Luego acepta o rechaza.";
+    case "QUOTE_ACCEPTED":
+      return en
+        ? "Your custom order is ready for payment. Complete it to confirm production."
+        : "Tu pedido personalizado está listo para pagar. Complétalo para confirmar la producción.";
+    case "QUOTE_DECLINED":
+      return en
+        ? "We saved your decision. You can request a new quote whenever you like."
+        : "Guardamos tu decisión. Puedes solicitar una nueva cotización cuando quieras.";
+    case "QUOTE_EXPIRED":
+      return en
+        ? "The offer is no longer valid. Ask us for a new quote if you still want this creation."
+        : "La oferta ya no está vigente. Pídenos una nueva cotización si aún deseas esta creación.";
   }
 }
 

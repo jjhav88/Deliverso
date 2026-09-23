@@ -47,6 +47,14 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
         <p className="mt-2 type-body text-muted-foreground">
           Snapshots históricos. Los importes no se pueden editar.
         </p>
+        {order.quotationId && order.quotationNumberSnapshot ? (
+          <p className="mt-2 type-body">
+            Cotización origen:{" "}
+            <Link href={`/admin/quotations/${order.quotationId}`} className="text-secondary hover:underline">
+              {order.quotationNumberSnapshot}
+            </Link>
+          </p>
+        ) : null}
         {shouldShowStripeTestBadge() ? (
           <p className="mt-2 type-caption text-muted-foreground">Stripe Test Mode</p>
         ) : null}

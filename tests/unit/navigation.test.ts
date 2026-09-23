@@ -60,5 +60,17 @@ describe("mainNavigation", () => {
       "es-MX": "/cuenta/pedidos/[orderNumber]",
       "en-US": "/account/orders/[orderNumber]",
     });
+    expect(appPathnames["/cotizaciones"]).toEqual({
+      "es-MX": "/cotizaciones",
+      "en-US": "/quotes",
+    });
+    expect(appPathnames["/cotizaciones/nueva/[productSlug]"]).toEqual({
+      "es-MX": "/cotizaciones/nueva/[productSlug]",
+      "en-US": "/quotes/new/[productSlug]",
+    });
+    expect(appPathnames["/cotizaciones/[quoteNumber]"]).toEqual({
+      "es-MX": "/cotizaciones/[quoteNumber]",
+      "en-US": "/quotes/[quoteNumber]",
+    });
   });
 });

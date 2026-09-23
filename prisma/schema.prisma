@@ -184,6 +184,7 @@ model Product {
   cartItems          CartItem[]
   orderItems         OrderItem[]
   promotions         PromotionProduct[]
+  quotations         Quotation[]
 
   @@index([status])
   @@index([businessLineId])
@@ -473,6 +474,8 @@ model AdminAccount {
   auditLogs         AdminAuditLog[]
   createdPromotions Promotion[]     @relation("PromotionCreatedBy")
   updatedPromotions Promotion[]     @relation("PromotionUpdatedBy")
+  quoteOffers       QuoteOffer[]
+  quoteMessages     QuoteMessage[]
 
   @@index([status])
   @@index([role])
@@ -582,6 +585,8 @@ model CustomerAccount {
   checkoutDrafts        CheckoutDraft[]
   orders                Order[]
   promotionReservations PromotionReservation[]
+  quotations            Quotation[]
+  quoteMessages         QuoteMessage[]
 
   @@index([status])
   @@index([email])
@@ -724,6 +729,7 @@ model DeliveryZone {
   postalCodes DeliveryPostalCode[]
   drafts      CheckoutDraft[]
   orders      Order[]
+  quotations  Quotation[]
 
   @@index([isActive, sortOrder])
 }
@@ -754,8 +760,10 @@ model PickupLocation {
   createdAt    DateTime @default(now()) @db.Timestamptz
   updatedAt    DateTime @updatedAt @db.Timestamptz
 
-  drafts CheckoutDraft[]
-  orders Order[]
+  drafts      CheckoutDraft[]
+  orders      Order[]
+  quotations  Quotation[]
+  quoteOffers QuoteOffer[]
 
   @@index([isActive, sortOrder])
 }
@@ -850,8 +858,13 @@ model Order {
   id                             String                @id @default(uuid()) @db.Uuid
   orderNumber                    String                @unique
   customerId                     String                @db.Uuid
-  cartId                         String                @db.Uuid
-  checkoutDraftId                String                @unique @db.Uuid
+  cartId                         String?               @db.Uuid
+  checkoutDraftId                String?               @unique @db.Uuid
+  quotationId                    String?               @unique @db.Uuid
+  quotationNumberSnapshot        String?
+  quotationDescriptionSnapshot   String?
+  customOrder                    Boolean               @default(false)
+  acceptedOfferId                String?               @db.Uuid
   status                         OrderStatus           @default(PENDING_PAYMENT)
   paymentStatus                  PaymentStatus         @default(NOT_STARTED)
   fulfillmentStatus              FulfillmentStatus     @default(PENDING)
@@ -894,8 +907,10 @@ model Order {
   updatedAt                      DateTime              @updatedAt @db.Timestamptz
 
   customer             CustomerAccount       @relation(fields: [customerId], references: [id], onDelete: Restrict)
-  cart                 Cart                  @relation(fields: [cartId], references: [id], onDelete: Restrict)
-  checkoutDraft        CheckoutDraft         @relation(fields: [checkoutDraftId], references: [id], onDelete: Restrict)
+  cart                 Cart?                 @relation(fields: [cartId], references: [id], onDelete: Restrict)
+  checkoutDraft        CheckoutDraft?        @relation(fields: [checkoutDraftId], references: [id], onDelete: Restrict)
+  quotation            Quotation?            @relation(fields: [quotationId], references: [id], onDelete: SetNull)
+  acceptedOffer        QuoteOffer?           @relation(fields: [acceptedOfferId], references: [id], onDelete: SetNull)
   deliveryZone         DeliveryZone?         @relation(fields: [deliveryZoneId], references: [id], onDelete: SetNull)
   pickupLocation       PickupLocation?       @relation(fields: [pickupLocationId], references: [id], onDelete: SetNull)
   promotion            Promotion?            @relation(fields: [promotionId], references: [id], onDelete: SetNull)
@@ -906,6 +921,8 @@ model Order {
   events               OrderEvent[]
 
   @@index([customerId, createdAt])
+  @@index([quotationId])
+  @@index([acceptedOfferId])
   @@index([promotionId])
   @@index([status])
   @@index([paymentStatus])
@@ -1039,6 +1056,12 @@ enum EmailTemplateType {
   ORDER_READY
   ORDER_OUT_FOR_DELIVERY
   ORDER_COMPLETED
+  QUOTE_RECEIVED
+  QUOTE_NEEDS_INFO
+  QUOTE_OFFERED
+  QUOTE_ACCEPTED
+  QUOTE_DECLINED
+  QUOTE_EXPIRED
 }
 
 model EmailOutbox {
@@ -1214,4 +1237,165 @@ model PromotionReservation {
   @@index([promotionId, status, expiresAt])
   @@index([customerId, status, expiresAt])
   @@index([status, expiresAt])
+}
+
+enum QuotationStatus {
+  SUBMITTED
+  IN_REVIEW
+  NEEDS_INFO
+  QUOTED
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  CANCELED
+  CONVERTED
+}
+
+enum QuotationActorType {
+  CUSTOMER
+  ADMIN
+  SYSTEM
+}
+
+enum QuoteMessageAuthorType {
+  CUSTOMER
+  ADMIN
+}
+
+model Quotation {
+  id                       String             @id @default(uuid()) @db.Uuid
+  quoteNumber              String             @unique
+  customerId               String             @db.Uuid
+  productId                String?            @db.Uuid
+  status                   QuotationStatus    @default(SUBMITTED)
+  locale                   String             @default("es-MX")
+  customerNameSnapshot     String
+  customerEmailSnapshot    String
+  customerPhoneSnapshot    String?
+  productNameSnapshot      String
+  productSlugSnapshot      String
+  requestTitle             String?
+  requestDescription       String
+  eventDate                DateTime?          @db.Date
+  guestCount               Int?
+  requestedFulfillmentDate DateTime?          @db.Date
+  adminInternalNotes       String?
+  quotedSubtotalMinor      Int?
+  deliveryFeeMinor         Int?
+  quotedTotalMinor         Int?
+  fulfillmentMethod        FulfillmentMethod?
+  pickupLocationId         String?            @db.Uuid
+  deliveryZoneId           String?            @db.Uuid
+  validUntil               DateTime?          @db.Timestamptz
+  acceptedAt               DateTime?          @db.Timestamptz
+  declinedAt               DateTime?          @db.Timestamptz
+  canceledAt               DateTime?          @db.Timestamptz
+  convertedAt              DateTime?          @db.Timestamptz
+  activeOfferId            String?            @unique @db.Uuid
+  createdAt                DateTime           @default(now()) @db.Timestamptz
+  updatedAt                DateTime           @updatedAt @db.Timestamptz
+
+  customer       CustomerAccount   @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  product        Product?          @relation(fields: [productId], references: [id], onDelete: SetNull)
+  pickupLocation PickupLocation?   @relation(fields: [pickupLocationId], references: [id], onDelete: SetNull)
+  deliveryZone   DeliveryZone?     @relation(fields: [deliveryZoneId], references: [id], onDelete: SetNull)
+  activeOffer    QuoteOffer?       @relation("QuotationActiveOffer", fields: [activeOfferId], references: [id], onDelete: SetNull)
+  offers         QuoteOffer[]      @relation("QuotationOffers")
+  attachments    QuoteAttachment[]
+  events         QuotationEvent[]
+  messages       QuoteMessage[]
+  address        QuoteAddress?
+  order          Order?
+
+  @@index([customerId, createdAt])
+  @@index([productId])
+  @@index([status])
+  @@index([validUntil])
+  @@index([createdAt])
+}
+
+model QuoteOffer {
+  id                String            @id @default(uuid()) @db.Uuid
+  quotationId       String            @db.Uuid
+  version           Int
+  subtotalMinor     Int
+  deliveryFeeMinor  Int
+  totalMinor        Int
+  fulfillmentMethod FulfillmentMethod
+  validUntil        DateTime          @db.Timestamptz
+  message           String?
+  pickupLocationId  String?           @db.Uuid
+  deliveryZoneId    String?           @db.Uuid
+  createdByAdminId  String?           @db.Uuid
+  createdAt         DateTime          @default(now()) @db.Timestamptz
+  supersededAt      DateTime?         @db.Timestamptz
+
+  quotation      Quotation       @relation("QuotationOffers", fields: [quotationId], references: [id], onDelete: Cascade)
+  activeFor      Quotation?      @relation("QuotationActiveOffer")
+  pickupLocation PickupLocation? @relation(fields: [pickupLocationId], references: [id], onDelete: SetNull)
+  createdBy      AdminAccount?   @relation(fields: [createdByAdminId], references: [id], onDelete: SetNull)
+  acceptedOrders Order[]
+
+  @@unique([quotationId, version])
+  @@index([quotationId, createdAt])
+}
+
+model QuoteAttachment {
+  id          String   @id @default(uuid()) @db.Uuid
+  quotationId String   @db.Uuid
+  storagePath String
+  fileName    String
+  mimeType    String
+  sizeBytes   Int
+  createdAt   DateTime @default(now()) @db.Timestamptz
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+
+  @@index([quotationId])
+}
+
+model QuoteMessage {
+  id               String                 @id @default(uuid()) @db.Uuid
+  quotationId      String                 @db.Uuid
+  authorType       QuoteMessageAuthorType
+  authorCustomerId String?                @db.Uuid
+  authorAdminId    String?                @db.Uuid
+  message          String
+  createdAt        DateTime               @default(now()) @db.Timestamptz
+
+  quotation      Quotation        @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  authorCustomer CustomerAccount? @relation(fields: [authorCustomerId], references: [id], onDelete: SetNull)
+  authorAdmin    AdminAccount?    @relation(fields: [authorAdminId], references: [id], onDelete: SetNull)
+
+  @@index([quotationId, createdAt])
+}
+
+model QuotationEvent {
+  id          String             @id @default(uuid()) @db.Uuid
+  quotationId String             @db.Uuid
+  type        String
+  actorType   QuotationActorType
+  actorId     String?
+  metadata    Json?
+  createdAt   DateTime           @default(now()) @db.Timestamptz
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+
+  @@index([quotationId, createdAt])
+}
+
+model QuoteAddress {
+  id             String  @id @default(uuid()) @db.Uuid
+  quotationId    String  @unique @db.Uuid
+  countryCode    String
+  postalCode     String
+  state          String
+  city           String
+  locality       String?
+  street         String
+  exteriorNumber String?
+  interiorNumber String?
+  reference      String?
+
+  quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
 }

@@ -49,6 +49,7 @@ describe("admin navigation", () => {
       "/admin/products",
       "/admin/universes",
       "/admin/orders",
+      "/admin/quotations",
       "/admin/customers",
       "/admin/promotions",
       "/admin/settings",

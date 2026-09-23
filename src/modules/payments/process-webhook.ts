@@ -47,6 +47,7 @@ export async function processStripePaymentIntentEvent(input: {
           customerName: true,
           locale: true,
           stripePaymentIntentId: true,
+          quotationId: true,
         },
       });
       const metadataOrderId = input.paymentIntent.metadata?.orderId?.trim() || null;
@@ -63,6 +64,7 @@ export async function processStripePaymentIntentEvent(input: {
               customerName: true,
               locale: true,
               stripePaymentIntentId: true,
+              quotationId: true,
             },
           })
         : null;
@@ -136,7 +138,7 @@ export async function processStripePaymentIntentEvent(input: {
         },
       });
 
-      if (plan.cartStatus) {
+      if (plan.cartStatus && order.cartId) {
         await tx.cart.update({
           where: { id: order.cartId },
           data: { status: plan.cartStatus },
@@ -174,6 +176,19 @@ export async function processStripePaymentIntentEvent(input: {
       if (plan.paymentStatus === "SUCCEEDED") {
         const { consumePromotionReservation } = await import("@/modules/promotions/reservation");
         await consumePromotionReservation(tx, order.id);
+        if (order.quotationId) {
+          await tx.quotation.update({
+            where: { id: order.quotationId },
+            data: { status: "CONVERTED", convertedAt: now },
+          });
+          await tx.quotationEvent.create({
+            data: {
+              quotationId: order.quotationId,
+              type: "QUOTE_CONVERTED",
+              actorType: "SYSTEM",
+            },
+          });
+        }
         await queueTransactionalEmail(
           {
             template: "ORDER_PAID",

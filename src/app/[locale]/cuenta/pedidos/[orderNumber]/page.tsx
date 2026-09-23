@@ -60,6 +60,7 @@ export default async function CustomerOrderDetailPage({ params }: PageProps) {
         <h1 className="type-display-l mt-4">{order.orderNumber}</h1>
         <p className="type-body-sm mt-2 text-muted-foreground">
           {t("status")}: {order.status} · {t("payment")}: {order.paymentStatus}
+          {order.customOrder ? ` · ${t("customOrder")}` : ""}
         </p>
         <div className="mt-10 grid gap-10 lg:grid-cols-2">
           <section>

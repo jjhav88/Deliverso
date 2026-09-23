@@ -5,6 +5,7 @@ import { notFound } from "next/navigation";
 import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
 import { Link } from "@/i18n/navigation";
+import { buttonClassName } from "@/components/ui/button";
 import { routing } from "@/i18n/routing";
 import { isAppLocale } from "@/config/i18n";
 import { CatalogBreadcrumbs } from "@/modules/catalog/components/catalog-breadcrumbs";
@@ -135,11 +136,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
     locale,
     href: { pathname: "/productos/[slug]", params: { slug: product.slug } },
   });
-
-  const ctaNote =
-    product.type === "CUSTOM_QUOTE"
-      ? t("detail.quoteSoon")
-      : t("detail.available");
+  const quotePath = getPathname({
+    locale,
+    href: { pathname: "/cotizaciones/nueva/[productSlug]", params: { productSlug: product.slug } },
+  });
 
   return (
     <Section>
@@ -259,9 +259,25 @@ export default async function ProductDetailPage({ params }: PageProps) {
             ) : null}
 
             {product.type === "CUSTOM_QUOTE" ? (
-              <p className="type-body-sm mt-8 max-w-md text-muted-foreground">
-                {ctaNote}
-              </p>
+              <div className="mt-8 grid max-w-md gap-4">
+                <p className="type-body-sm text-muted-foreground">{t("detail.quoteHint")}</p>
+                <Link
+                  href={
+                    signedIn
+                      ? {
+                          pathname: "/cotizaciones/nueva/[productSlug]",
+                          params: { productSlug: product.slug },
+                        }
+                      : {
+                          pathname: "/cuenta/iniciar-sesion",
+                          query: { next: quotePath },
+                        }
+                  }
+                  className={buttonClassName()}
+                >
+                  {t("quote")}
+                </Link>
+              </div>
             ) : (
               <ProductPurchase
                 productId={product.id}

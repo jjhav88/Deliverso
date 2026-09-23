@@ -66,6 +66,18 @@ export const appPathnames = {
     "es-MX": "/cuenta/restablecer-contrasena",
     "en-US": "/account/reset-password",
   },
+  "/cotizaciones": {
+    "es-MX": "/cotizaciones",
+    "en-US": "/quotes",
+  },
+  "/cotizaciones/nueva/[productSlug]": {
+    "es-MX": "/cotizaciones/nueva/[productSlug]",
+    "en-US": "/quotes/new/[productSlug]",
+  },
+  "/cotizaciones/[quoteNumber]": {
+    "es-MX": "/cotizaciones/[quoteNumber]",
+    "en-US": "/quotes/[quoteNumber]",
+  },
   "/terminos": {
     "es-MX": "/terminos",
     "en-US": "/terms",
@@ -86,6 +98,8 @@ export type StaticAppPathname = Exclude<
   | "/pago/[orderNumber]"
   | "/pedido/[orderNumber]/confirmacion"
   | "/cuenta/pedidos/[orderNumber]"
+  | "/cotizaciones/nueva/[productSlug]"
+  | "/cotizaciones/[quoteNumber]"
 >;
 
 export type MainNavKey =

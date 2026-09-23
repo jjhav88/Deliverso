@@ -18,7 +18,7 @@ import {
 import type { EmailProvider, EmailTemplateType } from "@/modules/email/domain/types";
 import { toOrderEmailView } from "@/modules/email/order-view";
 import { createEmailProvider } from "@/modules/email/providers";
-import { sampleOrderView, sampleWelcomeView } from "@/modules/email/sample-data";
+import { sampleOrderView, sampleQuoteView, sampleWelcomeView } from "@/modules/email/sample-data";
 import { renderTransactionalEmail } from "@/modules/email/templates/render";
 import { logInfo } from "@/server/logging/logger";
 
@@ -146,6 +146,7 @@ async function renderOutboxMessage(
       template,
       welcome: sampleWelcomeView(input.locale),
       order: sampleOrderView(input.locale),
+      quote: sampleQuoteView(input.locale),
       publicUrl,
     });
   }
@@ -154,6 +155,31 @@ async function renderOutboxMessage(
     return renderTransactionalEmail({
       template,
       welcome: { customerName: input.recipientName, locale: input.locale },
+      publicUrl,
+    });
+  }
+
+  if (input.referenceType === "Quotation" && input.referenceId) {
+    const quote = await getPrisma().quotation.findUnique({
+      where: { id: input.referenceId },
+      include: { activeOffer: true },
+    });
+    if (!quote) {
+      throw new Error("QUOTATION_SNAPSHOT_MISSING");
+    }
+    return renderTransactionalEmail({
+      template,
+      quote: {
+        quoteNumber: quote.quoteNumber,
+        productName: quote.productNameSnapshot,
+        requestTitle: quote.requestTitle,
+        requestDescription: quote.requestDescription,
+        locale: quote.locale,
+        quotedSubtotalMinor: quote.activeOffer?.subtotalMinor ?? quote.quotedSubtotalMinor,
+        deliveryFeeMinor: quote.activeOffer?.deliveryFeeMinor ?? quote.deliveryFeeMinor,
+        quotedTotalMinor: quote.activeOffer?.totalMinor ?? quote.quotedTotalMinor,
+        validUntil: (quote.activeOffer?.validUntil ?? quote.validUntil)?.toISOString() ?? null,
+      },
       publicUrl,
     });
   }
