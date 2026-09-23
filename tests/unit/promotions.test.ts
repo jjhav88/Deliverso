@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { adminAuditActions } from "@/modules/auth/domain/audit-actions";
 import { adminNavigation } from "@/config/admin-navigation";
 import { canAccessAdminPanel, isAdminRole } from "@/modules/auth/domain/admin-role";
+import { emptyAdminPromotionState } from "@/modules/promotions/admin-action-state";
 import {
   auditActionForPromotionStatus,
   canTransitionPromotionStatus,
@@ -349,6 +350,10 @@ describe("admin status transitions", () => {
     expect(isAdminRole("EDITOR")).toBe(false);
     expect(canAccessAdminPanel("SUPER_ADMIN")).toBe(true);
     expect(canAccessAdminPanel("ADMIN")).toBe(true);
+  });
+
+  it("keeps action state outside the use server module", () => {
+    expect(emptyAdminPromotionState).toEqual({ error: null, success: null });
   });
 
   it("reads promotionId from the status form", () => {

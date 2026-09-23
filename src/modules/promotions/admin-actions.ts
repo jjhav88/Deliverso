@@ -10,6 +10,7 @@ import { validatePromotionActivation } from "@/modules/promotions/domain/activat
 import { mexicoCityLocalToUtc } from "@/modules/promotions/domain/admin-datetime";
 import { moneyInputToMinor } from "@/modules/catalog/money-input";
 import type { PromotionBenefitType, PromotionMode, PromotionScopeType } from "@/modules/promotions/domain/types";
+import type { AdminPromotionState } from "@/modules/promotions/admin-action-state";
 import {
   auditActionForPromotionStatus,
   canTransitionPromotionStatus,
@@ -17,9 +18,6 @@ import {
   promotionStatusUpdateError,
   promotionStatusWriteData,
 } from "@/modules/promotions/domain/status-transition";
-
-export type AdminPromotionState = { error: string | null; success: string | null };
-export const emptyAdminPromotionState: AdminPromotionState = { error: null, success: null };
 
 function text(formData: FormData, name: string) {
   return String(formData.get(name) ?? "").trim();

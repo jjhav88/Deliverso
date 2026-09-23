@@ -5,9 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { AdminFeedback } from "@/modules/admin/components/admin-feedback";
+import { emptyAdminPromotionState } from "@/modules/promotions/admin-action-state";
 import {
   changePromotionStatusAction,
-  emptyAdminPromotionState,
   savePromotionAction,
 } from "@/modules/promotions/admin-actions";
 import { promotionRulePreview } from "@/modules/promotions/domain/preview";
