@@ -9,7 +9,14 @@ import { normalizePromotionCode } from "@/modules/promotions/domain/code";
 import { validatePromotionActivation } from "@/modules/promotions/domain/activation";
 import { mexicoCityLocalToUtc } from "@/modules/promotions/domain/admin-datetime";
 import { moneyInputToMinor } from "@/modules/catalog/money-input";
-import type { PromotionBenefitType, PromotionMode, PromotionScopeType, PromotionStatus } from "@/modules/promotions/domain/types";
+import type { PromotionBenefitType, PromotionMode, PromotionScopeType } from "@/modules/promotions/domain/types";
+import {
+  auditActionForPromotionStatus,
+  canTransitionPromotionStatus,
+  parsePromotionStatusForm,
+  promotionStatusUpdateError,
+  promotionStatusWriteData,
+} from "@/modules/promotions/domain/status-transition";
 
 export type AdminPromotionState = { error: string | null; success: string | null };
 export const emptyAdminPromotionState: AdminPromotionState = { error: null, success: null };
@@ -173,19 +180,29 @@ export async function savePromotionAction(
   return { error: null, success: "Guardado." };
 }
 
-export async function changePromotionStatusAction(formData: FormData): Promise<void> {
+export async function changePromotionStatusAction(
+  previousState: AdminPromotionState,
+  formData: FormData,
+): Promise<AdminPromotionState> {
+  void previousState;
   const admin = await requireAdmin("/admin/promotions");
-  const id = text(formData, "id");
-  const status = text(formData, "status") as PromotionStatus;
+  const parsed = parsePromotionStatusForm(formData);
+  if (!parsed.ok) {
+    return { error: parsed.error, success: null };
+  }
+
   const prisma = getPrisma();
   const current = await prisma.promotion.findUnique({
-    where: { id },
-    include: { translations: true, products: true, categories: true, universes: true, businessLines: true, reservations: true },
+    where: { id: parsed.promotionId },
+    include: { translations: true, products: true, categories: true, universes: true, businessLines: true },
   });
   if (!current) {
-    return;
+    return { error: promotionStatusUpdateError, success: null };
   }
-  if (status === "ACTIVE") {
+  if (!canTransitionPromotionStatus(current.status, parsed.status)) {
+    return { error: promotionStatusUpdateError, success: null };
+  }
+  if (parsed.status === "ACTIVE") {
     const es = current.translations.find((item) => item.locale === "es-MX");
     const targetCount =
       current.scopeType === "PRODUCT"
@@ -214,29 +231,26 @@ export async function changePromotionStatusAction(formData: FormData): Promise<v
       targetCount,
     });
     if (issues.length > 0) {
-      redirect(`/admin/promotions/${id}?error=activation`);
+      redirect(`/admin/promotions/${parsed.promotionId}?error=activation`);
     }
   }
-  if (status === "ARCHIVED" && current.reservations.length === 0) {
-    // archive always allowed; hard delete never
+
+  try {
+    await prisma.promotion.update({
+      where: { id: parsed.promotionId },
+      data: promotionStatusWriteData(parsed.status, admin.id),
+    });
+  } catch {
+    return { error: promotionStatusUpdateError, success: null };
   }
-  await prisma.promotion.update({
-    where: { id },
-    data: { status, updatedByAdminId: admin.id },
-  });
+
   await writeAdminAuditLog({
     actorAdminId: admin.id,
-    action:
-      status === "ACTIVE"
-        ? "PROMOTION_ACTIVATED"
-        : status === "PAUSED"
-          ? "PROMOTION_PAUSED"
-          : status === "ARCHIVED"
-            ? "PROMOTION_ARCHIVED"
-            : "PROMOTION_UPDATED",
+    action: auditActionForPromotionStatus(parsed.status),
     resourceType: "Promotion",
-    resourceId: id,
+    resourceId: parsed.promotionId,
   });
   revalidatePath("/admin/promotions");
-  redirect(`/admin/promotions/${id}`);
+  revalidatePath(`/admin/promotions/${parsed.promotionId}`);
+  redirect(`/admin/promotions/${parsed.promotionId}`);
 }

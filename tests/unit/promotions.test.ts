@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import { adminAuditActions } from "@/modules/auth/domain/audit-actions";
 import { adminNavigation } from "@/config/admin-navigation";
+import { canAccessAdminPanel, isAdminRole } from "@/modules/auth/domain/admin-role";
+import {
+  auditActionForPromotionStatus,
+  canTransitionPromotionStatus,
+  parsePromotionStatusForm,
+  promotionStatusUpdateError,
+  promotionStatusWriteData,
+} from "@/modules/promotions/domain/status-transition";
 import { normalizePromotionCode } from "@/modules/promotions/domain/code";
 import { percentageDiscountMinor, quotePromotion } from "@/modules/promotions/domain/calculator";
 import { evaluatePromotionEligibility } from "@/modules/promotions/domain/eligibility";
@@ -305,6 +313,52 @@ describe("admin validation and display", () => {
     expect(adminNavigation.find((item) => item.id === "promotions")).toMatchObject({
       href: "/admin/promotions",
       availability: "ready",
+    });
+  });
+});
+
+describe("admin status transitions", () => {
+  it("allows pause, archive and reactivation without touching archived promotions", () => {
+    expect(canTransitionPromotionStatus("ACTIVE", "PAUSED")).toBe(true);
+    expect(canTransitionPromotionStatus("PAUSED", "ACTIVE")).toBe(true);
+    expect(canTransitionPromotionStatus("ACTIVE", "ARCHIVED")).toBe(true);
+    expect(canTransitionPromotionStatus("PAUSED", "ARCHIVED")).toBe(true);
+    expect(canTransitionPromotionStatus("ARCHIVED", "ACTIVE")).toBe(false);
+    expect(canTransitionPromotionStatus("ARCHIVED", "PAUSED")).toBe(false);
+  });
+
+  it("maps pause to a single PROMOTION_PAUSED audit action", () => {
+    expect(auditActionForPromotionStatus("PAUSED")).toBe("PROMOTION_PAUSED");
+    expect(auditActionForPromotionStatus("ARCHIVED")).toBe("PROMOTION_ARCHIVED");
+    expect(auditActionForPromotionStatus("ACTIVE")).toBe("PROMOTION_ACTIVATED");
+  });
+
+  it("writes only status fields so orders and reservations stay untouched", () => {
+    expect(promotionStatusWriteData("PAUSED", "admin-1")).toEqual({
+      status: "PAUSED",
+      updatedByAdminId: "admin-1",
+    });
+  });
+
+  it("rejects missing promotionId and unauthorized roles", () => {
+    const empty = parsePromotionStatusForm(new FormData());
+    expect(empty).toEqual({ ok: false, error: promotionStatusUpdateError });
+    const invalid = new FormData();
+    invalid.set("status", "PAUSED");
+    expect(parsePromotionStatusForm(invalid).ok).toBe(false);
+    expect(isAdminRole("EDITOR")).toBe(false);
+    expect(canAccessAdminPanel("SUPER_ADMIN")).toBe(true);
+    expect(canAccessAdminPanel("ADMIN")).toBe(true);
+  });
+
+  it("reads promotionId from the status form", () => {
+    const formData = new FormData();
+    formData.set("promotionId", "93bb58e3-b6a8-4c72-931c-c8d1b624295a");
+    formData.set("status", "PAUSED");
+    expect(parsePromotionStatusForm(formData)).toEqual({
+      ok: true,
+      promotionId: "93bb58e3-b6a8-4c72-931c-c8d1b624295a",
+      status: "PAUSED",
     });
   });
 });

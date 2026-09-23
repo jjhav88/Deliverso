@@ -57,6 +57,10 @@ type PromotionFormProps = {
 
 export function PromotionForm({ initial, targets, activationError }: PromotionFormProps) {
   const [state, formAction, pending] = useActionState(savePromotionAction, emptyAdminPromotionState);
+  const [statusState, statusAction, statusPending] = useActionState(
+    changePromotionStatusAction,
+    emptyAdminPromotionState,
+  );
   const [mode, setMode] = useState<PromotionMode>(initial.mode);
   const [benefitType, setBenefitType] = useState<PromotionBenefitType>(initial.benefitType);
   const [scopeType, setScopeType] = useState<PromotionScopeType>(initial.scopeType);
@@ -92,7 +96,8 @@ export function PromotionForm({ initial, targets, activationError }: PromotionFo
             : [];
 
   return (
-    <form action={formAction} className="flex max-w-3xl flex-col gap-8">
+    <div className="flex max-w-3xl flex-col gap-8">
+    <form action={formAction} className="flex flex-col gap-8">
       {initial.id ? <input type="hidden" name="id" value={initial.id} /> : null}
       <div>
         <h2 className="type-h2">{initial.id ? "Editar promoción" : "Nueva promoción"}</h2>
@@ -265,6 +270,7 @@ export function PromotionForm({ initial, targets, activationError }: PromotionFo
           Guardar
         </Button>
       </div>
+    </form>
 
       {initial.id && initial.status ? (
         <section className="grid gap-3 rounded-lg border border-border bg-[var(--admin-surface)] p-5">
@@ -273,32 +279,69 @@ export function PromotionForm({ initial, targets, activationError }: PromotionFo
             La edición afecta compras futuras. Los pedidos históricos conservan su snapshot.
             Las reservas de pedidos pendientes se honran si pausas o archivas.
           </p>
+          <AdminFeedback error={statusState.error} success={statusState.success} />
           <div className="flex flex-wrap gap-3">
-            {initial.status !== "ACTIVE" ? (
-              <StatusButton id={initial.id} status="ACTIVE" label="Activar" />
+            {initial.status === "DRAFT" || initial.status === "PAUSED" ? (
+              <StatusButton
+                promotionId={initial.id}
+                status="ACTIVE"
+                label="Activar"
+                action={statusAction}
+                pending={statusPending}
+              />
             ) : null}
             {initial.status === "ACTIVE" ? (
-              <StatusButton id={initial.id} status="PAUSED" label="Pausar" />
+              <StatusButton
+                promotionId={initial.id}
+                status="PAUSED"
+                label="Pausar"
+                action={statusAction}
+                pending={statusPending}
+              />
             ) : null}
             {initial.status !== "ARCHIVED" ? (
-              <StatusButton id={initial.id} status="ARCHIVED" label="Archivar" />
+              <StatusButton
+                promotionId={initial.id}
+                status="ARCHIVED"
+                label="Archivar"
+                action={statusAction}
+                pending={statusPending}
+              />
             ) : null}
             {initial.status === "PAUSED" ? (
-              <StatusButton id={initial.id} status="DRAFT" label="Volver a borrador" />
+              <StatusButton
+                promotionId={initial.id}
+                status="DRAFT"
+                label="Volver a borrador"
+                action={statusAction}
+                pending={statusPending}
+              />
             ) : null}
           </div>
         </section>
       ) : null}
-    </form>
+    </div>
   );
 }
 
-function StatusButton({ id, status, label }: { id: string; status: PromotionStatus; label: string }) {
+function StatusButton({
+  promotionId,
+  status,
+  label,
+  action,
+  pending,
+}: {
+  promotionId: string;
+  status: PromotionStatus;
+  label: string;
+  action: (formData: FormData) => void;
+  pending: boolean;
+}) {
   return (
-    <form action={changePromotionStatusAction}>
-      <input type="hidden" name="id" value={id} />
+    <form action={action}>
+      <input type="hidden" name="promotionId" value={promotionId} />
       <input type="hidden" name="status" value={status} />
-      <Button type="submit" variant="secondary" size="sm">
+      <Button type="submit" variant="secondary" size="sm" disabled={pending} loading={pending}>
         {label}
       </Button>
     </form>
