@@ -117,6 +117,8 @@
     "closeMenu": "Close menu",
     "cart": "Cart",
     "account": "My account",
+    "orders": "My orders",
+    "quotes": "My quotes",
     "signIn": "Sign in",
     "signOut": "Sign out",
     "accountMenu": "Account menu",
@@ -487,6 +489,11 @@
       "purchaseData": "Details used for purchasing",
       "purchaseDataHint": "Checkout uses your name and phone. We do not store an address book yet.",
       "quotes": "My quotes",
+      "quotesEmpty": "You do not have any quote requests yet.",
+      "viewAllQuotes": "See all my quotes",
+      "quoteAttention": "You have a quote that needs your attention.",
+      "reviewQuote": "Review",
+      "needsAttention": "Needs your attention",
       "customOrder": "Custom order"
     }
   },
@@ -656,6 +663,14 @@
     "timeline": "Activity",
     "attachmentsSection": "References",
     "offerMessage": "Proposal message",
-    "back": "Back to quotes"
+    "back": "Back to quotes",
+    "submittedTitle": "Request sent",
+    "submittedBody": "We received your request. Our team will review it and contact you here.",
+    "viewAll": "See all my quotes",
+    "keepExploring": "Keep exploring",
+    "needsInfoTitle": "We need a bit more information",
+    "quotedReadyTitle": "Your quote is ready",
+    "reviewAndAccept": "Review and accept quote",
+    "needsAttention": "Needs your attention"
   }
 }

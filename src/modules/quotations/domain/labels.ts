@@ -4,24 +4,24 @@ const es: Record<QuotationStatus, string> = {
   SUBMITTED: "Recibida",
   IN_REVIEW: "En revisión",
   NEEDS_INFO: "Información requerida",
-  QUOTED: "Cotizada",
+  QUOTED: "Cotización lista",
   ACCEPTED: "Aceptada",
   DECLINED: "Rechazada",
-  EXPIRED: "Expirada",
+  EXPIRED: "Vencida",
   CANCELED: "Cancelada",
-  CONVERTED: "Convertida",
+  CONVERTED: "Convertida en pedido",
 };
 
 const en: Record<QuotationStatus, string> = {
   SUBMITTED: "Received",
   IN_REVIEW: "In review",
   NEEDS_INFO: "More information needed",
-  QUOTED: "Quoted",
+  QUOTED: "Quote ready",
   ACCEPTED: "Accepted",
   DECLINED: "Declined",
   EXPIRED: "Expired",
   CANCELED: "Canceled",
-  CONVERTED: "Converted",
+  CONVERTED: "Converted to order",
 };
 
 export function quotationStatusLabel(status: QuotationStatus, locale = "es-MX"): string {

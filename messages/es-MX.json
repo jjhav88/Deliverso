@@ -117,6 +117,8 @@
     "closeMenu": "Cerrar menú",
     "cart": "Carrito",
     "account": "Mi cuenta",
+    "orders": "Mis pedidos",
+    "quotes": "Mis cotizaciones",
     "signIn": "Iniciar sesión",
     "signOut": "Cerrar sesión",
     "accountMenu": "Menú de cuenta",
@@ -487,6 +489,11 @@
       "purchaseData": "Datos utilizados para comprar",
       "purchaseDataHint": "El checkout usa tu nombre y teléfono. Todavía no guardamos un directorio de direcciones.",
       "quotes": "Mis cotizaciones",
+      "quotesEmpty": "Aún no tienes solicitudes de cotización.",
+      "viewAllQuotes": "Ver todas mis cotizaciones",
+      "quoteAttention": "Tienes una cotización que requiere tu atención.",
+      "reviewQuote": "Revisar",
+      "needsAttention": "Requiere tu atención",
       "customOrder": "Pedido personalizado"
     }
   },
@@ -656,6 +663,14 @@
     "timeline": "Actividad",
     "attachmentsSection": "Referencias",
     "offerMessage": "Mensaje de la propuesta",
-    "back": "Volver a cotizaciones"
+    "back": "Volver a cotizaciones",
+    "submittedTitle": "Solicitud enviada",
+    "submittedBody": "Recibimos tu solicitud. Nuestro equipo la revisará y te contactará desde aquí.",
+    "viewAll": "Ver todas mis cotizaciones",
+    "keepExploring": "Seguir explorando",
+    "needsInfoTitle": "Necesitamos información adicional",
+    "quotedReadyTitle": "Tu cotización está lista",
+    "reviewAndAccept": "Revisar y aceptar cotización",
+    "needsAttention": "Requiere tu atención"
   }
 }

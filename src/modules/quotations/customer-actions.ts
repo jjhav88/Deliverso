@@ -125,10 +125,10 @@ export async function submitQuotationAction(
   });
   revalidateQuotes();
   redirect(
-    getPathname({
+    `${getPathname({
       locale,
       href: { pathname: "/cotizaciones/[quoteNumber]", params: { quoteNumber: quotation.quoteNumber } },
-    }),
+    })}?enviada=1`,
   );
 }
 

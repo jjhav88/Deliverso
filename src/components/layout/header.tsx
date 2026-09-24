@@ -11,9 +11,11 @@ import { supportedCurrencies } from "@/config/currency";
 import { accountHref, accountLoginHref, cartHref, mainNavigation } from "@/config/navigation";
 import { Link } from "@/i18n/navigation";
 import { getCurrencyDisplayName } from "@/lib/currency/display-name";
-import { SessionIdentity } from "@/modules/account/components/session-identity";
+import { CustomerAccountMenu } from "@/modules/account/components/customer-account-menu";
 import { profileDisplayName } from "@/modules/account/domain/presentation";
 import { signAvatarUrl } from "@/modules/avatars/service";
+import { buildCustomerAccountMenu } from "@/modules/quotations/domain/attention";
+import { countCustomerQuotesRequiringAttention } from "@/modules/quotations/queries";
 import { getLanguageSwitchItems } from "@/modules/i18n/language-switch-items";
 import { getCartItemCount } from "@/modules/cart/queries";
 import { getOptionalCustomer } from "@/modules/customer-auth/queries";
@@ -44,14 +46,20 @@ export async function Header({ currency }: HeaderProps) {
   const languageItems = await getLanguageSwitchItems();
   let customer = null;
   let cartCount = 0;
+  let quotesAttention = 0;
   try {
     customer = await getOptionalCustomer();
     const signedInCustomer = Boolean(customer && canCustomerShop(customer.status));
     cartCount = signedInCustomer ? await getCartItemCount() : 0;
+    quotesAttention =
+      signedInCustomer && customer
+        ? await countCustomerQuotesRequiringAttention(customer.id)
+        : 0;
   } catch (error) {
     if (navigationCustomerFallback(error) === "unavailable" || isTransientDatabaseError(error)) {
       customer = null;
       cartCount = 0;
+      quotesAttention = 0;
     } else {
       throw error;
     }
@@ -103,14 +111,13 @@ export async function Header({ currency }: HeaderProps) {
             />
           </div>
           {signedIn && customer ? (
-            <SessionIdentity
-              variant="customer"
+            <CustomerAccountMenu
               displayName={displayName}
               avatarUrl={avatarUrl}
-              profileHref={accountHref}
-              profileLabel={t("account")}
-              signOutLabel={t("signOut")}
               menuLabel={t("accountMenu")}
+              signOutLabel={t("signOut")}
+              items={buildCustomerAccountMenu({ locale, attentionCount: quotesAttention })}
+              attentionCount={quotesAttention}
             />
           ) : (
             <Link

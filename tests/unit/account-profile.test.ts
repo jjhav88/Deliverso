@@ -23,6 +23,8 @@ describe("customer header session", () => {
       showLogout: false,
       profileHref: null,
     });
+    expect(resolveCustomerHeaderSession({ signedIn: false }).caption).toBeNull();
+    expect(resolveCustomerHeaderSession({ signedIn: false }).showLogout).toBe(false);
   });
 
   it("shows the display name and logout when authenticated", () => {

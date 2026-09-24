@@ -3,6 +3,7 @@ import { getPrisma } from "@/server/db/prisma";
 import { hasRuntimeDatabaseUrl } from "@/server/db/env";
 import { signQuoteAttachmentUrl } from "@/modules/quotations/storage";
 import { isQuoteExpired } from "@/modules/quotations/domain/lifecycle";
+import { quoteAttentionStatuses } from "@/modules/quotations/domain/attention";
 
 const detailInclude = {
   attachments: { orderBy: { createdAt: "asc" as const } },
@@ -14,6 +15,36 @@ const detailInclude = {
   pickupLocation: true,
   order: { select: { id: true, orderNumber: true, status: true } },
 } as const;
+
+export async function countCustomerQuotesRequiringAttention(customerId: string): Promise<number> {
+  if (!hasRuntimeDatabaseUrl() || !customerId) {
+    return 0;
+  }
+  return getPrisma().quotation.count({
+    where: {
+      customerId,
+      status: { in: [...quoteAttentionStatuses] },
+    },
+  });
+}
+
+export async function listRecentCustomerQuotations(customerId: string, take = 3) {
+  if (!hasRuntimeDatabaseUrl()) {
+    return [];
+  }
+  return getPrisma().quotation.findMany({
+    where: { customerId },
+    orderBy: { createdAt: "desc" },
+    take,
+    select: {
+      quoteNumber: true,
+      productNameSnapshot: true,
+      status: true,
+      createdAt: true,
+      quotedTotalMinor: true,
+    },
+  });
+}
 
 export async function listCustomerQuotations(customerId: string) {
   if (!hasRuntimeDatabaseUrl()) {

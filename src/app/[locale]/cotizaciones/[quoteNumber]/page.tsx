@@ -22,6 +22,7 @@ export const dynamic = "force-dynamic";
 
 type PageProps = {
   params: Promise<{ locale: string; quoteNumber: string }>;
+  searchParams: Promise<{ enviada?: string }>;
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -33,8 +34,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   return { title: t("detailTitle"), robots: { index: false, follow: false } };
 }
 
-export default async function CustomerQuotationDetailPage({ params }: PageProps) {
+export default async function CustomerQuotationDetailPage({ params, searchParams }: PageProps) {
   const { locale, quoteNumber } = await params;
+  const query = await searchParams;
   if (!hasLocale(routing.locales, locale) || !isAppLocale(locale)) {
     notFound();
   }
@@ -48,6 +50,8 @@ export default async function CustomerQuotationDetailPage({ params }: PageProps)
   const now = new Date();
   const offer = quote.activeOffer;
   const needsAddress = quote.status === "QUOTED" && offer?.fulfillmentMethod === "DELIVERY" && !quote.address;
+  const adminMessage = [...quote.messages].reverse().find((item) => item.authorType === "ADMIN");
+  const submitted = query.enviada === "1";
 
   return (
     <Section>
@@ -55,6 +59,43 @@ export default async function CustomerQuotationDetailPage({ params }: PageProps)
         <Link href="/cotizaciones" className="type-caption text-secondary">
           {t("back")}
         </Link>
+        {submitted ? (
+          <div className="mt-6 rounded-lg border border-border-strong bg-muted/40 p-5">
+            <p className="type-h3">{t("submittedTitle")}</p>
+            <p className="type-body mt-2 text-muted-foreground">{t("submittedBody")}</p>
+            <div className="mt-4 flex flex-wrap gap-4">
+              <Link href="/cotizaciones" className="type-label tracking-[0.12em] text-secondary">
+                {t("viewAll")}
+              </Link>
+              <Link href="/productos" className="type-label tracking-[0.12em] text-secondary">
+                {t("keepExploring")}
+              </Link>
+            </div>
+          </div>
+        ) : null}
+        {quote.status === "NEEDS_INFO" ? (
+          <div className="mt-6 rounded-lg border border-border-strong bg-muted/40 p-5">
+            <p className="type-h3">{t("needsInfoTitle")}</p>
+            {adminMessage ? (
+              <p className="type-body mt-3 whitespace-pre-wrap">{adminMessage.message}</p>
+            ) : null}
+            <p className="type-caption mt-3 text-secondary">{t("needsAttention")}</p>
+          </div>
+        ) : null}
+        {quote.status === "QUOTED" && offer ? (
+          <div className="mt-6 rounded-lg border border-border-strong bg-muted/40 p-5">
+            <p className="type-h3">{t("quotedReadyTitle")}</p>
+            <p className="type-h3 mt-3 tabular-nums">
+              {t("total")}: {formatMoneyFromMinorUnits(offer.totalMinor, "MXN", locale)}
+            </p>
+            <p className="type-body-sm mt-1 text-muted-foreground">
+              {t("validUntil")}: {new Date(offer.validUntil).toLocaleString(locale)}
+            </p>
+            <a href="#aceptar-cotizacion" className="mt-4 inline-block type-label tracking-[0.12em] text-secondary">
+              {t("reviewAndAccept")}
+            </a>
+          </div>
+        ) : null}
         <h1 className="type-display-l mt-4">{quote.quoteNumber}</h1>
         <p className="type-body mt-3">{quote.productNameSnapshot}</p>
         <p className="type-body-sm mt-2 text-muted-foreground">
@@ -126,7 +167,7 @@ export default async function CustomerQuotationDetailPage({ params }: PageProps)
           </section>
         ) : null}
 
-        <div className="mt-10 max-w-xl">
+        <div id="aceptar-cotizacion" className="mt-10 max-w-xl">
           <QuoteCustomerActions
             quotationId={quote.id}
             canReply={canCustomerReply(quote.status)}

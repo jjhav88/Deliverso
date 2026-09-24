@@ -9,6 +9,12 @@ import {
   validateQuoteAttachment,
 } from "@/modules/quotations/domain/attachments";
 import { evaluateQuotationConversion, nextOfferVersion } from "@/modules/quotations/domain/conversion";
+import {
+  buildCustomerAccountMenu,
+  countQuotesRequiringAttention,
+  quoteRequiresCustomerAttention,
+  quotesMenuLabel,
+} from "@/modules/quotations/domain/attention";
 import { quotationStatusLabel } from "@/modules/quotations/domain/labels";
 import {
   canAccessCustomerQuotation,
@@ -43,8 +49,11 @@ describe("quote numbers and labels", () => {
 
   it("humanizes statuses in ES and EN", () => {
     expect(quotationStatusLabel("NEEDS_INFO", "es-MX")).toBe("Información requerida");
-    expect(quotationStatusLabel("QUOTED", "en-US")).toBe("Quoted");
-    expect(quotationStatusLabel("CONVERTED", "es-MX")).toBe("Convertida");
+    expect(quotationStatusLabel("QUOTED", "es-MX")).toBe("Cotización lista");
+    expect(quotationStatusLabel("QUOTED", "en-US")).toBe("Quote ready");
+    expect(quotationStatusLabel("EXPIRED", "es-MX")).toBe("Vencida");
+    expect(quotationStatusLabel("CONVERTED", "es-MX")).toBe("Convertida en pedido");
+    expect(quotationStatusLabel("CONVERTED", "en-US")).toBe("Converted to order");
   });
 });
 
@@ -275,5 +284,41 @@ describe("admin nav", () => {
       href: "/admin/quotations",
       availability: "ready",
     });
+  });
+});
+
+describe("customer quote visibility", () => {
+  it("counts only NEEDS_INFO and QUOTED for the badge", () => {
+    expect(countQuotesRequiringAttention([])).toBe(0);
+    expect(countQuotesRequiringAttention(["SUBMITTED"])).toBe(0);
+    expect(countQuotesRequiringAttention(["IN_REVIEW", "DECLINED", "EXPIRED", "CANCELED", "CONVERTED"])).toBe(0);
+    expect(countQuotesRequiringAttention(["NEEDS_INFO"])).toBe(1);
+    expect(countQuotesRequiringAttention(["QUOTED"])).toBe(1);
+    expect(countQuotesRequiringAttention(["SUBMITTED", "NEEDS_INFO", "QUOTED", "CONVERTED"])).toBe(2);
+    expect(quoteRequiresCustomerAttention("SUBMITTED")).toBe(false);
+    expect(quoteRequiresCustomerAttention("CONVERTED")).toBe(false);
+  });
+
+  it("builds the same ES/EN account menu for desktop and mobile", () => {
+    const esNone = buildCustomerAccountMenu({ locale: "es-MX", attentionCount: 0 });
+    expect(esNone.map((item) => item.label)).toEqual(["Mi cuenta", "Mis pedidos", "Mis cotizaciones"]);
+    expect(esNone.map((item) => item.href)).toEqual(["/cuenta", "/cuenta", "/cotizaciones"]);
+    expect(esNone.find((item) => item.id === "quotes")?.badge).toBeNull();
+    expect(quotesMenuLabel({ locale: "es-MX", attentionCount: 0 })).toBe("Mis cotizaciones");
+
+    const enBadge = buildCustomerAccountMenu({ locale: "en-US", attentionCount: 1 });
+    expect(enBadge.map((item) => item.label)).toEqual(["My account", "My orders", "My quotes"]);
+    expect(enBadge.find((item) => item.id === "quotes")?.badge).toBe(1);
+    expect(quotesMenuLabel({ locale: "en-US", attentionCount: 1 })).toBe("My quotes (1)");
+  });
+
+  it("keeps dashboard attention only for owned customer quotes", () => {
+    expect(canAccessCustomerQuotation("c1", "c1")).toBe(true);
+    expect(canAccessCustomerQuotation("c1", "other")).toBe(false);
+    const recent = [
+      { status: "SUBMITTED" as const, attention: quoteRequiresCustomerAttention("SUBMITTED") },
+      { status: "QUOTED" as const, attention: quoteRequiresCustomerAttention("QUOTED") },
+    ];
+    expect(recent.filter((item) => item.attention)).toHaveLength(1);
   });
 });
