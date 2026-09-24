@@ -12,6 +12,7 @@ export type CustomerOrderSummary = {
   fulfillmentMethod: FulfillmentMethod;
   requestedDate: string;
   grandTotalMinor: number;
+  refundedAmountMinor: number;
   currencyCode: "MXN";
   customOrder: boolean;
 };

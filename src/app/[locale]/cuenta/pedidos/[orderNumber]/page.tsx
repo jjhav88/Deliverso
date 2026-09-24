@@ -11,7 +11,15 @@ import { getPathname, Link } from "@/i18n/navigation";
 import { formatMoneyFromMinorUnits } from "@/lib/money/format";
 import { requireCustomer } from "@/modules/customer-auth/queries";
 import { getCustomerOrderByNumber } from "@/modules/orders/queries";
+import { getCustomerOrderFinance } from "@/modules/cancellations/queries";
 import { OrderItemsList } from "@/modules/orders/components/order-items";
+import { RequestCancellationForm } from "@/modules/cancellations/components/request-cancellation-form";
+import {
+  cancellationStatusLabel,
+  financialStatusLabel,
+  refundReasonLabel,
+} from "@/modules/cancellations/domain/labels";
+import { refundReasons } from "@/modules/cancellations/domain/types";
 
 export const dynamic = "force-dynamic";
 
@@ -37,11 +45,17 @@ export default async function CustomerOrderDetailPage({ params }: PageProps) {
   const customer = await requireCustomer(
     getPathname({ locale, href: { pathname: "/cuenta/pedidos/[orderNumber]", params: { orderNumber } } }),
   );
-  const order = await getCustomerOrderByNumber({
-    customerId: customer.id,
-    orderNumber,
-    locale,
-  });
+  const [order, finance] = await Promise.all([
+    getCustomerOrderByNumber({
+      customerId: customer.id,
+      orderNumber,
+      locale,
+    }),
+    getCustomerOrderFinance({
+      customerId: customer.id,
+      orderNumber,
+    }),
+  ]);
   if (!order) {
     notFound();
   }
@@ -60,6 +74,7 @@ export default async function CustomerOrderDetailPage({ params }: PageProps) {
         <h1 className="type-display-l mt-4">{order.orderNumber}</h1>
         <p className="type-body-sm mt-2 text-muted-foreground">
           {t("status")}: {order.status} · {t("payment")}: {order.paymentStatus}
+          {finance ? ` · ${financialStatusLabel(finance.financialStatus, locale)}` : ""}
           {order.customOrder ? ` · ${t("customOrder")}` : ""}
         </p>
         <div className="mt-10 grid gap-10 lg:grid-cols-2">
@@ -88,6 +103,16 @@ export default async function CustomerOrderDetailPage({ params }: PageProps) {
             <p className="type-h3 tabular-nums">
               {t("charged")}: {formatMoneyFromMinorUnits(order.grandTotalMinor, "MXN", locale)}
             </p>
+            {finance && finance.refundedAmountMinor > 0 ? (
+              <>
+                <p className="type-body tabular-nums">
+                  {t("refunded")}: −{formatMoneyFromMinorUnits(finance.refundedAmountMinor, "MXN", locale)}
+                </p>
+                <p className="type-h3 tabular-nums">
+                  {t("net")}: {formatMoneyFromMinorUnits(finance.netPaidMinor, "MXN", locale)}
+                </p>
+              </>
+            ) : null}
             {displayCurrency && order.displayTotalMinor != null ? (
               <p className="type-body-sm text-muted-foreground">
                 {t("historicDisplay", {
@@ -119,6 +144,46 @@ export default async function CustomerOrderDetailPage({ params }: PageProps) {
               <p className="type-body-sm text-muted-foreground">
                 {[order.address.street, order.address.city, order.address.postalCode].filter(Boolean).join(", ")}
               </p>
+            ) : null}
+            {finance?.request ? (
+              <div className="mt-6 grid gap-2">
+                <h2 className="type-h3">{t("cancellationRequest")}</h2>
+                <p className="type-body">{t("requestSent")}</p>
+                <p className="type-body-sm text-muted-foreground">
+                  {cancellationStatusLabel(finance.request.status, locale)} ·{" "}
+                  {refundReasonLabel(finance.request.reason, locale)}
+                </p>
+                {finance.request.adminMessage ? (
+                  <p className="type-body-sm">{finance.request.adminMessage}</p>
+                ) : null}
+              </div>
+            ) : null}
+            {finance?.showSupportContact ? (
+              <p className="mt-6 type-body-sm text-muted-foreground">{t("contactSupport")}</p>
+            ) : null}
+            {finance ? (
+              <div className="mt-6">
+                <RequestCancellationForm
+                  orderNumber={order.orderNumber}
+                  canRequest={finance.canRequestCancellation}
+                  requestId={finance.request?.id}
+                  canWithdraw={Boolean(finance.request?.canWithdraw)}
+                  labels={{
+                    request: t("requestCancellation"),
+                    confirm: t("requestConfirm"),
+                    close: t("close"),
+                    reason: t("reason"),
+                    message: t("message"),
+                    messageOptional: t("optional"),
+                    submit: t("submitRequest"),
+                    withdraw: t("withdrawRequest"),
+                    pending: t("requestPending"),
+                    reasons: Object.fromEntries(
+                      refundReasons.map((reason) => [reason, refundReasonLabel(reason, locale)]),
+                    ) as Record<(typeof refundReasons)[number], string>,
+                  }}
+                />
+              </div>
             ) : null}
           </section>
         </div>

@@ -10,6 +10,7 @@ import {
   Sparkles,
   Users,
   FilePenLine,
+  Ban,
 } from "lucide-react";
 
 export const adminNavigationIds = [
@@ -20,6 +21,7 @@ export const adminNavigationIds = [
   "universes",
   "orders",
   "quotations",
+  "cancellations",
   "customers",
   "promotions",
   "settings",
@@ -85,6 +87,13 @@ export const adminNavigation: readonly AdminNavigationItem[] = [
     href: "/admin/quotations",
     label: "Cotizaciones",
     icon: FilePenLine,
+    availability: "ready",
+  },
+  {
+    id: "cancellations",
+    href: "/admin/cancellations",
+    label: "Cancelaciones",
+    icon: Ban,
     availability: "ready",
   },
   {

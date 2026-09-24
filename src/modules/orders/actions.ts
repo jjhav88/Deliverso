@@ -14,8 +14,6 @@ import { getOwnedOrderPaymentStatuses, getOwnedOrderRecord } from "@/modules/ord
 import { toOwnedOrderPaymentStatusResult } from "@/modules/orders/domain/confirmation";
 import { createOrGetPaymentIntentForOrder } from "@/modules/payments/create-intent";
 import { applySucceededPaymentIntentIfNeeded } from "@/modules/payments/sync-succeeded";
-import { getStripeGateway } from "@/server/stripe/client";
-import { getPrisma } from "@/server/db/prisma";
 import { ORDER_CHANGED_MESSAGE, type OrderActionState } from "@/modules/orders/action-state";
 import { canAccessCustomerOrder } from "@/modules/orders/domain/ownership";
 
@@ -97,39 +95,16 @@ export async function cancelPendingOrder(formData: FormData): Promise<void> {
     redirect(accountPath);
   }
 
-  if (order.stripePaymentIntentId) {
-    await getStripeGateway().cancelPaymentIntent(order.stripePaymentIntentId);
+  const { cancelUnpaidOrder } = await import("@/modules/cancellations/cancel-unpaid");
+  const result = await cancelUnpaidOrder({ orderId: order.id, actor: "customer" });
+  if (!result.ok) {
+    redirect(
+      getPathname({
+        locale: isAppLocale(locale) ? locale : "es-MX",
+        href: { pathname: "/cuenta/pedidos/[orderNumber]", params: { orderNumber } },
+      }),
+    );
   }
-
-  const prisma = getPrisma();
-  await prisma.$transaction(async (tx) => {
-    const current = await tx.order.findUnique({
-      where: { id: order.id },
-      select: { status: true, paymentStatus: true },
-    });
-    if (!current || current.status === "PAID" || current.paymentStatus === "SUCCEEDED") {
-      return;
-    }
-    await tx.order.update({
-      where: { id: order.id },
-      data: {
-        status: "CANCELLED",
-        paymentStatus: "CANCELED",
-        cancelledAt: new Date(),
-      },
-    });
-    if (order.cartId) {
-      await tx.cart.update({
-        where: { id: order.cartId },
-        data: { status: "ACTIVE" },
-      });
-    }
-    await tx.orderEvent.create({
-      data: { orderId: order.id, type: "ORDER_CANCELLED" },
-    });
-    const { releasePromotionReservation } = await import("@/modules/promotions/reservation");
-    await releasePromotionReservation(tx, order.id);
-  });
 
   revalidateOrderSurfaces();
   redirect(getPathname({ locale: isAppLocale(locale) ? locale : "es-MX", href: "/carrito" }));

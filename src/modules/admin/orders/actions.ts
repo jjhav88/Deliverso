@@ -97,49 +97,18 @@ export async function updateOrderFulfillmentStatus(formData: FormData): Promise<
   revalidateAdminOrders(order.id);
 }
 
-export async function cancelPaidOrderByAdmin(formData: FormData): Promise<void> {
-  const admin = await requireAdmin("/admin/orders");
-  const orderId = String(formData.get("orderId") ?? "");
-  const confirmed = String(formData.get("confirmNoRefund") ?? "") === "1";
-  if (!confirmed) {
-    return;
-  }
-
-  const prisma = getPrisma();
-  const order = await prisma.order.findUnique({
-    where: { id: orderId },
-    select: { id: true, status: true, fulfillmentStatus: true },
-  });
-  if (!order) {
-    return;
-  }
-  if (order.status !== "PAID") {
-    return;
-  }
-  if (order.fulfillmentStatus === "COMPLETED" || order.fulfillmentStatus === "CANCELLED") {
-    return;
-  }
-
-  await prisma.$transaction(async (tx) => {
-    await tx.order.update({
-      where: { id: order.id },
-      data: {
-        status: "CANCELLED",
-        fulfillmentStatus: "CANCELLED",
-        cancelledAt: new Date(),
-      },
-    });
-    await tx.orderEvent.create({
-      data: { orderId: order.id, type: "ORDER_CANCELLED", metadata: { actor: "admin" } },
-    });
-  });
-
-  await writeAdminAuditLog({
-    actorAdminId: admin.id,
-    action: "ORDER_CANCELLED",
-    resourceType: "Order",
-    resourceId: order.id,
-    metadata: { refund: false },
-  });
-  revalidateAdminOrders(order.id);
+export async function cancelPaidOrderByAdmin(
+  previousState: AdminOrderActionState,
+  formData: FormData,
+): Promise<AdminOrderActionState> {
+  void previousState;
+  const { createAdminRefundAction } = await import("@/modules/cancellations/admin-actions");
+  const next = new FormData();
+  next.set("orderId", String(formData.get("orderId") ?? ""));
+  next.set("type", "FULL");
+  next.set("reason", String(formData.get("reason") ?? "OTHER"));
+  next.set("cancelsOrder", "1");
+  next.set("confirm", String(formData.get("confirm") ?? ""));
+  next.set("internalNote", String(formData.get("internalNote") ?? ""));
+  return createAdminRefundAction(previousState, next);
 }

@@ -21,6 +21,24 @@ export type CreatePaymentIntentInput = {
   };
 };
 
+export type StripeRefundSnapshot = {
+  id: string;
+  status: string;
+  amount: number;
+  currency: string;
+  paymentIntentId: string | null;
+  livemode: boolean;
+};
+
+export type CreateStripeRefundInput = {
+  paymentIntentId: string;
+  amountMinor: number;
+  metadata: {
+    refundId: string;
+    orderId: string;
+  };
+};
+
 export type StripeGateway = {
   createPaymentIntent(
     input: CreatePaymentIntentInput,
@@ -28,5 +46,10 @@ export type StripeGateway = {
   ): Promise<StripePaymentIntentSnapshot>;
   retrievePaymentIntent(id: string): Promise<StripePaymentIntentSnapshot>;
   cancelPaymentIntent(id: string): Promise<StripePaymentIntentSnapshot | null>;
+  createRefund(
+    input: CreateStripeRefundInput,
+    idempotencyKey: string,
+  ): Promise<StripeRefundSnapshot>;
+  retrieveRefund(id: string): Promise<StripeRefundSnapshot>;
   constructWebhookEvent(rawBody: string, signature: string): unknown;
 };

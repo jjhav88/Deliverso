@@ -471,11 +471,13 @@ model AdminAccount {
   createdAt   DateTime    @default(now()) @db.Timestamptz
   updatedAt   DateTime    @updatedAt @db.Timestamptz
 
-  auditLogs         AdminAuditLog[]
-  createdPromotions Promotion[]     @relation("PromotionCreatedBy")
-  updatedPromotions Promotion[]     @relation("PromotionUpdatedBy")
-  quoteOffers       QuoteOffer[]
-  quoteMessages     QuoteMessage[]
+  auditLogs             AdminAuditLog[]
+  createdPromotions     Promotion[]           @relation("PromotionCreatedBy")
+  updatedPromotions     Promotion[]           @relation("PromotionUpdatedBy")
+  quoteOffers           QuoteOffer[]
+  quoteMessages         QuoteMessage[]
+  reviewedCancellations CancellationRequest[] @relation("CancellationReviewedBy")
+  requestedRefunds      Refund[]              @relation("RefundRequestedBy")
 
   @@index([status])
   @@index([role])
@@ -587,6 +589,7 @@ model CustomerAccount {
   promotionReservations PromotionReservation[]
   quotations            Quotation[]
   quoteMessages         QuoteMessage[]
+  cancellationRequests  CancellationRequest[]
 
   @@index([status])
   @@index([email])
@@ -878,6 +881,7 @@ model Order {
   promotionDiscountMinor         Int                   @default(0)
   promotionEligibleSubtotalMinor Int?
   grandTotalMinor                Int
+  refundedAmountMinor            Int                   @default(0)
   displayCurrencyCode            String?
   displayTotalMinor              Int?
   displayExchangeRate            Decimal?              @db.Decimal(30, 15)
@@ -919,6 +923,8 @@ model Order {
   address              OrderAddress?
   paymentAttempts      PaymentAttempt[]
   events               OrderEvent[]
+  cancellationRequests CancellationRequest[]
+  refunds              Refund[]
 
   @@index([customerId, createdAt])
   @@index([quotationId])
@@ -1007,7 +1013,8 @@ model PaymentAttempt {
   createdAt               DateTime      @default(now()) @db.Timestamptz
   updatedAt               DateTime      @updatedAt @db.Timestamptz
 
-  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  order   Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  refunds Refund[]
 
   @@index([orderId, createdAt])
   @@index([providerPaymentIntentId])
@@ -1062,6 +1069,12 @@ enum EmailTemplateType {
   QUOTE_ACCEPTED
   QUOTE_DECLINED
   QUOTE_EXPIRED
+  CANCELLATION_REQUESTED
+  CANCELLATION_APPROVED
+  CANCELLATION_REJECTED
+  ORDER_CANCELED
+  REFUND_SUCCEEDED
+  REFUND_FAILED
 }
 
 model EmailOutbox {
@@ -1398,4 +1411,99 @@ model QuoteAddress {
   reference      String?
 
   quotation Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+}
+
+enum CancellationRequestStatus {
+  REQUESTED
+  APPROVED
+  REJECTED
+  WITHDRAWN
+  COMPLETED
+}
+
+enum RefundStatus {
+  PENDING
+  PROCESSING
+  SUCCEEDED
+  FAILED
+  CANCELED
+}
+
+enum RefundType {
+  FULL
+  PARTIAL
+}
+
+enum RefundReason {
+  CUSTOMER_REQUEST
+  DUPLICATE
+  PRODUCT_UNAVAILABLE
+  FULFILLMENT_ISSUE
+  ORDER_ERROR
+  QUALITY_ISSUE
+  OTHER
+}
+
+model CancellationRequest {
+  id                String                    @id @default(uuid()) @db.Uuid
+  orderId           String                    @db.Uuid
+  customerId        String                    @db.Uuid
+  status            CancellationRequestStatus @default(REQUESTED)
+  reason            RefundReason
+  customerMessage   String?
+  adminMessage      String?
+  reviewedByAdminId String?                   @db.Uuid
+  reviewedAt        DateTime?                 @db.Timestamptz
+  createdAt         DateTime                  @default(now()) @db.Timestamptz
+  updatedAt         DateTime                  @updatedAt @db.Timestamptz
+
+  order      Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  customer   CustomerAccount @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  reviewedBy AdminAccount?   @relation("CancellationReviewedBy", fields: [reviewedByAdminId], references: [id], onDelete: SetNull)
+
+  @@index([orderId, status])
+  @@index([customerId, createdAt])
+  @@index([status, createdAt])
+}
+
+model Refund {
+  id                     String       @id @default(uuid()) @db.Uuid
+  orderId                String       @db.Uuid
+  paymentAttemptId       String?      @db.Uuid
+  stripeRefundId         String?      @unique
+  type                   RefundType
+  status                 RefundStatus @default(PENDING)
+  reason                 RefundReason
+  amountMinor            Int
+  cancelsOrder           Boolean      @default(false)
+  requestedByAdminId     String?      @db.Uuid
+  provider               String       @default("STRIPE")
+  providerFailureCode    String?
+  providerFailureMessage String?
+  internalNote           String?
+  createdAt              DateTime     @default(now()) @db.Timestamptz
+  processedAt            DateTime?    @db.Timestamptz
+  failedAt               DateTime?    @db.Timestamptz
+  updatedAt              DateTime     @updatedAt @db.Timestamptz
+
+  order          Order           @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  paymentAttempt PaymentAttempt? @relation(fields: [paymentAttemptId], references: [id], onDelete: SetNull)
+  requestedBy    AdminAccount?   @relation("RefundRequestedBy", fields: [requestedByAdminId], references: [id], onDelete: SetNull)
+  events         RefundEvent[]
+
+  @@index([orderId, status])
+  @@index([status, createdAt])
+  @@index([createdAt])
+}
+
+model RefundEvent {
+  id        String   @id @default(uuid()) @db.Uuid
+  refundId  String   @db.Uuid
+  type      String
+  metadata  Json?
+  createdAt DateTime @default(now()) @db.Timestamptz
+
+  refund Refund @relation(fields: [refundId], references: [id], onDelete: Cascade)
+
+  @@index([refundId, createdAt])
 }

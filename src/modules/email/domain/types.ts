@@ -24,6 +24,12 @@ export const emailTemplateTypes = [
   "QUOTE_ACCEPTED",
   "QUOTE_DECLINED",
   "QUOTE_EXPIRED",
+  "CANCELLATION_REQUESTED",
+  "CANCELLATION_APPROVED",
+  "CANCELLATION_REJECTED",
+  "ORDER_CANCELED",
+  "REFUND_SUCCEEDED",
+  "REFUND_FAILED",
 ] as const;
 export type EmailTemplateType = (typeof emailTemplateTypes)[number];
 
@@ -90,6 +96,8 @@ export type OrderEmailView = {
   displayExchangeProvider: string | null;
   displayExchangeRate: string | null;
   displayExchangeSourceDate: string | null;
+  refundAmountMinor?: number | null;
+  refundReasonLabel?: string | null;
 };
 
 export type WelcomeEmailView = {

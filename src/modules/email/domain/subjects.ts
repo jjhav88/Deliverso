@@ -47,5 +47,27 @@ export function getEmailSubject(
       return en ? "Your quote was declined" : "Tu cotización fue rechazada";
     case "QUOTE_EXPIRED":
       return en ? "Your quote has expired" : "Tu cotización expiró";
+    case "CANCELLATION_REQUESTED":
+      return en
+        ? `We received your cancellation request for ${orderNumber}`
+        : `Recibimos tu solicitud de cancelación de ${orderNumber}`;
+    case "CANCELLATION_APPROVED":
+      return en
+        ? `We approved the cancellation of ${orderNumber}`
+        : `Aprobamos la cancelación de ${orderNumber}`;
+    case "CANCELLATION_REJECTED":
+      return en
+        ? `We could not cancel order ${orderNumber}`
+        : `No pudimos cancelar el pedido ${orderNumber}`;
+    case "ORDER_CANCELED":
+      return en ? `Order ${orderNumber} was canceled` : `El pedido ${orderNumber} fue cancelado`;
+    case "REFUND_SUCCEEDED":
+      return en
+        ? `We processed your refund for ${orderNumber}`
+        : `Procesamos tu reembolso de ${orderNumber}`;
+    case "REFUND_FAILED":
+      return en
+        ? `We could not complete the refund for ${orderNumber}`
+        : `No pudimos completar el reembolso de ${orderNumber}`;
   }
 }

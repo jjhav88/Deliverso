@@ -6,6 +6,7 @@ import type {
   CreatePaymentIntentInput,
   StripeGateway,
   StripePaymentIntentSnapshot,
+  StripeRefundSnapshot,
 } from "@/server/stripe/gateway";
 
 const globalForStripe = globalThis as typeof globalThis & {
@@ -31,6 +32,25 @@ function mapPaymentIntent(intent: Stripe.PaymentIntent): StripePaymentIntentSnap
       orderId: intent.metadata?.orderId,
       orderNumber: intent.metadata?.orderNumber,
     },
+  };
+}
+
+function paymentIntentIdFromRefund(refund: Stripe.Refund): string | null {
+  const value = refund.payment_intent;
+  if (!value) {
+    return null;
+  }
+  return typeof value === "string" ? value : value.id;
+}
+
+function mapRefund(refund: Stripe.Refund): StripeRefundSnapshot {
+  return {
+    id: refund.id,
+    status: refund.status ?? "pending",
+    amount: refund.amount,
+    currency: refund.currency,
+    paymentIntentId: paymentIntentIdFromRefund(refund),
+    livemode: "livemode" in refund ? Boolean(refund.livemode) : false,
   };
 }
 
@@ -65,6 +85,25 @@ export function getStripeGateway(): StripeGateway {
       } catch {
         return null;
       }
+    },
+
+    async createRefund(input, idempotencyKey) {
+      const refund = await stripe.refunds.create(
+        {
+          payment_intent: input.paymentIntentId,
+          amount: input.amountMinor,
+          metadata: {
+            refundId: input.metadata.refundId,
+            orderId: input.metadata.orderId,
+          },
+        },
+        { idempotencyKey },
+      );
+      return mapRefund(refund);
+    },
+
+    async retrieveRefund(id) {
+      return mapRefund(await stripe.refunds.retrieve(id));
     },
 
     constructWebhookEvent(rawBody, signature) {

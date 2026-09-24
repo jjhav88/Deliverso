@@ -618,7 +618,21 @@
     "historicDisplay": "Al crear el pedido se mostró aprox. {amount} con tasa de referencia {provider} {rate} ({date}).",
     "customer": "Cliente",
     "fulfillment": "Entrega o recogida",
-    "customOrder": "Pedido personalizado"
+    "customOrder": "Pedido personalizado",
+    "refunded": "Reembolsado",
+    "net": "Neto",
+    "cancellationRequest": "Solicitud de cancelación",
+    "requestSent": "Solicitud de cancelación enviada",
+    "requestCancellation": "Solicitar cancelación",
+    "requestConfirm": "Solicitar cancelación",
+    "close": "Cerrar",
+    "reason": "Motivo",
+    "message": "Mensaje",
+    "optional": "(opcional)",
+    "submitRequest": "Enviar solicitud",
+    "withdrawRequest": "Retirar solicitud",
+    "requestPending": "Pendiente de revisión",
+    "contactSupport": "Este pedido ya está en producción. Contáctanos si necesitas ayuda."
   },
   "quotations": {
     "title": "Cotizaciones",

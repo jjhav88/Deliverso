@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripeGateway } from "@/server/stripe/client";
 import { processStripePaymentIntentEvent } from "@/modules/payments/process-webhook";
+import { processStripeRefundEvent } from "@/modules/refunds/process-webhook";
 import { webhookHttpStatus } from "@/modules/payments/domain/webhook-http";
 import { logInfo, logWarn } from "@/server/logging/logger";
 import { resolveRequestId } from "@/server/logging/request-id";
@@ -26,7 +27,10 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_signature" }, { status: 400 });
   }
 
-  if (!event.type.startsWith("payment_intent.")) {
+  const isRefundEvent =
+    event.type.startsWith("refund.") || event.type === "charge.refunded";
+
+  if (!event.type.startsWith("payment_intent.") && !isRefundEvent) {
     logInfo({
       event: "STRIPE_WEBHOOK",
       requestId,
@@ -35,6 +39,54 @@ export async function POST(request: Request) {
       result: "ignored",
     });
     return NextResponse.json({ received: true, requestId }, { status: 200 });
+  }
+
+  if (isRefundEvent) {
+    try {
+      const refund =
+        event.type === "charge.refunded"
+          ? (event.data.object as Stripe.Charge).refunds?.data[0]
+          : (event.data.object as Stripe.Refund);
+      if (!refund) {
+        return NextResponse.json({ received: true, requestId }, { status: 200 });
+      }
+      const outcome = await processStripeRefundEvent({
+        providerEventId: event.id,
+        eventType: event.type,
+        livemode: event.livemode,
+        refund: {
+          id: refund.id,
+          status: refund.status,
+          amount: refund.amount,
+          payment_intent: refund.payment_intent,
+          metadata: {
+            refundId: refund.metadata?.refundId,
+            orderId: refund.metadata?.orderId,
+          },
+          failure_reason: "failure_reason" in refund ? refund.failure_reason : null,
+        },
+      });
+      const status = webhookHttpStatus(outcome);
+      logInfo({
+        event: "STRIPE_WEBHOOK",
+        requestId,
+        eventId: event.id,
+        eventType: event.type,
+        stripeRefundId: refund.id,
+        result: outcome.ok ? outcome.result : outcome.reason,
+        status: String(status),
+      });
+      return NextResponse.json({ received: true, requestId }, { status });
+    } catch {
+      logWarn({
+        event: "STRIPE_WEBHOOK",
+        requestId,
+        eventId: event.id,
+        eventType: event.type,
+        result: "transient_error",
+      });
+      return NextResponse.json({ error: "processing_failed", requestId }, { status: 500 });
+    }
   }
 
   const paymentIntent = event.data.object as Stripe.PaymentIntent;

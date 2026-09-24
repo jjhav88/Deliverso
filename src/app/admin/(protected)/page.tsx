@@ -4,14 +4,16 @@ import { getHomeAdminState } from "@/modules/home/admin-queries";
 import { countAdminMedia } from "@/modules/media/queries";
 import { getSettingsAdminState } from "@/modules/settings/queries";
 import { countQuotationDashboard } from "@/modules/quotations/admin-queries";
+import { countCancellationDashboard } from "@/modules/cancellations/queries";
 
 export default async function AdminDashboardPage() {
-  const [home, mediaCount, settings, catalog, quotations] = await Promise.all([
+  const [home, mediaCount, settings, catalog, quotations, cancellations] = await Promise.all([
     getHomeAdminState(),
     countAdminMedia(),
     getSettingsAdminState(),
     countCatalogDashboard(),
     countQuotationDashboard(),
+    countCancellationDashboard(),
   ]);
 
   return (
@@ -53,6 +55,12 @@ export default async function AdminDashboardPage() {
           title="Cotizaciones"
           description={`Pendientes ${quotations.submitted} · En revisión ${quotations.inReview}.`}
           status={`Esperando cliente ${quotations.needsInfo} · Cotizadas ${quotations.quoted}`}
+        />
+        <DashboardCard
+          href="/admin/cancellations"
+          title="Cancelaciones"
+          description={`Solicitudes pendientes ${cancellations.pendingRequests}.`}
+          status={`Refunds fallidos ${cancellations.failedRefunds}`}
         />
       </div>
     </div>

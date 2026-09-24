@@ -73,6 +73,16 @@ test.describe("storefront smoke", () => {
     await page.goto("/admin/quotations");
     await expect(page).toHaveURL(/admin\/login/);
   });
+
+  test("admin cancellations protected", async ({ page }) => {
+    await page.goto("/admin/cancellations");
+    await expect(page).toHaveURL(/admin\/login/);
+  });
+
+  test("customer cancellation request UI requires login", async ({ page }) => {
+    await page.goto("/cuenta/pedidos/DEL-260924-TEST01");
+    await expect(page).toHaveURL(/iniciar-sesion|account\/login/);
+  });
 });
 
 test.describe("ops smoke", () => {

@@ -79,6 +79,10 @@ export function orderDetailsHtml(view: OrderEmailView): string {
                 `−${moneyMxn(view.promotionDiscountMinor)}`,
               )
             : ""}
+          ${view.refundAmountMinor && view.refundAmountMinor > 0
+            ? moneyRow(labels.refund, moneyMxn(view.refundAmountMinor))
+            : ""}
+          ${view.refundReasonLabel ? moneyRow(labels.reason, view.refundReasonLabel) : ""}
         </td>
       </tr>
       <tr>
@@ -133,6 +137,10 @@ export function orderDetailsText(view: OrderEmailView): string {
     view.promotionDiscountMinor && view.promotionDiscountMinor > 0
       ? `${labels.promotion}${view.promotionCode ? ` ${view.promotionCode}` : ""}: −${moneyMxn(view.promotionDiscountMinor)}`
       : "",
+    view.refundAmountMinor && view.refundAmountMinor > 0
+      ? `${labels.refund}: ${moneyMxn(view.refundAmountMinor)}`
+      : "",
+    view.refundReasonLabel ? `${labels.reason}: ${view.refundReasonLabel}` : "",
     `${labels.total}: ${moneyMxn(view.grandTotalMinor)} MXN`,
     view.fulfillmentMethod === "PICKUP" ? labels.pickup : labels.deliveryTitle,
     `${labels.date}: ${date}`,
@@ -148,6 +156,8 @@ const es = {
   subtotal: "Subtotal",
   delivery: "Entrega",
   promotion: "Promoción",
+  refund: "Reembolso",
+  reason: "Motivo",
   total: "Total pagado",
   deliveryTitle: "Entrega",
   pickup: "Recogida",
@@ -162,6 +172,8 @@ const en = {
   subtotal: "Subtotal",
   delivery: "Delivery",
   promotion: "Promotion",
+  refund: "Refund",
+  reason: "Reason",
   total: "Amount paid",
   deliveryTitle: "Delivery",
   pickup: "Pickup",

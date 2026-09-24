@@ -159,6 +159,28 @@ async function renderOutboxMessage(
     });
   }
 
+  if (input.referenceType === "Refund" && input.referenceId) {
+    const refund = await getPrisma().refund.findUnique({
+      where: { id: input.referenceId },
+      include: {
+        order: { include: orderInclude },
+      },
+    });
+    if (!refund) {
+      throw new Error("REFUND_SNAPSHOT_MISSING");
+    }
+    const { refundReasonLabel } = await import("@/modules/cancellations/domain/labels");
+    return renderTransactionalEmail({
+      template,
+      order: {
+        ...toOrderEmailView(refund.order),
+        refundAmountMinor: refund.amountMinor,
+        refundReasonLabel: refundReasonLabel(refund.reason, refund.order.locale || "es-MX"),
+      },
+      publicUrl,
+    });
+  }
+
   if (input.referenceType === "Quotation" && input.referenceId) {
     const quote = await getPrisma().quotation.findUnique({
       where: { id: input.referenceId },

@@ -11,6 +11,9 @@ export type LogFields = {
   eventId?: string;
   eventType?: string;
   paymentIntentId?: string;
+  refundId?: string;
+  stripeRefundId?: string;
+  amountMinor?: number;
   result?: string;
   job?: string;
   processed?: number;

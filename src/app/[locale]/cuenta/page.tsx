@@ -15,6 +15,8 @@ import { listRecentCustomerQuotations } from "@/modules/quotations/queries";
 import { quotationStatusLabel } from "@/modules/quotations/domain/labels";
 import { quoteRequiresCustomerAttention } from "@/modules/quotations/domain/attention";
 import { formatMoneyFromMinorUnits } from "@/lib/money/format";
+import { getOrderFinancialStatus } from "@/modules/cancellations/domain/financial-status";
+import { financialStatusLabel } from "@/modules/cancellations/domain/labels";
 
 export const dynamic = "force-dynamic";
 
@@ -122,6 +124,17 @@ export default async function AccountPage({ params }: PageProps) {
                       {formatMoneyFromMinorUnits(order.grandTotalMinor, "MXN", locale)} · {order.fulfillmentMethod} ·{" "}
                       {order.requestedDate}
                       {order.customOrder ? ` · ${t("dashboard.customOrder")}` : ""}
+                      {order.refundedAmountMinor > 0
+                        ? ` · ${financialStatusLabel(
+                            getOrderFinancialStatus({
+                              status: order.status,
+                              paymentStatus: order.paymentStatus,
+                              grandTotalMinor: order.grandTotalMinor,
+                              refundedAmountMinor: order.refundedAmountMinor,
+                            }),
+                            locale,
+                          )}`
+                        : ""}
                     </p>
                   </li>
                 ))}

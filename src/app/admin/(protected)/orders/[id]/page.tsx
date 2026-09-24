@@ -2,10 +2,20 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { getAdminOrderDetail } from "@/modules/admin/orders/queries";
+import { updateOrderFulfillmentStatus } from "@/modules/admin/orders/actions";
+import { getAdminOrderFinance } from "@/modules/cancellations/queries";
 import {
-  cancelPaidOrderByAdmin,
-  updateOrderFulfillmentStatus,
-} from "@/modules/admin/orders/actions";
+  AdminCancelPaidForm,
+  AdminCancelPendingForm,
+  AdminRefundForm,
+  AdminReviewCancellationForm,
+} from "@/modules/cancellations/components/admin-refund-form";
+import {
+  cancellationStatusLabel,
+  financialStatusLabel,
+  refundReasonLabel,
+  refundStatusLabel,
+} from "@/modules/cancellations/domain/labels";
 import { nextFulfillmentStatuses } from "@/modules/orders/domain/fulfillment-status";
 import { formatMoneyFromMinorUnits } from "@/lib/money/format";
 import { shouldShowStripeTestBadge } from "@/server/stripe/env";
@@ -26,16 +36,13 @@ type PageProps = {
 
 export default async function AdminOrderDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const order = await getAdminOrderDetail(id);
+  const [order, finance] = await Promise.all([getAdminOrderDetail(id), getAdminOrderFinance(id)]);
   if (!order) {
     notFound();
   }
 
   const nextStatuses = nextFulfillmentStatuses(order.fulfillmentStatus, order.fulfillmentMethod);
-  const canCancelPaid =
-    order.status === "PAID" &&
-    order.fulfillmentStatus !== "COMPLETED" &&
-    order.fulfillmentStatus !== "CANCELLED";
+  const failedRefund = finance?.refunds.find((row) => row.status === "FAILED");
 
   return (
     <div className="flex flex-col gap-8">
@@ -100,6 +107,16 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
         <p className="type-h3 tabular-nums">
           Total: {formatMoneyFromMinorUnits(order.grandTotalMinor, "MXN", "es-MX")}
         </p>
+        {finance && finance.refundedAmountMinor > 0 ? (
+          <>
+            <p className="type-body tabular-nums">
+              Reembolsado: −{formatMoneyFromMinorUnits(finance.refundedAmountMinor, "MXN", "es-MX")}
+            </p>
+            <p className="type-body tabular-nums">
+              Neto: {formatMoneyFromMinorUnits(finance.netPaidMinor, "MXN", "es-MX")}
+            </p>
+          </>
+        ) : null}
       </section>
 
       {order.promotionDiscountMinor > 0 || order.promotionId ? (
@@ -155,11 +172,80 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
         <h3 className="type-h3">Pago</h3>
         <p className="type-body">{order.paymentStatus}</p>
         <p className="type-body">Pedido: {order.status}</p>
+        <p className="type-body">
+          Estado financiero: {finance ? financialStatusLabel(finance.financialStatus) : "—"}
+        </p>
         <p className="type-body-sm text-muted-foreground">Pagado: {formatAdminDate(order.paidAt)}</p>
         <p className="type-body-sm text-muted-foreground">
           PaymentIntent: {order.stripePaymentIntentId ?? "—"}
         </p>
       </section>
+
+      {finance ? (
+        <section className="grid gap-3 rounded-lg border border-border bg-[var(--admin-surface)] p-6">
+          <h3 className="type-h3">Refunds</h3>
+          {finance.refunds.length === 0 ? (
+            <p className="type-body-sm text-muted-foreground">Sin reembolsos.</p>
+          ) : (
+            <ol className="grid gap-2">
+              {finance.refunds.map((refund) => (
+                <li key={refund.id} className="type-body-sm">
+                  {formatAdminDate(refund.createdAt)} · {refund.type} · {refundStatusLabel(refund.status)} ·{" "}
+                  {formatMoneyFromMinorUnits(refund.amountMinor, "MXN", "es-MX")} ·{" "}
+                  {refundReasonLabel(refund.reason)}
+                  {refund.stripeRefundId ? ` · ${refund.stripeRefundId}` : ""}
+                  {refund.providerFailureMessage ? ` · ${refund.providerFailureMessage}` : ""}
+                </li>
+              ))}
+            </ol>
+          )}
+        </section>
+      ) : null}
+
+      {finance && finance.requests.length > 0 ? (
+        <section className="grid gap-3 rounded-lg border border-border bg-[var(--admin-surface)] p-6">
+          <h3 className="type-h3">Solicitud de cancelación</h3>
+          {finance.requests.map((request) => (
+            <div key={request.id} className="grid gap-2">
+              <p className="type-body">
+                {cancellationStatusLabel(request.status)} · {refundReasonLabel(request.reason)}
+              </p>
+              <p className="type-body-sm text-muted-foreground">
+                {formatAdminDate(request.createdAt)}
+                {request.customerMessage ? ` · ${request.customerMessage}` : ""}
+              </p>
+              {request.status === "REQUESTED" ? (
+                <AdminReviewCancellationForm requestId={request.id} canReview />
+              ) : null}
+            </div>
+          ))}
+        </section>
+      ) : null}
+
+      {finance?.canRefund ? (
+        <AdminRefundForm
+          orderId={order.id}
+          paidMinor={order.grandTotalMinor}
+          refundedMinor={finance.refundedAmountMinor}
+          refundableMinor={finance.refundableMinor}
+          canRefund={finance.canRefund}
+          failedRefundId={failedRefund?.id}
+        />
+      ) : failedRefund ? (
+        <AdminRefundForm
+          orderId={order.id}
+          paidMinor={order.grandTotalMinor}
+          refundedMinor={finance?.refundedAmountMinor ?? 0}
+          refundableMinor={finance?.refundableMinor ?? 0}
+          canRefund={false}
+          failedRefundId={failedRefund.id}
+        />
+      ) : null}
+
+      {finance?.canCancelPaid ? (
+        <AdminCancelPaidForm orderId={order.id} refundableMinor={finance.refundableMinor} />
+      ) : null}
+      {finance?.canCancelPending ? <AdminCancelPendingForm orderId={order.id} /> : null}
 
       <section className="grid gap-3 rounded-lg border border-border bg-[var(--admin-surface)] p-6">
         <h3 className="type-h3">Timeline</h3>
@@ -176,24 +262,6 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
         )}
       </section>
 
-      {canCancelPaid ? (
-        <section className="grid gap-3 rounded-lg border border-border bg-[var(--admin-surface)] p-6">
-          <h3 className="type-h3">Cancelar pedido pagado</h3>
-          <p className="type-body-sm text-destructive">
-            Esta acción no genera reembolso automático. Los reembolsos requieren un módulo posterior.
-          </p>
-          <form action={cancelPaidOrderByAdmin} className="grid gap-3">
-            <input type="hidden" name="orderId" value={order.id} />
-            <label className="flex items-center gap-2 type-body-sm">
-              <input type="checkbox" name="confirmNoRefund" value="1" required />
-              Entiendo que no hay reembolso automático.
-            </label>
-            <Button type="submit" variant="destructive" size="sm">
-              Cancelar pedido
-            </Button>
-          </form>
-        </section>
-      ) : null}
     </div>
   );
 }

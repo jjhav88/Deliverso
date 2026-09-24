@@ -48,6 +48,11 @@ export const adminAuditActions = [
   "QUOTATION_INFO_REQUESTED",
   "QUOTATION_OFFERED",
   "QUOTATION_CANCELED",
+  "CANCELLATION_APPROVED",
+  "CANCELLATION_REJECTED",
+  "REFUND_CREATED",
+  "REFUND_SUCCEEDED",
+  "REFUND_FAILED",
 ] as const;
 
 export type AdminAuditAction = (typeof adminAuditActions)[number];

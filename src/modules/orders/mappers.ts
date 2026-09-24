@@ -35,6 +35,7 @@ type OrderRow = {
   promotionDiscountMinor?: number;
   promotionEligibleSubtotalMinor?: number | null;
   grandTotalMinor: number;
+  refundedAmountMinor?: number;
   requestedDate: Date;
   timeWindowLabel: string | null;
   timeWindowStart: string;
@@ -98,6 +99,7 @@ export function toCustomerOrderSummary(row: OrderRow): CustomerOrderSummary {
     fulfillmentMethod: row.fulfillmentMethod,
     requestedDate: calendarDateFromDb(row.requestedDate),
     grandTotalMinor: row.grandTotalMinor,
+    refundedAmountMinor: row.refundedAmountMinor ?? 0,
     currencyCode: "MXN",
     customOrder: row.customOrder ?? false,
   };

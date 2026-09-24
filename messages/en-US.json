@@ -618,7 +618,21 @@
     "historicDisplay": "When the order was created it showed about {amount} with reference rate {provider} {rate} ({date}).",
     "customer": "Customer",
     "fulfillment": "Delivery or pickup",
-    "customOrder": "Custom order"
+    "customOrder": "Custom order",
+    "refunded": "Refunded",
+    "net": "Net",
+    "cancellationRequest": "Cancellation request",
+    "requestSent": "Cancellation request sent",
+    "requestCancellation": "Request cancellation",
+    "requestConfirm": "Request cancellation",
+    "close": "Close",
+    "reason": "Reason",
+    "message": "Message",
+    "optional": "(optional)",
+    "submitRequest": "Send request",
+    "withdrawRequest": "Withdraw request",
+    "requestPending": "Pending review",
+    "contactSupport": "This order is already in production. Contact us if you need help."
   },
   "quotations": {
     "title": "Quotes",

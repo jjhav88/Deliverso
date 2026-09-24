@@ -88,6 +88,18 @@ export function getEmailHeadline(
       return en ? "Quote declined" : "Cotización rechazada";
     case "QUOTE_EXPIRED":
       return en ? "This quote has expired" : "Esta cotización expiró";
+    case "CANCELLATION_REQUESTED":
+      return en ? "We received your cancellation request" : "Recibimos tu solicitud de cancelación";
+    case "CANCELLATION_APPROVED":
+      return en ? "Your cancellation was approved" : "Aprobamos tu cancelación";
+    case "CANCELLATION_REJECTED":
+      return en ? "We could not cancel this order" : "No pudimos cancelar este pedido";
+    case "ORDER_CANCELED":
+      return en ? "Your order was canceled" : "Tu pedido fue cancelado";
+    case "REFUND_SUCCEEDED":
+      return en ? "Your refund is on the way" : "Tu reembolso está en camino";
+    case "REFUND_FAILED":
+      return en ? "We could not complete the refund" : "No pudimos completar el reembolso";
   }
 }
 
@@ -160,6 +172,30 @@ export function getEmailIntro(
       return en
         ? "The offer is no longer valid. Ask us for a new quote if you still want this creation."
         : "La oferta ya no está vigente. Pídenos una nueva cotización si aún deseas esta creación.";
+    case "CANCELLATION_REQUESTED":
+      return en
+        ? "Our team will review it. The order is still active until we confirm a decision."
+        : "Nuestro equipo la revisará. El pedido sigue activo hasta que confirmemos una decisión.";
+    case "CANCELLATION_APPROVED":
+      return en
+        ? "We approved the request and started the refund process. We will write again when the refund is complete."
+        : "Aprobamos la solicitud e iniciamos el reembolso. Te escribiremos de nuevo cuando el reembolso esté listo.";
+    case "CANCELLATION_REJECTED":
+      return en
+        ? "Your order remains active. If you still need help, reply to this email or contact us."
+        : "Tu pedido sigue activo. Si aún necesitas ayuda, responde este correo o contáctanos.";
+    case "ORDER_CANCELED":
+      return en
+        ? "This order will not be prepared. If a refund applies, you will receive a separate confirmation."
+        : "Este pedido no se preparará. Si corresponde un reembolso, recibirás una confirmación aparte.";
+    case "REFUND_SUCCEEDED":
+      return en
+        ? "We have processed your refund. Your bank may take a little time to show it."
+        : "Hemos procesado tu reembolso. Tu banco puede tardar un poco en reflejarlo.";
+    case "REFUND_FAILED":
+      return en
+        ? "The refund did not go through. Our team will review it. Your order financial status did not change."
+        : "El reembolso no se completó. Nuestro equipo lo revisará. El estado financiero del pedido no cambió.";
   }
 }
 
