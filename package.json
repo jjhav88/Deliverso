@@ -25,7 +25,8 @@
     "storage:setup": "tsx scripts/storage/setup-media.ts",
     "email:dispatch": "tsx scripts/email/dispatch.ts",
     "email:test": "tsx scripts/email/test.ts",
-    "email:enqueue-paid": "tsx scripts/email/enqueue-order-paid.ts"
+    "email:enqueue-paid": "tsx scripts/email/enqueue-order-paid.ts",
+    "seo:audit": "node scripts/seo-audit.mjs"
   },
   "dependencies": {
     "@prisma/adapter-pg": "7.10.0",

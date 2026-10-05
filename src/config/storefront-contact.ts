@@ -1,8 +1,6 @@
 /**
- * Temporary public contact and social placeholders.
- * Replace with Admin/CMS storefront settings when persistable.
- *
- * Do not scatter these values across components.
+ * Social profile ids used by the storefront footer.
+ * Public URLs come from Admin Settings, never from placeholders.
  */
 
 export const storefrontSocialIds = [
@@ -24,20 +22,9 @@ export const storefrontSocial: readonly StorefrontSocialProfile[] = [
   { id: "tiktok" },
 ];
 
-/**
- * Placeholder profiles stay visible until Admin assigns real URLs.
- * After at least one href exists, only linked networks render.
- */
+/** Only profiles with a real URL are public. */
 export function getVisibleStorefrontSocial(
   profiles: readonly StorefrontSocialProfile[] = storefrontSocial,
 ): StorefrontSocialProfile[] {
-  const linked = profiles.filter((profile) => Boolean(profile.href));
-  return linked.length > 0 ? linked : [...profiles];
+  return profiles.filter((profile) => Boolean(profile.href));
 }
-
-export const storefrontContact = {
-  email: "contacto@deliverso.com",
-  whatsappDisplay: "+52 55 0000 0000",
-  whatsappHref: undefined as string | undefined,
-  address: "Ciudad de México, México",
-} as const;

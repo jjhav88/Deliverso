@@ -1,9 +1,6 @@
 import { Mail, MapPin, Phone } from "lucide-react";
 import { SocialMark } from "@/components/brand/social-mark";
 import {
-  getVisibleStorefrontSocial,
-  storefrontContact,
-  storefrontSocial,
   type StorefrontSocialId,
   type StorefrontSocialProfile,
 } from "@/config/storefront-contact";
@@ -43,7 +40,7 @@ export function resolveFooterSocial(
   settings?: PublicSiteSettings | null,
 ): StorefrontSocialProfile[] {
   if (!settings) {
-    return getVisibleStorefrontSocial(storefrontSocial);
+    return [];
   }
 
   return settings.social
@@ -101,14 +98,10 @@ export function FooterSocial({ labels, settings }: FooterColumnProps) {
 }
 
 export function FooterDetails({ labels, settings }: FooterColumnProps) {
-  const email = settings ? settings.contactEmail : storefrontContact.email;
-  const whatsappDisplay = settings
-    ? settings.whatsapp
-    : storefrontContact.whatsappDisplay;
-  const whatsappHref = settings
-    ? settings.whatsappHref
-    : storefrontContact.whatsappHref;
-  const address = settings ? settings.physicalAddress : storefrontContact.address;
+  const email = settings?.contactEmail ?? null;
+  const whatsappDisplay = settings?.whatsapp ?? null;
+  const whatsappHref = settings?.whatsappHref ?? null;
+  const address = settings?.physicalAddress ?? null;
 
   const items = [
     email ? (

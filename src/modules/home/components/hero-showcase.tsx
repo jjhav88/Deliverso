@@ -28,9 +28,7 @@ export function HeroShowcase({ items }: HeroShowcaseProps) {
       {right || rightSecondary ? (
         <div className="home-showcase-right">
           {rightSecondary ? <HeroShowcaseItem item={rightSecondary} /> : null}
-          {right ? (
-            <HeroShowcaseItem item={right} priority={Boolean(right.imageSrc)} />
-          ) : null}
+          {right ? <HeroShowcaseItem item={right} /> : null}
         </div>
       ) : null}
     </div>

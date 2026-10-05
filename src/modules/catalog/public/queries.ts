@@ -20,7 +20,7 @@ import type {
   CatalogTaxonomyLink,
   CatalogUniverseCard,
 } from "@/modules/catalog/public/types";
-import { translationSlugs, type TranslationSlug } from "@/modules/catalog/public/seo";
+import { indexableTranslationSlugs, type TranslationSlug } from "@/modules/catalog/public/seo";
 
 const productCardSelect = (locale: AppLocale) =>
   ({
@@ -307,7 +307,7 @@ export async function getPublishedProductBySlug(
 
   return {
     product,
-    translations: translationSlugs(row.translations),
+    translations: indexableTranslationSlugs(row.translations),
   };
 }
 
@@ -570,7 +570,7 @@ export async function getActiveUniverseBySlug(
 
   return {
     universe,
-    translations: translationSlugs(row.translations),
+    translations: indexableTranslationSlugs(row.translations),
   };
 }
 
@@ -597,7 +597,15 @@ export async function getSitemapCatalogEntries(): Promise<{
       select: {
         id: true,
         updatedAt: true,
-        translations: { select: { locale: true, slug: true } },
+        translations: {
+          select: {
+            locale: true,
+            slug: true,
+            name: true,
+            shortDescription: true,
+            description: true,
+          },
+        },
       },
     }),
     prisma.universe.findMany({
@@ -605,7 +613,9 @@ export async function getSitemapCatalogEntries(): Promise<{
       select: {
         id: true,
         updatedAt: true,
-        translations: { select: { locale: true, slug: true } },
+        translations: {
+          select: { locale: true, slug: true, name: true, description: true },
+        },
       },
     }),
   ]);
@@ -614,12 +624,12 @@ export async function getSitemapCatalogEntries(): Promise<{
     products: productRows.map((row) => ({
       productId: row.id,
       updatedAt: row.updatedAt,
-      translations: translationSlugs(row.translations),
+      translations: indexableTranslationSlugs(row.translations),
     })),
     universes: universeRows.map((row) => ({
       universeId: row.id,
       updatedAt: row.updatedAt,
-      translations: translationSlugs(row.translations),
+      translations: indexableTranslationSlugs(row.translations),
     })),
   };
 }

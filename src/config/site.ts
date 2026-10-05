@@ -11,10 +11,14 @@ export const siteConfig = {
 
 /**
  * URL pública canónica. Nunca hardcodear el dominio en componentes.
- * Debe definirse en NEXT_PUBLIC_APP_URL cuando exista un entorno desplegado.
+ * Producción: https://www.deliverso.com.mx via NEXT_PUBLIC_APP_URL
+ * (aliases: NEXT_PUBLIC_SITE_URL, SITE_URL).
  */
 export function getPublicAppUrl(): string | undefined {
-  const value = process.env.NEXT_PUBLIC_APP_URL?.trim();
+  const value =
+    process.env.NEXT_PUBLIC_APP_URL?.trim() ||
+    process.env.NEXT_PUBLIC_SITE_URL?.trim() ||
+    process.env.SITE_URL?.trim();
 
   if (!value) {
     return undefined;

@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "title": "DELIVERSO",
+    "title": "DELIVERSO | Un delicioso universo de sabores",
     "description": "Pastelería creativa donde cada sabor puede convertirse en un universo."
   },
   "brand": {
@@ -172,6 +172,36 @@
       "body": "El carrito se conectará cuando exista catálogo y lógica de pedido."
     }
   },
+  "aboutPage": {
+    "metaTitle": "Nosotros",
+    "metaDescription": "DELIVERSO es pastelería creativa: técnica, diseño e imaginación al servicio de cada ocasión.",
+    "eyebrow": "La marca",
+    "title": "Nosotros",
+    "lead": "Más que un obrador de postres, DELIVERSO es un universo de sabor y diseño.",
+    "body": "Combinamos oficio pastelero, creatividad y una estética contemporánea para transformar cada pedido en una experiencia propia. Desde una mesa íntima hasta una celebración mayor, cada creación empieza en un concepto y termina en sabor.",
+    "home": "Inicio"
+  },
+  "contactPage": {
+    "metaTitle": "Contacto",
+    "metaDescription": "Escríbenos para pedidos, cotizaciones y celebraciones DELIVERSO.",
+    "eyebrow": "Hablemos",
+    "title": "Contacto",
+    "intro": "Usa los canales públicos de DELIVERSO para cotizaciones, pedidos y celebraciones.",
+    "email": "Correo",
+    "whatsapp": "WhatsApp",
+    "address": "Ubicación",
+    "empty": "Los canales de contacto públicos se mostrarán aquí cuando estén configurados.",
+    "home": "Inicio"
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "body": "El enlace no existe o ya no está disponible.",
+    "links": "Enlaces útiles",
+    "home": "Volver al inicio",
+    "products": "Ver productos",
+    "universes": "Explorar universos",
+    "contact": "Contacto"
+  },
   "designSystem": {
     "meta": {
       "title": "Design System — DELIVERSO",
@@ -299,7 +329,7 @@
   },
   "catalog": {
     "meta": {
-      "title": "Productos | DELIVERSO",
+      "title": "Productos",
       "description": "Creaciones donde sabor, técnica y diseño se encuentran en cada detalle."
     },
     "eyebrow": "Catálogo",
@@ -406,7 +436,7 @@
   },
   "universes": {
     "meta": {
-      "title": "Universos | DELIVERSO",
+      "title": "Universos",
       "description": "Cada ocasión puede tener su propio universo de sabor, color y diseño."
     },
     "eyebrow": "Universos",

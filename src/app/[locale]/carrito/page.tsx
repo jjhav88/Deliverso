@@ -21,6 +21,7 @@ import { canEnterCheckout } from "@/modules/checkout/domain/cart-gate";
 import { Link, getPathname } from "@/i18n/navigation";
 import { getDisplayCurrency } from "@/server/preferences/currency";
 import { getExchangeRateSet } from "@/server/exchange-rates/service";
+import { localizedPath, privatePageMetadata } from "@/modules/seo/urls";
 
 export const dynamic = "force-dynamic";
 
@@ -34,7 +35,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { robots: { index: false, follow: false } };
   }
   const t = await getTranslations({ locale, namespace: "cart" });
-  return { title: t("title"), robots: { index: false, follow: false } };
+  return privatePageMetadata({
+    title: t("title"),
+    pathname: localizedPath(locale, "/carrito"),
+  });
 }
 
 export default async function CartPage({ params }: PageProps) {

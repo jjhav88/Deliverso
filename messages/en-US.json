@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "title": "DELIVERSO",
+    "title": "DELIVERSO | A delicious universe of flavors",
     "description": "Creative pastry where every flavor can become a universe."
   },
   "brand": {
@@ -172,6 +172,36 @@
       "body": "The cart will connect once catalog and order logic exist."
     }
   },
+  "aboutPage": {
+    "metaTitle": "About",
+    "metaDescription": "DELIVERSO is creative pastry: craft, design, and imagination for every occasion.",
+    "eyebrow": "The brand",
+    "title": "About us",
+    "lead": "More than a pastry kitchen, DELIVERSO is a universe of flavor and design.",
+    "body": "We combine pastry craft, creativity, and a contemporary aesthetic so each order becomes its own experience. From an intimate table to a larger celebration, every creation begins with a concept and ends in flavor.",
+    "home": "Home"
+  },
+  "contactPage": {
+    "metaTitle": "Contact",
+    "metaDescription": "Write to DELIVERSO for orders, quotes, and celebrations.",
+    "eyebrow": "Let's talk",
+    "title": "Contact",
+    "intro": "Use DELIVERSO’s public channels for quotes, orders, and celebrations.",
+    "email": "Email",
+    "whatsapp": "WhatsApp",
+    "address": "Location",
+    "empty": "Public contact channels will appear here once they are configured.",
+    "home": "Home"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "This link does not exist or is no longer available.",
+    "links": "Helpful links",
+    "home": "Back to home",
+    "products": "Browse products",
+    "universes": "Explore universes",
+    "contact": "Contact"
+  },
   "designSystem": {
     "meta": {
       "title": "Design System — DELIVERSO",
@@ -299,7 +329,7 @@
   },
   "catalog": {
     "meta": {
-      "title": "Products | DELIVERSO",
+      "title": "Products",
       "description": "Creations where flavor, craft, and design meet in every detail."
     },
     "eyebrow": "Catalog",
@@ -406,7 +436,7 @@
   },
   "universes": {
     "meta": {
-      "title": "Universes | DELIVERSO",
+      "title": "Universes",
       "description": "Every occasion can have its own universe of flavor, color, and design."
     },
     "eyebrow": "Universes",

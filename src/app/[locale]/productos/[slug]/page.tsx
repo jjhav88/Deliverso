@@ -13,10 +13,11 @@ import { CatalogProductCardView } from "@/modules/catalog/components/catalog-pro
 import { JsonLd } from "@/modules/catalog/components/json-ld";
 import { ProductGallery } from "@/modules/catalog/components/product-gallery";
 import {
-  absoluteUrl,
   catalogLanguages,
   localizedPath,
-} from "@/modules/catalog/public/canonical";
+  publicPageMetadata,
+  buildCanonicalUrl,
+} from "@/modules/seo/urls";
 import { productDetailHref, universeDetailHref } from "@/modules/catalog/public/href";
 import {
   buildBreadcrumbJsonLd,
@@ -60,7 +61,13 @@ export async function generateMetadata({
     return {};
   }
 
-  const seo = resolveProductSeo(result.product);
+  const seo = resolveProductSeo({
+    name: result.product.name,
+    shortDescription: result.product.shortDescription,
+    description: result.product.description,
+    seoTitle: result.product.seoTitle,
+    seoDescription: result.product.seoDescription,
+  });
   const path = localizedPath(locale, productDetailHref(result.product.slug));
   const languages = catalogLanguages(
     result.translations.map((item) => ({
@@ -68,23 +75,18 @@ export async function generateMetadata({
       path: localizedPath(item.locale, productDetailHref(item.slug)),
     })),
   );
+  const indexable = result.translations.some((item) => item.locale === locale);
+  const image = result.product.primaryImage;
 
-  return {
+  return publicPageMetadata({
     title: seo.title,
     description: seo.description,
-    robots: { index: true, follow: true },
-    alternates: {
-      canonical: absoluteUrl(path) ?? path,
-      languages,
-    },
-    openGraph: {
-      title: seo.title,
-      description: seo.description,
-      images: result.product.primaryImage
-        ? [{ url: result.product.primaryImage.src, alt: result.product.primaryImage.alt }]
-        : undefined,
-    },
-  };
+    pathname: path,
+    locale,
+    languages,
+    index: indexable,
+    images: image ? [{ url: image.src, alt: image.alt || result.product.name }] : undefined,
+  });
 }
 
 export default async function ProductDetailPage({ params }: PageProps) {
@@ -128,7 +130,7 @@ export default async function ProductDetailPage({ params }: PageProps) {
   const formattedPrice = displayPrice?.formatted ?? null;
   const prefix = catalogPricePrefix(product.priceKind, locale);
   const path = localizedPath(locale, productDetailHref(product.slug));
-  const url = absoluteUrl(path) ?? path;
+  const url = buildCanonicalUrl(path) ?? path;
   const seo = resolveProductSeo(product);
   const customer = await getOptionalCustomer();
   const signedIn = Boolean(customer && canCustomerShop(customer.status));
@@ -166,10 +168,10 @@ export default async function ProductDetailPage({ params }: PageProps) {
         <JsonLd
           data={buildBreadcrumbJsonLd({
             items: [
-              { name: t("home"), url: absoluteUrl(localizedPath(locale, "/")) ?? "/" },
+              { name: t("home"), url: buildCanonicalUrl(localizedPath(locale, "/")) ?? "/" },
               {
                 name: t("products"),
-                url: absoluteUrl(localizedPath(locale, "/productos")) ?? "/productos",
+                url: buildCanonicalUrl(localizedPath(locale, "/productos")) ?? "/productos",
               },
               { name: product.name, url },
             ],

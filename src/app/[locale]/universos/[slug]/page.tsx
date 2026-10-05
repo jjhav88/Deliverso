@@ -11,11 +11,13 @@ import { CatalogBreadcrumbs } from "@/modules/catalog/components/catalog-breadcr
 import { CatalogProductCardView } from "@/modules/catalog/components/catalog-product-card";
 import { JsonLd } from "@/modules/catalog/components/json-ld";
 import {
-  absoluteUrl,
+  buildCanonicalUrl,
   catalogLanguages,
   localizedPath,
-} from "@/modules/catalog/public/canonical";
+  publicPageMetadata,
+} from "@/modules/seo/urls";
 import { universeDetailHref } from "@/modules/catalog/public/href";
+import { excerptForSeo } from "@/modules/seo/content";
 import { buildBreadcrumbJsonLd } from "@/modules/catalog/public/json-ld";
 import {
   getActiveUniverseBySlug,
@@ -53,16 +55,21 @@ export async function generateMetadata({
       path: localizedPath(item.locale, universeDetailHref(item.slug)),
     })),
   );
+  const indexable = result.translations.some((item) => item.locale === locale);
+  const image = result.universe.image;
 
-  return {
+  return publicPageMetadata({
     title: result.universe.name,
-    description: result.universe.description ?? result.universe.name,
-    robots: { index: true, follow: true },
-    alternates: {
-      canonical: absoluteUrl(path) ?? path,
-      languages,
-    },
-  };
+    description:
+      excerptForSeo(result.universe.description) ?? result.universe.name,
+    pathname: path,
+    locale,
+    languages,
+    index: indexable,
+    images: image
+      ? [{ url: image.src, alt: image.alt || result.universe.name }]
+      : undefined,
+  });
 }
 
 export default async function UniverseDetailPage({ params }: PageProps) {
@@ -87,7 +94,7 @@ export default async function UniverseDetailPage({ params }: PageProps) {
     universeSlug: universe.slug,
   });
   const path = localizedPath(locale, universeDetailHref(universe.slug));
-  const url = absoluteUrl(path) ?? path;
+  const url = buildCanonicalUrl(path) ?? path;
 
   return (
     <Section className="catalog-hero">
@@ -103,10 +110,10 @@ export default async function UniverseDetailPage({ params }: PageProps) {
         <JsonLd
           data={buildBreadcrumbJsonLd({
             items: [
-              { name: t("home"), url: absoluteUrl(localizedPath(locale, "/")) ?? "/" },
+              { name: t("home"), url: buildCanonicalUrl(localizedPath(locale, "/")) ?? "/" },
               {
                 name: t("list"),
-                url: absoluteUrl(localizedPath(locale, "/universos")) ?? "/universos",
+                url: buildCanonicalUrl(localizedPath(locale, "/universos")) ?? "/universos",
               },
               { name: universe.name, url },
             ],
@@ -118,7 +125,7 @@ export default async function UniverseDetailPage({ params }: PageProps) {
             {universe.image ? (
               <Image
                 src={universe.image.src}
-                alt={universe.image.alt}
+                alt={universe.image.alt || universe.name}
                 fill
                 priority
                 sizes="(min-width: 1024px) 40vw, 100vw"

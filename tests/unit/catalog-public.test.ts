@@ -5,7 +5,7 @@ import { minutesToHumanLeadTime, formatHumanLeadTime } from "@/modules/catalog/p
 import { parseCatalogListQuery, CATALOG_PAGE_SIZE } from "@/modules/catalog/public/list-query";
 import { paginateIds, hasCatalogFilters, catalogQueryToSearchParams } from "@/modules/catalog/public/url-state";
 import { pickRelatedProductIds } from "@/modules/catalog/public/related";
-import { resolveProductSeo, localesWithTranslation } from "@/modules/catalog/public/seo";
+import { resolveProductSeo, localesWithTranslation, indexableTranslationSlugs } from "@/modules/catalog/public/seo";
 import { buildProductJsonLd, shouldExposeProductOffer } from "@/modules/catalog/public/json-ld";
 import { sortCatalogRows } from "@/modules/catalog/public/sort";
 import { appPathnames } from "@/config/navigation";
@@ -208,10 +208,10 @@ describe("product metadata helpers", () => {
     ).toEqual(["es-MX", "en-US"]);
   });
 
-  it("adds offers only for STANDARD products with a real price", () => {
+  it("adds offers for STANDARD and CONFIGURABLE with a real price, never CUSTOM_QUOTE", () => {
     const price = { amountMinor: 45000, currency: "MXN" as const };
     expect(shouldExposeProductOffer("STANDARD", price)).toBe(true);
-    expect(shouldExposeProductOffer("CONFIGURABLE", price)).toBe(false);
+    expect(shouldExposeProductOffer("CONFIGURABLE", price)).toBe(true);
     expect(shouldExposeProductOffer("CUSTOM_QUOTE", price)).toBe(false);
 
     const jsonLd = buildProductJsonLd({
@@ -230,6 +230,21 @@ describe("product metadata helpers", () => {
     });
     expect(jsonLd).not.toHaveProperty("aggregateRating");
 
+    const configurableLd = buildProductJsonLd({
+      name: "Pastel configurable",
+      description: "Base y opciones",
+      image: "https://example.com/c.jpg",
+      url: "https://www.deliverso.com.mx/productos/pastel-configurable",
+      type: "CONFIGURABLE",
+      price,
+    });
+    expect(configurableLd.offers).toMatchObject({
+      "@type": "Offer",
+      priceCurrency: "MXN",
+      price: "450.00",
+    });
+    expect(configurableLd.offers).not.toHaveProperty("availability");
+
     const quoteLd = buildProductJsonLd({
       name: "Torta a medida",
       description: null,
@@ -239,5 +254,41 @@ describe("product metadata helpers", () => {
       price: null,
     });
     expect(quoteLd.offers).toBeUndefined();
+  });
+
+  it("indexes English catalog copy only when it has useful body text", () => {
+    expect(
+      indexableTranslationSlugs([
+        {
+          locale: "es-MX",
+          slug: "cheesecake-zarzamora",
+          name: "Cheesecake de zarzamora",
+        },
+        {
+          locale: "en-US",
+          slug: "blackberry-cheesecake",
+          name: "Blackberry cheesecake",
+        },
+      ]),
+    ).toEqual([{ locale: "es-MX", slug: "cheesecake-zarzamora" }]);
+
+    expect(
+      indexableTranslationSlugs([
+        {
+          locale: "es-MX",
+          slug: "cheesecake-zarzamora",
+          name: "Cheesecake de zarzamora",
+        },
+        {
+          locale: "en-US",
+          slug: "blackberry-cheesecake",
+          name: "Blackberry cheesecake",
+          shortDescription: "Cream cheese and blackberry.",
+        },
+      ]),
+    ).toEqual([
+      { locale: "es-MX", slug: "cheesecake-zarzamora" },
+      { locale: "en-US", slug: "blackberry-cheesecake" },
+    ]);
   });
 });

@@ -6,6 +6,7 @@ import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
 import { routing } from "@/i18n/routing";
 import { isAppLocale } from "@/config/i18n";
+import { privatePageMetadata } from "@/modules/seo/urls";
 
 export const dynamic = "force-dynamic";
 
@@ -19,7 +20,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return {};
   }
   const t = await getTranslations({ locale, namespace: "legal" });
-  return { title: t("privacy.title") };
+  return privatePageMetadata({ title: t("privacy.title") });
 }
 
 export default async function PrivacyPage({ params }: PageProps) {

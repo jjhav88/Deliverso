@@ -4,6 +4,7 @@ import { getTranslations, setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
 import { DesignSystemShowcase } from "@/design-system/demo/showcase";
 import { routing } from "@/i18n/routing";
+import { seoRobots } from "@/modules/seo/env";
 
 type DesignSystemPageProps = {
   params: Promise<{ locale: string }>;
@@ -15,7 +16,7 @@ export async function generateMetadata({
   const { locale } = await params;
 
   if (!hasLocale(routing.locales, locale)) {
-    return { robots: { index: false, follow: false } };
+    return { robots: seoRobots(false) };
   }
 
   const t = await getTranslations({ locale, namespace: "designSystem.meta" });
@@ -23,10 +24,7 @@ export async function generateMetadata({
   return {
     title: t("title"),
     description: t("description"),
-    robots: {
-      index: false,
-      follow: false,
-    },
+    robots: seoRobots(false),
   };
 }
 

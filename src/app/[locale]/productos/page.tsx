@@ -17,10 +17,7 @@ import {
   getActiveUniverses,
   getPublishedProducts,
 } from "@/modules/catalog/public/queries";
-import {
-  absoluteUrl,
-  localizedPath,
-} from "@/modules/catalog/public/canonical";
+import { publicPageMetadata, buildLocaleAlternates, localizedPath } from "@/modules/seo/urls";
 import { hasCatalogFilters } from "@/modules/catalog/public/url-state";
 import { CatalogRateBanner } from "@/modules/catalog/components/catalog-rate-banner";
 import { catalogProductDisplayPrice } from "@/modules/catalog/public/display-price";
@@ -37,6 +34,7 @@ type PageProps = {
 
 export async function generateMetadata({
   params,
+  searchParams,
 }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale) || !isAppLocale(locale)) {
@@ -44,23 +42,20 @@ export async function generateMetadata({
   }
 
   const t = await getTranslations({ locale, namespace: "catalog.meta" });
+  const raw = await searchParams;
+  const query = parseCatalogListQuery(locale, raw);
+  const filtered = hasCatalogFilters(query);
   const path = localizedPath(locale, "/productos");
-  const languages = {
-    "es-MX": absoluteUrl(localizedPath("es-MX", "/productos")),
-    "en-US": absoluteUrl(localizedPath("en-US", "/productos")),
-  };
+  const canonicalPath = query.page > 1 && !filtered ? `${path}?page=${query.page}` : path;
 
-  return {
+  return publicPageMetadata({
     title: t("title"),
     description: t("description"),
-    robots: { index: true, follow: true },
-    alternates: {
-      canonical: absoluteUrl(path) ?? path,
-      languages: Object.fromEntries(
-        Object.entries(languages).filter(([, url]) => Boolean(url)),
-      ),
-    },
-  };
+    pathname: canonicalPath,
+    locale,
+    languages: filtered || query.page > 1 ? undefined : buildLocaleAlternates("/productos"),
+    index: !filtered,
+  });
 }
 
 export default async function ProductsPage({ params, searchParams }: PageProps) {

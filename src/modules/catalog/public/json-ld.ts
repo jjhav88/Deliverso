@@ -6,7 +6,7 @@ export function shouldExposeProductOffer(
   type: ProductType,
   price: MoneyAmount | null,
 ): price is MoneyAmount {
-  return type === "STANDARD" && price !== null;
+  return (type === "STANDARD" || type === "CONFIGURABLE") && price !== null;
 }
 
 export function buildProductJsonLd(input: {

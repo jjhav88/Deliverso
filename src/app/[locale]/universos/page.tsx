@@ -9,7 +9,7 @@ import { isAppLocale } from "@/config/i18n";
 import { CatalogBreadcrumbs } from "@/modules/catalog/components/catalog-breadcrumbs";
 import { UniverseCard } from "@/modules/catalog/components/universe-card";
 import { getActiveUniverses } from "@/modules/catalog/public/queries";
-import { absoluteUrl, localizedPath } from "@/modules/catalog/public/canonical";
+import { publicPageMetadata, buildLocaleAlternates, localizedPath } from "@/modules/seo/urls";
 import "@/modules/catalog/catalog.css";
 
 export const dynamic = "force-dynamic";
@@ -27,23 +27,13 @@ export async function generateMetadata({
   }
 
   const t = await getTranslations({ locale, namespace: "universes.meta" });
-  const path = localizedPath(locale, "/universos");
-  const languages = {
-    "es-MX": absoluteUrl(localizedPath("es-MX", "/universos")),
-    "en-US": absoluteUrl(localizedPath("en-US", "/universos")),
-  };
-
-  return {
+  return publicPageMetadata({
     title: t("title"),
     description: t("description"),
-    robots: { index: true, follow: true },
-    alternates: {
-      canonical: absoluteUrl(path) ?? path,
-      languages: Object.fromEntries(
-        Object.entries(languages).filter(([, url]) => Boolean(url)),
-      ),
-    },
-  };
+    pathname: localizedPath(locale, "/universos"),
+    locale,
+    languages: buildLocaleAlternates("/universos"),
+  });
 }
 
 export default async function UniversesPage({ params }: PageProps) {

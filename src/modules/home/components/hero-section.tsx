@@ -32,7 +32,6 @@ export function HeroSection({ content }: HeroSectionProps) {
           <BrandLogo
             mark="icon"
             className="home-hero-mark"
-            priority
           />
 
           {content.eyebrow ? (

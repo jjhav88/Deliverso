@@ -5,8 +5,11 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { StorefrontShell } from "@/components/layout/storefront-shell";
 import { DocumentLang } from "@/components/i18n/document-lang";
-import { getPublicAppUrl, siteConfig } from "@/config/site";
+import { siteConfig } from "@/config/site";
+import { isAppLocale } from "@/config/i18n";
 import { routing } from "@/i18n/routing";
+import { canonicalOrigin, seoRobots } from "@/modules/seo/env";
+import { buildCanonicalUrl } from "@/modules/seo/urls";
 
 type LocaleLayoutProps = {
   children: ReactNode;
@@ -22,18 +25,44 @@ export async function generateMetadata({
 }: LocaleLayoutProps): Promise<Metadata> {
   const { locale } = await params;
 
-  if (!hasLocale(routing.locales, locale)) {
-    return { title: siteConfig.name };
+  if (!hasLocale(routing.locales, locale) || !isAppLocale(locale)) {
+    return { title: siteConfig.name, robots: seoRobots(false) };
   }
 
   const t = await getTranslations({ locale, namespace: "metadata" });
-  const appUrl = getPublicAppUrl();
+  const origin = canonicalOrigin();
+  const ogImage = buildCanonicalUrl("/brand/logos/deliverso-logo-color.png");
 
   return {
-    title: t("title"),
-    description: t("description"),
     applicationName: siteConfig.name,
-    ...(appUrl ? { metadataBase: new URL(appUrl) } : {}),
+    ...(origin ? { metadataBase: new URL(origin) } : {}),
+    title: {
+      default: t("title"),
+      template: "%s | DELIVERSO",
+    },
+    description: t("description"),
+    robots: seoRobots(true),
+    icons: {
+      icon: [
+        { url: "/favicon.ico" },
+        { url: "/brand/logos/deliverso-logo-icon-color.png" },
+      ],
+      apple: "/brand/logos/deliverso-logo-icon-color.png",
+    },
+    manifest: "/manifest.webmanifest",
+    openGraph: {
+      type: "website",
+      siteName: "DELIVERSO",
+      locale: locale === "en-US" ? "en_US" : "es_MX",
+      title: t("title"),
+      description: t("description"),
+      images: ogImage ? [{ url: ogImage, alt: "DELIVERSO" }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: t("title"),
+      description: t("description"),
+    },
   };
 }
 
