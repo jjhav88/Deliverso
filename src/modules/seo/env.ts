@@ -25,22 +25,21 @@ export function isWwwDeliversoOrigin(origin: string | undefined): boolean {
 /**
  * Indexation depends on deployment environment + configured public origin.
  * Staging/preview/localhost never index, even if APP_URL is mis-set.
+ *
+ * Do not require VERCEL_PROJECT_PRODUCTION_URL to contain deliverso.com.mx:
+ * Vercel often sets that to the *.vercel.app production alias.
  */
 export function isSeoIndexableEnvironment(
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  if (env.VERCEL_ENV && env.VERCEL_ENV !== "production") {
+  if (env.VERCEL_ENV !== "production") {
     return false;
   }
   const vercelHost = (env.VERCEL_URL ?? "").toLowerCase();
-  if (vercelHost.includes("staging") || vercelHost.startsWith("deliverso-staging")) {
-    return false;
-  }
   const projectProduction = (env.VERCEL_PROJECT_PRODUCTION_URL ?? "").toLowerCase();
   if (
-    projectProduction &&
-    !projectProduction.includes("www.deliverso.com.mx") &&
-    !projectProduction.includes("deliverso.com.mx")
+    vercelHost.includes("deliverso-staging") ||
+    projectProduction.includes("deliverso-staging")
   ) {
     return false;
   }
@@ -49,10 +48,7 @@ export function isSeoIndexableEnvironment(
     normalizeOrigin(env.NEXT_PUBLIC_APP_URL) ??
     normalizeOrigin(env.SITE_URL) ??
     getPublicAppUrl();
-  if (!isWwwDeliversoOrigin(origin)) {
-    return false;
-  }
-  return env.VERCEL_ENV === "production";
+  return isWwwDeliversoOrigin(origin);
 }
 
 /** Canonical origin for indexable production. Staging/local keep configured APP_URL. */

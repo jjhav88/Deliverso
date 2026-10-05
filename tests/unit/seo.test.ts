@@ -30,6 +30,15 @@ describe("SEO environment policy", () => {
     expect(canonicalOrigin(productionEnv)).toBe(productionPublicOrigin);
   });
 
+  it("indexes Vercel production even if PROJECT_PRODUCTION_URL is a vercel.app alias", () => {
+    expect(
+      isSeoIndexableEnvironment({
+        ...productionEnv,
+        VERCEL_PROJECT_PRODUCTION_URL: "deliverso.vercel.app",
+      }),
+    ).toBe(true);
+  });
+
   it("never indexes staging, preview, or localhost", () => {
     expect(
       isSeoIndexableEnvironment({
