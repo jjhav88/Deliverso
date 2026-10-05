@@ -632,7 +632,15 @@
     "submitRequest": "Enviar solicitud",
     "withdrawRequest": "Retirar solicitud",
     "requestPending": "Pendiente de revisión",
-    "contactSupport": "Este pedido ya está en producción. Contáctanos si necesitas ayuda."
+    "contactSupport": "Este pedido ya está en producción. Contáctanos si necesitas ayuda.",
+    "paymentOriginal": "Pago original",
+    "refundProcessedTitle": "Reembolso procesado",
+    "refundProcessedBody": "Hemos procesado el reembolso de este pedido.",
+    "refundProcessedBank": "El tiempo que tarde en reflejarse en tu método de pago depende de tu banco o emisor de la tarjeta.",
+    "refundPartialBody": "Se procesó un reembolso parcial de {amount}.",
+    "refundProcessingTitle": "Reembolso en proceso",
+    "refundProcessingBody": "Estamos procesando tu reembolso. Te mostraremos aquí cuando haya sido confirmado.",
+    "refundReviewingBody": "Estamos revisando tu reembolso."
   },
   "quotations": {
     "title": "Cotizaciones",

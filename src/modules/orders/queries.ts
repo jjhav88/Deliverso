@@ -11,6 +11,7 @@ const orderDetailInclude = {
     orderBy: { sortOrder: "asc" as const },
     include: { options: { orderBy: { sortOrder: "asc" as const } } },
   },
+  refunds: { select: { status: true } },
 } as const;
 
 export async function listCustomerOrders(customerId: string): Promise<CustomerOrderSummary[]> {

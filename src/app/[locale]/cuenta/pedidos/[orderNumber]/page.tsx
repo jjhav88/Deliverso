@@ -15,11 +15,20 @@ import { getCustomerOrderFinance } from "@/modules/cancellations/queries";
 import { OrderItemsList } from "@/modules/orders/components/order-items";
 import { RequestCancellationForm } from "@/modules/cancellations/components/request-cancellation-form";
 import {
+  CustomerFinancialSummary,
+  CustomerRefundCallout,
+} from "@/modules/cancellations/components/customer-refund-panel";
+import { FinancialStatusBadge } from "@/modules/cancellations/components/financial-status-badge";
+import {
   cancellationStatusLabel,
-  financialStatusLabel,
   refundReasonLabel,
 } from "@/modules/cancellations/domain/labels";
+import { getCustomerRefundHighlight } from "@/modules/cancellations/domain/presentation";
 import { refundReasons } from "@/modules/cancellations/domain/types";
+import {
+  customerOrderLifecycleLabel,
+  paymentStatusLabel,
+} from "@/modules/orders/domain/labels";
 
 export const dynamic = "force-dynamic";
 
@@ -65,6 +74,19 @@ export default async function CustomerOrderDetailPage({ params }: PageProps) {
       ? order.displayCurrencyCode
       : null;
 
+  const highlight = finance
+    ? getCustomerRefundHighlight({
+        financialStatus: finance.financialStatus,
+        hasReservedRefund: finance.hasReservedRefund,
+        hasFailedRefund: finance.hasFailedRefund,
+      })
+    : "none";
+  const lifecycleLabel = customerOrderLifecycleLabel({
+    status: order.status,
+    fulfillmentStatus: order.fulfillmentStatus,
+    locale,
+  });
+
   return (
     <Section>
       <Container>
@@ -72,11 +94,31 @@ export default async function CustomerOrderDetailPage({ params }: PageProps) {
           {t("back")}
         </Link>
         <h1 className="type-display-l mt-4">{order.orderNumber}</h1>
-        <p className="type-body-sm mt-2 text-muted-foreground">
-          {t("status")}: {order.status} · {t("payment")}: {order.paymentStatus}
-          {finance ? ` · ${financialStatusLabel(finance.financialStatus, locale)}` : ""}
+        {highlight !== "none" ? (
+          <div className="mt-4">
+            <FinancialStatusBadge highlight={highlight} locale={locale} prominent />
+          </div>
+        ) : null}
+        <p className="type-body-sm mt-3 text-muted-foreground">
+          {t("status")}: {lifecycleLabel} · {t("paymentOriginal")}: {paymentStatusLabel(order.paymentStatus, locale)}
           {order.customOrder ? ` · ${t("customOrder")}` : ""}
         </p>
+        {highlight !== "none" && finance ? (
+          <CustomerRefundCallout
+            highlight={highlight}
+            copy={{
+              processedTitle: t("refundProcessedTitle"),
+              processedBody: t("refundProcessedBody"),
+              processedBank: t("refundProcessedBank"),
+              partialBody: t("refundPartialBody", {
+                amount: formatMoneyFromMinorUnits(finance.refundedAmountMinor, "MXN", locale),
+              }),
+              processingTitle: t("refundProcessingTitle"),
+              processingBody: t("refundProcessingBody"),
+              reviewingBody: t("refundReviewingBody"),
+            }}
+          />
+        ) : null}
         <div className="mt-10 grid gap-10 lg:grid-cols-2">
           <section>
             <h2 className="type-h3">{t("products")}</h2>
@@ -100,19 +142,19 @@ export default async function CustomerOrderDetailPage({ params }: PageProps) {
                 : −{formatMoneyFromMinorUnits(order.promotionDiscountMinor, "MXN", locale)}
               </p>
             ) : null}
-            <p className="type-h3 tabular-nums">
-              {t("charged")}: {formatMoneyFromMinorUnits(order.grandTotalMinor, "MXN", locale)}
-            </p>
             {finance && finance.refundedAmountMinor > 0 ? (
-              <>
-                <p className="type-body tabular-nums">
-                  {t("refunded")}: −{formatMoneyFromMinorUnits(finance.refundedAmountMinor, "MXN", locale)}
-                </p>
-                <p className="type-h3 tabular-nums">
-                  {t("net")}: {formatMoneyFromMinorUnits(finance.netPaidMinor, "MXN", locale)}
-                </p>
-              </>
-            ) : null}
+              <CustomerFinancialSummary
+                chargedMinor={order.grandTotalMinor}
+                refundedMinor={finance.refundedAmountMinor}
+                netMinor={finance.netPaidMinor}
+                locale={locale}
+                labels={{ charged: t("charged"), refunded: t("refunded"), net: t("net") }}
+              />
+            ) : (
+              <p className="type-h3 tabular-nums">
+                {t("charged")}: {formatMoneyFromMinorUnits(order.grandTotalMinor, "MXN", locale)}
+              </p>
+            )}
             {displayCurrency && order.displayTotalMinor != null ? (
               <p className="type-body-sm text-muted-foreground">
                 {t("historicDisplay", {

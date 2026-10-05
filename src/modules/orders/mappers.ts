@@ -83,6 +83,7 @@ type OrderRow = {
   }>;
   events?: Array<{ type: string; createdAt: Date }>;
   promotionReservation?: { status: string } | null;
+  refunds?: Array<{ status: string }>;
 };
 
 function localizedName(locale: string, es: string, en: string | null): string {
@@ -100,6 +101,10 @@ export function toCustomerOrderSummary(row: OrderRow): CustomerOrderSummary {
     requestedDate: calendarDateFromDb(row.requestedDate),
     grandTotalMinor: row.grandTotalMinor,
     refundedAmountMinor: row.refundedAmountMinor ?? 0,
+    hasReservedRefund: (row.refunds ?? []).some(
+      (refund) => refund.status === "PENDING" || refund.status === "PROCESSING",
+    ),
+    hasFailedRefund: (row.refunds ?? []).some((refund) => refund.status === "FAILED"),
     currencyCode: "MXN",
     customOrder: row.customOrder ?? false,
   };

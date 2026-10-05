@@ -13,6 +13,8 @@ export type CustomerOrderSummary = {
   requestedDate: string;
   grandTotalMinor: number;
   refundedAmountMinor: number;
+  hasReservedRefund: boolean;
+  hasFailedRefund: boolean;
   currencyCode: "MXN";
   customOrder: boolean;
 };

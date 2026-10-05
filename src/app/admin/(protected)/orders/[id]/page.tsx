@@ -215,7 +215,11 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
                 {request.customerMessage ? ` · ${request.customerMessage}` : ""}
               </p>
               {request.status === "REQUESTED" ? (
-                <AdminReviewCancellationForm requestId={request.id} canReview />
+                <AdminReviewCancellationForm
+                  requestId={request.id}
+                  canReview
+                  refundableMinor={finance.refundableMinor}
+                />
               ) : null}
             </div>
           ))}

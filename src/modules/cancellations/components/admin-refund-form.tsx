@@ -8,8 +8,6 @@ import {
   cancelPendingOrderByAdmin,
   createAdminRefundAction,
   retryFailedRefundAction,
-  approveCancellationRequest,
-  rejectCancellationRequest,
 } from "@/modules/cancellations/admin-actions";
 import { emptyCancellationActionState } from "@/modules/cancellations/action-state";
 import { formatMoneyFromMinorUnits } from "@/lib/money/format";
@@ -275,80 +273,4 @@ export function AdminCancelPaidForm({
   );
 }
 
-export function AdminReviewCancellationForm({
-  requestId,
-  canReview,
-}: {
-  requestId: string;
-  canReview: boolean;
-}) {
-  const [approveState, approveAction, approvePending] = useActionState(
-    approveCancellationRequest,
-    emptyCancellationActionState,
-  );
-  const [rejectState, rejectAction, rejectPending] = useActionState(
-    rejectCancellationRequest,
-    emptyCancellationActionState,
-  );
-
-  if (!canReview) {
-    return null;
-  }
-
-  return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <form action={approveAction} className="grid gap-3">
-        <input type="hidden" name="requestId" value={requestId} />
-        <label className="grid gap-1 type-caption">
-          Mensaje al cliente (opcional)
-          <textarea
-            name="adminMessage"
-            rows={3}
-            className="rounded-md border border-border-strong bg-surface-elevated px-3 py-2"
-          />
-        </label>
-        <label className="flex items-center gap-2 type-body-sm">
-          <input type="checkbox" name="confirm" value="1" required />
-          Aprobar y solicitar reembolso total a Stripe
-        </label>
-        {approveState.error ? (
-          <p role="alert" className="type-caption text-destructive">
-            {approveState.error}
-          </p>
-        ) : null}
-        {approveState.success ? (
-          <p role="status" className="type-caption text-secondary">
-            {approveState.success}
-          </p>
-        ) : null}
-        <Button type="submit" loading={approvePending} disabled={approvePending}>
-          Aprobar
-        </Button>
-      </form>
-      <form action={rejectAction} className="grid gap-3">
-        <input type="hidden" name="requestId" value={requestId} />
-        <label className="grid gap-1 type-caption">
-          Mensaje al cliente (opcional)
-          <textarea
-            name="adminMessage"
-            rows={3}
-            className="rounded-md border border-border-strong bg-surface-elevated px-3 py-2"
-          />
-        </label>
-        {rejectState.error ? (
-          <p role="alert" className="type-caption text-destructive">
-            {rejectState.error}
-          </p>
-        ) : null}
-        {rejectState.success ? (
-          <p role="status" className="type-caption text-secondary">
-            {rejectState.success}
-          </p>
-        ) : null}
-        <Button type="submit" variant="outline" loading={rejectPending} disabled={rejectPending}>
-          Rechazar
-        </Button>
-      </form>
-    </div>
-  );
-}
+export { AdminReviewCancellationForm } from "@/modules/cancellations/components/admin-cancellation-review";

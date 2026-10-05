@@ -632,7 +632,15 @@
     "submitRequest": "Send request",
     "withdrawRequest": "Withdraw request",
     "requestPending": "Pending review",
-    "contactSupport": "This order is already in production. Contact us if you need help."
+    "contactSupport": "This order is already in production. Contact us if you need help.",
+    "paymentOriginal": "Original payment",
+    "refundProcessedTitle": "Refund processed",
+    "refundProcessedBody": "Your refund has been processed.",
+    "refundProcessedBank": "The time it takes to appear on your payment method depends on your bank or card issuer.",
+    "refundPartialBody": "A partial refund of {amount} was processed.",
+    "refundProcessingTitle": "Refund processing",
+    "refundProcessingBody": "We are processing your refund. We will show it here once it is confirmed.",
+    "refundReviewingBody": "We are reviewing your refund."
   },
   "quotations": {
     "title": "Quotes",

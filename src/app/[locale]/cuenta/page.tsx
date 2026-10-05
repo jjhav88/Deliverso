@@ -15,8 +15,8 @@ import { listRecentCustomerQuotations } from "@/modules/quotations/queries";
 import { quotationStatusLabel } from "@/modules/quotations/domain/labels";
 import { quoteRequiresCustomerAttention } from "@/modules/quotations/domain/attention";
 import { formatMoneyFromMinorUnits } from "@/lib/money/format";
-import { getOrderFinancialStatus } from "@/modules/cancellations/domain/financial-status";
-import { financialStatusLabel } from "@/modules/cancellations/domain/labels";
+import { OrderListRefundBadge } from "@/modules/cancellations/components/financial-status-badge";
+import { customerOrderLifecycleLabel } from "@/modules/orders/domain/labels";
 
 export const dynamic = "force-dynamic";
 
@@ -120,22 +120,24 @@ export default async function AccountPage({ params }: PageProps) {
                       {order.orderNumber}
                     </Link>
                     <p className="type-body-sm text-muted-foreground">
-                      {new Date(order.createdAt).toLocaleDateString(locale)} · {order.status} ·{" "}
-                      {formatMoneyFromMinorUnits(order.grandTotalMinor, "MXN", locale)} · {order.fulfillmentMethod} ·{" "}
-                      {order.requestedDate}
+                      {new Date(order.createdAt).toLocaleDateString(locale)} ·{" "}
+                      {customerOrderLifecycleLabel({
+                        status: order.status,
+                        fulfillmentStatus: order.fulfillmentStatus,
+                        locale,
+                      })}{" "}
+                      · {formatMoneyFromMinorUnits(order.grandTotalMinor, "MXN", locale)}
                       {order.customOrder ? ` · ${t("dashboard.customOrder")}` : ""}
-                      {order.refundedAmountMinor > 0
-                        ? ` · ${financialStatusLabel(
-                            getOrderFinancialStatus({
-                              status: order.status,
-                              paymentStatus: order.paymentStatus,
-                              grandTotalMinor: order.grandTotalMinor,
-                              refundedAmountMinor: order.refundedAmountMinor,
-                            }),
-                            locale,
-                          )}`
-                        : ""}
                     </p>
+                    <OrderListRefundBadge
+                      status={order.status}
+                      paymentStatus={order.paymentStatus}
+                      grandTotalMinor={order.grandTotalMinor}
+                      refundedAmountMinor={order.refundedAmountMinor}
+                      hasReservedRefund={order.hasReservedRefund}
+                      hasFailedRefund={order.hasFailedRefund}
+                      locale={locale}
+                    />
                   </li>
                 ))}
               </ul>

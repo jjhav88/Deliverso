@@ -18,6 +18,8 @@ export type CustomerOrderFinance = {
   refundedAmountMinor: number;
   netPaidMinor: number;
   financialStatus: OrderFinancialStatus;
+  hasReservedRefund: boolean;
+  hasFailedRefund: boolean;
   canRequestCancellation: boolean;
   showSupportContact: boolean;
   request: {
@@ -51,6 +53,8 @@ export type AdminCancellationRow = {
   customerName: string;
   customerEmail: string;
   grandTotalMinor: number;
+  refundedAmountMinor: number;
+  refundableMinor: number;
   fulfillmentStatus: string;
   reason: RefundReason;
   status: CancellationRequestStatus;
@@ -102,6 +106,7 @@ export async function getCustomerOrderFinance(input: {
         orderBy: { createdAt: "desc" },
         take: 1,
       },
+      refunds: { select: { status: true } },
     },
   });
   if (!order) {
@@ -120,7 +125,16 @@ export async function getCustomerOrderFinance(input: {
       grandTotalMinor: order.grandTotalMinor,
       refundedAmountMinor: order.refundedAmountMinor,
     }),
-    financialStatus: getOrderFinancialStatus(order),
+    financialStatus: getOrderFinancialStatus({
+      status: order.status,
+      paymentStatus: order.paymentStatus,
+      grandTotalMinor: order.grandTotalMinor,
+      refundedAmountMinor: order.refundedAmountMinor,
+    }),
+    hasReservedRefund: order.refunds.some(
+      (row) => row.status === "PENDING" || row.status === "PROCESSING",
+    ),
+    hasFailedRefund: order.refunds.some((row) => row.status === "FAILED"),
     canRequestCancellation: eligibility.ok,
     showSupportContact:
       !eligibility.ok &&
@@ -221,7 +235,9 @@ export async function listAdminCancellationRequests(input: {
           customerName: true,
           customerEmail: true,
           grandTotalMinor: true,
+          refundedAmountMinor: true,
           fulfillmentStatus: true,
+          refunds: { select: { status: true, amountMinor: true } },
         },
       },
     },
@@ -233,6 +249,11 @@ export async function listAdminCancellationRequests(input: {
     customerName: row.order.customerName,
     customerEmail: row.order.customerEmail,
     grandTotalMinor: row.order.grandTotalMinor,
+    refundedAmountMinor: row.order.refundedAmountMinor,
+    refundableMinor: getRefundableAmount({
+      grandTotalMinor: row.order.grandTotalMinor,
+      refunds: row.order.refunds,
+    }),
     fulfillmentStatus: row.order.fulfillmentStatus,
     reason: row.reason,
     status: row.status,
