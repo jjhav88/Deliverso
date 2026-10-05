@@ -1,20 +1,17 @@
 import type { MetadataRoute } from "next";
 import { supportedLocales, type AppLocale } from "@/config/i18n";
 import { getPathname } from "@/i18n/navigation";
+import { headers } from "next/headers";
 import { getSitemapCatalogEntries } from "@/modules/catalog/public/queries";
 import { productDetailHref, universeDetailHref } from "@/modules/catalog/public/href";
-import { canonicalOrigin, isSeoIndexableEnvironment } from "@/modules/seo/env";
+import { isSeoIndexableRequest, productionPublicOrigin } from "@/modules/seo/env";
 import { withXDefault } from "@/modules/seo/urls";
 import { logError } from "@/server/logging/logger";
 
 export const dynamic = "force-dynamic";
 
 function urlFor(locale: AppLocale, href: Parameters<typeof getPathname>[0]["href"]): string | null {
-  const base = canonicalOrigin();
-  if (!base) {
-    return null;
-  }
-  return `${base}${getPathname({ locale, href })}`;
+  return `${productionPublicOrigin}${getPathname({ locale, href })}`;
 }
 
 function languagesFor(
@@ -49,7 +46,8 @@ function pushStatic(
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  if (!isSeoIndexableEnvironment() || !canonicalOrigin()) {
+  const host = (await headers()).get("host");
+  if (!isSeoIndexableRequest(host)) {
     return [];
   }
 

@@ -1,7 +1,7 @@
 import createIntlMiddleware from "next-intl/middleware";
 import { NextRequest, NextResponse } from "next/server";
 import { routing } from "@/i18n/routing";
-import { isSeoIndexableEnvironment } from "@/modules/seo/env";
+import { isSeoIndexableRequest } from "@/modules/seo/env";
 import { isPrivateSeoPath } from "@/modules/seo/robots-document";
 import { updateSupabaseSession } from "@/server/supabase/proxy";
 
@@ -20,8 +20,8 @@ function withPathnameHeader(request: NextRequest): NextRequest {
   });
 }
 
-function withSeoHeaders(response: NextResponse, pathname: string): NextResponse {
-  if (!isSeoIndexableEnvironment() || isPrivateSeoPath(pathname)) {
+function withSeoHeaders(response: NextResponse, request: NextRequest, pathname: string): NextResponse {
+  if (!isSeoIndexableRequest(request.nextUrl.hostname) || isPrivateSeoPath(pathname)) {
     response.headers.set("X-Robots-Tag", "noindex, nofollow");
   }
   return response;
@@ -33,16 +33,16 @@ export default async function proxy(request: NextRequest) {
 
   if (isAdminPath(pathname) || pathname.startsWith("/auth/")) {
     const response = await updateSupabaseSession(nextRequest);
-    return withSeoHeaders(response, pathname);
+    return withSeoHeaders(response, nextRequest, pathname);
   }
 
   if (pathname === "/locale-switch") {
-    return withSeoHeaders(NextResponse.next(), pathname);
+    return withSeoHeaders(NextResponse.next(), nextRequest, pathname);
   }
 
   const intlResponse = intlMiddleware(nextRequest);
   const sessionResponse = await updateSupabaseSession(nextRequest, intlResponse);
-  return withSeoHeaders(sessionResponse, pathname);
+  return withSeoHeaders(sessionResponse, nextRequest, pathname);
 }
 
 export const config = {

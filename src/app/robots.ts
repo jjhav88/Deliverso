@@ -1,14 +1,20 @@
 import type { MetadataRoute } from "next";
-import { canonicalOrigin, isSeoIndexableEnvironment } from "@/modules/seo/env";
+import { headers } from "next/headers";
+import {
+  canonicalOrigin,
+  isSeoIndexableRequest,
+  productionPublicOrigin,
+} from "@/modules/seo/env";
 import { buildRobotsDocument } from "@/modules/seo/robots-document";
 
 export const dynamic = "force-dynamic";
 
-export default function robots(): MetadataRoute.Robots {
-  const indexable = isSeoIndexableEnvironment();
-  const origin = canonicalOrigin();
+export default async function robots(): Promise<MetadataRoute.Robots> {
+  const host = (await headers()).get("host");
+  const indexable = isSeoIndexableRequest(host);
+  const origin = indexable ? productionPublicOrigin : canonicalOrigin();
   return buildRobotsDocument({
     indexable,
-    sitemapUrl: indexable && origin ? `${origin}/sitemap.xml` : undefined,
+    sitemapUrl: indexable ? `${origin}/sitemap.xml` : undefined,
   });
 }

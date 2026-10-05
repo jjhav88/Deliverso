@@ -3,6 +3,7 @@ import { excerptForSeo, isUsefulLocalizedCopy } from "@/modules/seo/content";
 import {
   canonicalOrigin,
   isSeoIndexableEnvironment,
+  isSeoIndexableRequest,
   productionPublicOrigin,
   seoRobots,
 } from "@/modules/seo/env";
@@ -59,12 +60,17 @@ describe("SEO environment policy", () => {
         NEXT_PUBLIC_APP_URL: "http://localhost:3010",
       } as unknown as NodeJS.ProcessEnv),
     ).toBe(false);
+  });
+
+  it("indexes the www host even if APP_URL is mis-set", () => {
     expect(
-      isSeoIndexableEnvironment({
+      isSeoIndexableRequest("www.deliverso.com.mx", {
         ...productionEnv,
         NEXT_PUBLIC_APP_URL: "https://deliverso-staging.vercel.app",
       }),
-    ).toBe(false);
+    ).toBe(true);
+    expect(isSeoIndexableRequest("deliverso-staging.vercel.app", productionEnv)).toBe(false);
+    expect(isSeoIndexableRequest("localhost:3010", productionEnv)).toBe(false);
   });
 });
 

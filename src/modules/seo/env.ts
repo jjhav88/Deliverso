@@ -22,33 +22,47 @@ export function isWwwDeliversoOrigin(origin: string | undefined): boolean {
   }
 }
 
+function isStagingVercelHost(env: NodeJS.ProcessEnv): boolean {
+  const vercelHost = (env.VERCEL_URL ?? "").toLowerCase();
+  const projectProduction = (env.VERCEL_PROJECT_PRODUCTION_URL ?? "").toLowerCase();
+  return (
+    vercelHost.includes("deliverso-staging") ||
+    projectProduction.includes("deliverso-staging")
+  );
+}
+
+export function isPublicCanonicalHost(host: string | null | undefined): boolean {
+  const hostname = host?.split(":")[0]?.toLowerCase();
+  return hostname === "www.deliverso.com.mx";
+}
+
 /**
- * Indexation depends on deployment environment + configured public origin.
- * Staging/preview/localhost never index, even if APP_URL is mis-set.
- *
- * Do not require VERCEL_PROJECT_PRODUCTION_URL to contain deliverso.com.mx:
- * Vercel often sets that to the *.vercel.app production alias.
+ * Indexation depends on the real deployment, not hostname heuristics alone.
+ * Vercel production of the main project indexes. Staging/preview/localhost never do.
  */
 export function isSeoIndexableEnvironment(
   env: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  if (env.VERCEL_ENV !== "production") {
+  if (env.VERCEL_ENV === "preview" || env.VERCEL_ENV === "development") {
     return false;
   }
-  const vercelHost = (env.VERCEL_URL ?? "").toLowerCase();
-  const projectProduction = (env.VERCEL_PROJECT_PRODUCTION_URL ?? "").toLowerCase();
-  if (
-    vercelHost.includes("deliverso-staging") ||
-    projectProduction.includes("deliverso-staging")
-  ) {
+  if (isStagingVercelHost(env)) {
     return false;
   }
-  const origin =
-    normalizeOrigin(env.NEXT_PUBLIC_SITE_URL) ??
-    normalizeOrigin(env.NEXT_PUBLIC_APP_URL) ??
-    normalizeOrigin(env.SITE_URL) ??
-    getPublicAppUrl();
-  return isWwwDeliversoOrigin(origin);
+  return env.VERCEL_ENV === "production";
+}
+
+export function isSeoIndexableRequest(
+  host: string | null | undefined,
+  env: NodeJS.ProcessEnv = process.env,
+): boolean {
+  if (!isPublicCanonicalHost(host)) {
+    return false;
+  }
+  if (isStagingVercelHost(env)) {
+    return false;
+  }
+  return env.VERCEL_ENV !== "preview" && env.VERCEL_ENV !== "development";
 }
 
 /** Canonical origin for indexable production. Staging/local keep configured APP_URL. */
