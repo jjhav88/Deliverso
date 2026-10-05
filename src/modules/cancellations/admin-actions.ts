@@ -22,6 +22,7 @@ function revalidateAdminFinance(orderId: string) {
   revalidatePath("/admin/orders");
   revalidatePath(`/admin/orders/${orderId}`);
   revalidatePath("/admin/cancellations");
+  revalidatePath("/admin/operations");
   revalidatePath("/admin");
 }
 

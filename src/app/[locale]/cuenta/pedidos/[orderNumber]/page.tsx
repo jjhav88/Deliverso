@@ -25,6 +25,7 @@ import {
 } from "@/modules/cancellations/domain/labels";
 import { getCustomerRefundHighlight } from "@/modules/cancellations/domain/presentation";
 import { refundReasons } from "@/modules/cancellations/domain/types";
+import { OrderProgress } from "@/modules/orders/components/order-progress";
 import {
   customerOrderLifecycleLabel,
   paymentStatusLabel,
@@ -172,8 +173,16 @@ export default async function CustomerOrderDetailPage({ params }: PageProps) {
               <p className="type-body-sm text-muted-foreground">{order.customerPhone}</p>
             ) : null}
             <h2 className="type-h3 mt-6">{t("fulfillment")}</h2>
-            <p className="type-body">{order.fulfillmentMethod}</p>
-            <p className="type-body-sm text-muted-foreground">
+            <div className="mt-3">
+              <OrderProgress
+                orderStatus={order.status}
+                fulfillmentStatus={order.fulfillmentStatus}
+                fulfillmentMethod={order.fulfillmentMethod}
+                locale={locale}
+                cancelledLabel={t("cancelledProgress")}
+              />
+            </div>
+            <p className="type-body-sm mt-4 text-muted-foreground">
               {order.requestedDate} · {order.timeWindowStart}–{order.timeWindowEnd}
             </p>
             {order.deliveryZoneName ? (
@@ -182,7 +191,10 @@ export default async function CustomerOrderDetailPage({ params }: PageProps) {
             {order.pickupLocationName ? (
               <p className="type-body-sm text-muted-foreground">{order.pickupLocationName}</p>
             ) : null}
-            {order.address ? (
+            {order.pickupAddressSnapshot ? (
+              <p className="type-body-sm text-muted-foreground">{order.pickupAddressSnapshot}</p>
+            ) : null}
+            {order.address && order.fulfillmentMethod === "DELIVERY" ? (
               <p className="type-body-sm text-muted-foreground">
                 {[order.address.street, order.address.city, order.address.postalCode].filter(Boolean).join(", ")}
               </p>

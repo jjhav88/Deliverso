@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   BadgePercent,
   CakeSlice,
+  ClipboardList,
   House,
   Images,
   LayoutDashboard,
@@ -20,6 +21,7 @@ export const adminNavigationIds = [
   "products",
   "universes",
   "orders",
+  "operations",
   "quotations",
   "cancellations",
   "customers",
@@ -80,6 +82,13 @@ export const adminNavigation: readonly AdminNavigationItem[] = [
     href: "/admin/orders",
     label: "Pedidos",
     icon: ShoppingBag,
+    availability: "ready",
+  },
+  {
+    id: "operations",
+    href: "/admin/operations",
+    label: "Operación",
+    icon: ClipboardList,
     availability: "ready",
   },
   {

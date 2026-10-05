@@ -640,7 +640,9 @@
     "refundPartialBody": "A partial refund of {amount} was processed.",
     "refundProcessingTitle": "Refund processing",
     "refundProcessingBody": "We are processing your refund. We will show it here once it is confirmed.",
-    "refundReviewingBody": "We are reviewing your refund."
+    "refundReviewingBody": "We are reviewing your refund.",
+    "cancelledProgress": "Order canceled",
+    "progressTitle": "Progress"
   },
   "quotations": {
     "title": "Quotes",

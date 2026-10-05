@@ -935,6 +935,7 @@ model Order {
   @@index([fulfillmentStatus])
   @@index([customerEmail])
   @@index([expiresAt])
+  @@index([status, requestedDate])
 }
 
 model OrderItem {

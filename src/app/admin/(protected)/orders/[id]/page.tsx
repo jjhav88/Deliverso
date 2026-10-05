@@ -1,8 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import { getAdminOrderDetail } from "@/modules/admin/orders/queries";
-import { updateOrderFulfillmentStatus } from "@/modules/admin/orders/actions";
 import { getAdminOrderFinance } from "@/modules/cancellations/queries";
 import {
   AdminCancelPaidForm,
@@ -16,7 +14,9 @@ import {
   refundReasonLabel,
   refundStatusLabel,
 } from "@/modules/cancellations/domain/labels";
-import { nextFulfillmentStatuses } from "@/modules/orders/domain/fulfillment-status";
+import { fulfillmentStatusLabel } from "@/modules/orders/domain/labels";
+import { FulfillmentTransitionActions } from "@/modules/operations/components/fulfillment-transition-actions";
+import { getAllowedFulfillmentTransitions } from "@/modules/operations/domain/transitions";
 import { formatMoneyFromMinorUnits } from "@/lib/money/format";
 import { shouldShowStripeTestBadge } from "@/server/stripe/env";
 
@@ -41,7 +41,12 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  const nextStatuses = nextFulfillmentStatuses(order.fulfillmentStatus, order.fulfillmentMethod);
+  const nextStatuses = getAllowedFulfillmentTransitions({
+    status: order.status,
+    paymentStatus: order.paymentStatus,
+    fulfillmentStatus: order.fulfillmentStatus,
+    fulfillmentMethod: order.fulfillmentMethod,
+  });
   const failedRefund = finance?.refunds.find((row) => row.status === "FAILED");
 
   return (
@@ -154,18 +159,12 @@ export default async function AdminOrderDetailPage({ params }: PageProps) {
             {[order.address.street, order.address.city, order.address.postalCode].filter(Boolean).join(", ")}
           </p>
         ) : null}
-        <p className="type-body">Estado: {order.fulfillmentStatus}</p>
-        {order.status === "PAID" && nextStatuses.length > 0
-          ? nextStatuses.map((status) => (
-              <form key={status} action={updateOrderFulfillmentStatus}>
-                <input type="hidden" name="orderId" value={order.id} />
-                <input type="hidden" name="fulfillmentStatus" value={status} />
-                <Button type="submit" variant="secondary" size="sm">
-                  Pasar a {status}
-                </Button>
-              </form>
-            ))
-          : null}
+        <p className="type-body">Estado: {fulfillmentStatusLabel(order.fulfillmentStatus)}</p>
+        <FulfillmentTransitionActions
+          orderId={order.id}
+          method={order.fulfillmentMethod}
+          transitions={nextStatuses}
+        />
       </section>
 
       <section className="grid gap-3 rounded-lg border border-border bg-[var(--admin-surface)] p-6">

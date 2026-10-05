@@ -640,7 +640,9 @@
     "refundPartialBody": "Se procesó un reembolso parcial de {amount}.",
     "refundProcessingTitle": "Reembolso en proceso",
     "refundProcessingBody": "Estamos procesando tu reembolso. Te mostraremos aquí cuando haya sido confirmado.",
-    "refundReviewingBody": "Estamos revisando tu reembolso."
+    "refundReviewingBody": "Estamos revisando tu reembolso.",
+    "cancelledProgress": "Pedido cancelado",
+    "progressTitle": "Progreso"
   },
   "quotations": {
     "title": "Cotizaciones",

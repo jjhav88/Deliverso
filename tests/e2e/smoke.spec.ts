@@ -89,6 +89,12 @@ test.describe("storefront smoke", () => {
     await page.goto("/cuenta/pedidos/DEL-260924-TEST01");
     await expect(page).toHaveURL(/iniciar-sesion|account\/login/);
   });
+
+  test("admin operations protected", async ({ page }) => {
+    await page.goto("/admin/operations");
+    await expect(page).toHaveURL(/admin\/login/);
+    await expect(page.getByText(/Acceso administrativo/i)).toBeVisible();
+  });
 });
 
 test.describe("ops smoke", () => {
