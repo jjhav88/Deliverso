@@ -71,6 +71,12 @@ describe("SEO environment policy", () => {
     ).toBe(true);
     expect(isSeoIndexableRequest("deliverso-staging.vercel.app", productionEnv)).toBe(false);
     expect(isSeoIndexableRequest("localhost:3010", productionEnv)).toBe(false);
+    expect(
+      isSeoIndexableRequest("www.deliverso.com.mx", {
+        ...productionEnv,
+        VERCEL_URL: "deliverso-staging.vercel.app",
+      }),
+    ).toBe(true);
   });
 });
 
@@ -144,8 +150,8 @@ describe("canonical and hreflang helpers", () => {
 });
 
 describe("public and private metadata", () => {
-  it("emits noindex for private routes", () => {
-    const metadata = privatePageMetadata({
+  it("emits noindex for private routes", async () => {
+    const metadata = await privatePageMetadata({
       title: "Carrito",
       pathname: "/carrito",
       origin: productionPublicOrigin,
@@ -162,8 +168,8 @@ describe("public and private metadata", () => {
     expect(isPrivateSeoPath("/productos")).toBe(false);
   });
 
-  it("builds product-like public metadata with OG url equal to canonical", () => {
-    const metadata = publicPageMetadata({
+  it("builds product-like public metadata with OG url equal to canonical", async () => {
+    const metadata = await publicPageMetadata({
       title: "Cheesecake de Zarzamora",
       description: "Crema y fruta.",
       pathname: "/productos/cheesecake-zarzamora",

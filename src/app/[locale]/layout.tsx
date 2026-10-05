@@ -5,10 +5,11 @@ import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 import { StorefrontShell } from "@/components/layout/storefront-shell";
 import { DocumentLang } from "@/components/i18n/document-lang";
+import { headers } from "next/headers";
 import { siteConfig } from "@/config/site";
 import { isAppLocale } from "@/config/i18n";
 import { routing } from "@/i18n/routing";
-import { canonicalOrigin, seoRobots } from "@/modules/seo/env";
+import { productionPublicOrigin, seoRobots, isSeoIndexableRequest } from "@/modules/seo/env";
 import { buildCanonicalUrl } from "@/modules/seo/urls";
 
 type LocaleLayoutProps = {
@@ -30,8 +31,11 @@ export async function generateMetadata({
   }
 
   const t = await getTranslations({ locale, namespace: "metadata" });
-  const origin = canonicalOrigin();
-  const ogImage = buildCanonicalUrl("/brand/logos/deliverso-logo-color.png");
+  const host = (await headers()).get("host");
+  const origin = isSeoIndexableRequest(host)
+    ? productionPublicOrigin
+    : buildCanonicalUrl("/")?.replace(/\/$/, "") ?? undefined;
+  const ogImage = buildCanonicalUrl("/brand/logos/deliverso-logo-color.png", origin);
 
   return {
     applicationName: siteConfig.name,
@@ -41,7 +45,7 @@ export async function generateMetadata({
       template: "%s | DELIVERSO",
     },
     description: t("description"),
-    robots: seoRobots(true),
+    robots: seoRobots(true, host),
     icons: {
       icon: [
         { url: "/favicon.ico" },

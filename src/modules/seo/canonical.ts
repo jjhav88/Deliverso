@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
 import { defaultLocale, type AppLocale } from "@/config/i18n";
-import { seoRobots, canonicalOrigin } from "@/modules/seo/env";
+import {
+  seoRobots,
+  canonicalOrigin,
+  isSeoIndexableRequest,
+  productionPublicOrigin,
+} from "@/modules/seo/env";
 
 export function buildCanonicalUrl(pathname: string, origin?: string): string | undefined {
   const resolved = origin ?? canonicalOrigin();
@@ -50,7 +56,7 @@ export function brandPageTitle(title: string): string {
   return title.replace(/\s*\|\s*DELIVERSO\s*$/i, "").trim();
 }
 
-export function publicPageMetadata(input: {
+export async function publicPageMetadata(input: {
   title: string;
   description: string;
   pathname: string;
@@ -59,16 +65,28 @@ export function publicPageMetadata(input: {
   index?: boolean;
   images?: Array<{ url: string; alt?: string }>;
   origin?: string;
-}): Metadata {
-  const canonical = buildCanonicalUrl(input.pathname, input.origin) ?? input.pathname;
+  host?: string | null;
+}): Promise<Metadata> {
+  let host = input.host;
+  if (host === undefined) {
+    try {
+      host = (await headers()).get("host");
+    } catch {
+      host = null;
+    }
+  }
+  const origin =
+    input.origin ??
+    (isSeoIndexableRequest(host) ? productionPublicOrigin : canonicalOrigin());
+  const canonical = buildCanonicalUrl(input.pathname, origin) ?? input.pathname;
   const indexable = input.index ?? true;
   const ogImage = input.images?.[0];
-  const defaultImage = buildCanonicalUrl("/brand/logos/deliverso-logo-color.png", input.origin);
+  const defaultImage = buildCanonicalUrl("/brand/logos/deliverso-logo-color.png", origin);
 
   return {
     title: brandPageTitle(input.title),
     description: input.description,
-    robots: seoRobots(indexable),
+    robots: seoRobots(indexable, host),
     alternates: {
       canonical,
       languages: input.languages,
@@ -99,11 +117,11 @@ export function publicPageMetadata(input: {
   };
 }
 
-export function privatePageMetadata(input: {
+export async function privatePageMetadata(input: {
   title: string;
   pathname?: string;
   origin?: string;
-}): Metadata {
+}): Promise<Metadata> {
   const canonical = input.pathname
     ? (buildCanonicalUrl(input.pathname, input.origin) ?? input.pathname)
     : undefined;

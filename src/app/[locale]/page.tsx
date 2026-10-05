@@ -38,13 +38,13 @@ export async function generateMetadata({
   const t = await getTranslations({ locale, namespace: "home.meta" });
   const path = localizedPath(locale, "/");
   return {
-    ...publicPageMetadata({
+    ...(await publicPageMetadata({
       title: t("title"),
       description: t("description"),
       pathname: path,
       locale,
       languages: buildLocaleAlternates("/"),
-    }),
+    })),
     title: { absolute: t("title") },
   };
 }

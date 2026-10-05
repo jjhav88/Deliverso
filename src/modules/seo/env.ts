@@ -59,10 +59,19 @@ export function isSeoIndexableRequest(
   if (!isPublicCanonicalHost(host)) {
     return false;
   }
-  if (isStagingVercelHost(env)) {
-    return false;
-  }
   return env.VERCEL_ENV !== "preview" && env.VERCEL_ENV !== "development";
+}
+
+export function seoRobots(
+  indexablePage: boolean,
+  host?: string | null,
+): { index: boolean; follow: boolean } {
+  const siteIndexable =
+    host === undefined ? isSeoIndexableEnvironment() : isSeoIndexableRequest(host);
+  if (!siteIndexable || !indexablePage) {
+    return { index: false, follow: false };
+  }
+  return { index: true, follow: true };
 }
 
 /** Canonical origin for indexable production. Staging/local keep configured APP_URL. */
@@ -76,11 +85,4 @@ export function canonicalOrigin(env: NodeJS.ProcessEnv = process.env): string | 
     normalizeOrigin(env.SITE_URL) ??
     getPublicAppUrl()
   );
-}
-
-export function seoRobots(indexablePage: boolean): { index: boolean; follow: boolean } {
-  if (!isSeoIndexableEnvironment() || !indexablePage) {
-    return { index: false, follow: false };
-  }
-  return { index: true, follow: true };
 }
