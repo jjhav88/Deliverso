@@ -27,6 +27,8 @@ Cada página indexable emite canonical absoluto www. Cada idioma tiene canonical
 
 Páginas equivalentes: `es-MX`, `en-US`, `x-default` → ES. Inglés thin (nombre sin descripción útil) no entra a sitemap ni a `alternates`.
 
+La autoridad de hreflang es la Metadata API (HTML). El middleware de next-intl no emite `Link` `hreflang` (`alternateLinks: false`): no puede saber si un Product/Universe dinámico tiene traducción EN real, y anunciaría 404. Home, catálogo, universos, nosotros y contacto siguen anunciando ES+EN+x-default en HTML y sitemap.
+
 ## robots.txt
 
 Producción: `Allow: /`, `Disallow` de rutas privadas y `/api/`, sitemap `https://www.deliverso.com.mx/sitemap.xml`.

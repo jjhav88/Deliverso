@@ -4,6 +4,7 @@ import {
   cartHref,
   mainNavigation,
 } from "@/config/navigation";
+import { routing } from "@/i18n/routing";
 
 describe("mainNavigation", () => {
   it("exposes a single public nav source without labels", () => {
@@ -72,5 +73,11 @@ describe("mainNavigation", () => {
       "es-MX": "/cotizaciones/[quoteNumber]",
       "en-US": "/quotes/[quoteNumber]",
     });
+  });
+});
+
+describe("hreflang source of truth", () => {
+  it("disables next-intl automatic HTTP Link alternates", () => {
+    expect(routing.alternateLinks).toBe(false);
   });
 });

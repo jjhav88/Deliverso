@@ -6,6 +6,7 @@ import { isPrivateSeoPath } from "@/modules/seo/robots-document";
 import { updateSupabaseSession } from "@/server/supabase/proxy";
 
 const intlMiddleware = createIntlMiddleware(routing);
+// hreflang HTTP Link is disabled via routing.alternateLinks; Metadata API owns alternates.
 
 function isAdminPath(pathname: string): boolean {
   return pathname === "/admin" || pathname.startsWith("/admin/");

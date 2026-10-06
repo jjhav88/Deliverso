@@ -157,6 +157,18 @@ describe("canonical and hreflang helpers", () => {
     );
     expect(universe?.["x-default"]).toBe(universe?.["es-MX"]);
   });
+
+  it("does not invent EN hreflang when a product only has ES", () => {
+    const languages = catalogLanguages(
+      [{ locale: "es-MX", path: "/productos/cheesecake-de-zarzamora" }],
+      productionPublicOrigin,
+    );
+    expect(languages).toEqual({
+      "es-MX": "https://www.deliverso.com.mx/productos/cheesecake-de-zarzamora",
+      "x-default": "https://www.deliverso.com.mx/productos/cheesecake-de-zarzamora",
+    });
+    expect(languages).not.toHaveProperty("en-US");
+  });
 });
 
 describe("public and private metadata", () => {
@@ -198,6 +210,25 @@ describe("public and private metadata", () => {
     expect(metadata.openGraph?.url).toBe(metadata.alternates?.canonical);
     expect(metadata.openGraph?.siteName).toBe("DELIVERSO");
     expect(metadata.twitter).toMatchObject({ card: "summary_large_image" });
+  });
+
+  it("keeps canonical on ES when a product has no EN alternate", async () => {
+    const canonical = "https://www.deliverso.com.mx/productos/cheesecake-de-zarzamora";
+    const metadata = await publicPageMetadata({
+      title: "Cheesecake de Zarzamora",
+      description: "Cheesecake de Zarzamora",
+      pathname: "/productos/cheesecake-de-zarzamora",
+      locale: "es-MX",
+      languages: withXDefault({ "es-MX": canonical }),
+      origin: productionPublicOrigin,
+    });
+    expect(metadata.alternates?.canonical).toBe(canonical);
+    expect(metadata.openGraph?.url).toBe(canonical);
+    expect(metadata.alternates?.languages).toEqual({
+      "es-MX": canonical,
+      "x-default": canonical,
+    });
+    expect(metadata.alternates?.languages).not.toHaveProperty("en-US");
   });
 });
 

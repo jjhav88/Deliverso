@@ -11,7 +11,7 @@ DELIVERSO ya está publicado en `https://www.deliverso.com.mx`. Hacía falta una
 ## Decisión
 
 1. **Canonical www.** Autoridad `https://www.deliverso.com.mx`. Apex y HTTP los normaliza la plataforma (Vercel/DNS), no un redirect en la app que pueda crear bucles.
-2. **ES default.** `es-MX` sin prefijo. EN en `/en`. `x-default` → ES.
+2. **ES default.** `es-MX` sin prefijo. EN en `/en`. `x-default` → ES. Hreflang lo emite la Metadata API. next-intl `alternateLinks: false` porque el middleware no conoce traducciones por recurso.
 3. **Staging nunca indexa.** `VERCEL_ENV !== production`, host staging, o origin distinto de www → `noindex,nofollow` y `X-Robots-Tag`. No bloquear todo `*.vercel.app`.
 4. **Rutas privadas noindex.** Admin, cuenta, carrito, checkout, pago, pedidos, cotizaciones de cliente. Fuera del sitemap.
 5. **Sitemap dinámico.** Solo URLs públicas, canónicas, publicadas y con copy útil. `lastModified` real. Sin `priority`/`changefreq` arbitrarios.

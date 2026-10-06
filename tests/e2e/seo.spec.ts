@@ -95,4 +95,31 @@ test.describe("SEO smoke", () => {
     const body = await response.text();
     expect(body).toMatch(/<urlset|<sitemapindex|\<\?xml/i);
   });
+
+  test("untranslated product does not advertise EN hreflang", async ({ request }) => {
+    const response = await request.get("/productos/cheesecake-de-zarzamora");
+    expect(response.status()).toBe(200);
+    const link = response.headers()["link"] ?? "";
+    expect(link).not.toMatch(/hreflang=["']?en-US/i);
+    expect(link).not.toMatch(/\/en\/products\//i);
+
+    const html = await response.text();
+    expect(html).toMatch(/rel=["']canonical["'][^>]+href=["'][^"']*\/productos\/cheesecake-de-zarzamora["']|href=["'][^"']*\/productos\/cheesecake-de-zarzamora["'][^>]+rel=["']canonical["']/i);
+    expect(html).toMatch(/hreflang=["']es-MX["']/i);
+    expect(html).toMatch(/hreflang=["']x-default["']/i);
+    expect(html).not.toMatch(/hreflang=["']en-US["']/i);
+
+    const english = await request.get("/en/products/cheesecake-de-zarzamora");
+    expect(english.status()).toBe(404);
+  });
+
+  test("bilingual static pages keep ES and EN HTML alternates", async ({ page }) => {
+    const response = await page.goto("/");
+    expect(response?.ok()).toBeTruthy();
+    const html = await page.content();
+    expect(html).toMatch(/hreflang=["']es-MX["']/i);
+    expect(html).toMatch(/hreflang=["']en-US["']/i);
+    expect(html).toMatch(/hreflang=["']x-default["']/i);
+    expect(html).toMatch(/rel=["']canonical["']/i);
+  });
 });
