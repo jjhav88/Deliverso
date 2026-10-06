@@ -18,6 +18,10 @@ import {
   saveProductAction,
 } from "@/modules/catalog/product-actions";
 import { slugifyName } from "@/modules/catalog/slug";
+import {
+  isProductPublicSlugLocked,
+  PUBLISHED_PRODUCT_SLUG_LOCKED_MESSAGE,
+} from "@/modules/catalog/slug-guard";
 import type {
   AdminProductFormState,
   CategoryOption,
@@ -75,6 +79,11 @@ export function ProductForm({
   const [gallery, setGallery] = useState(initial.gallery);
   const [businessLineId, setBusinessLineId] = useState(initial.businessLineId);
   const pending = saving || publishing || reactivating;
+  const slugLocked = isProductPublicSlugLocked({
+    status: initial.status,
+    publishedAt: initial.publishedAt,
+  });
+  const enSlugLocked = slugLocked && Boolean(initial.en.slug);
 
   const visibleCategories = useMemo(
     () =>
@@ -261,7 +270,7 @@ export function ProductForm({
               onChange={(event) => {
                 const value = event.target.value;
                 setNameEs(value);
-                if (!slugEsTouched) {
+                if (!slugLocked && !slugEsTouched) {
                   setSlugEs(slugifyName(value));
                 }
               }}
@@ -271,12 +280,21 @@ export function ProductForm({
               label="Slug"
               required
               value={slugEs}
-              disabled={pending}
-              onChange={(event) => {
-                setSlugEsTouched(true);
-                setSlugEs(event.target.value);
-              }}
-              helperText="Único por idioma. Solo minúsculas, números y guiones."
+              disabled={pending && !slugLocked}
+              readOnly={slugLocked}
+              onChange={
+                slugLocked
+                  ? undefined
+                  : (event) => {
+                      setSlugEsTouched(true);
+                      setSlugEs(event.target.value);
+                    }
+              }
+              helperText={
+                slugLocked
+                  ? PUBLISHED_PRODUCT_SLUG_LOCKED_MESSAGE
+                  : "Único por idioma. Solo minúsculas, números y guiones."
+              }
             />
             <Textarea
               name="es.shortDescription"
@@ -318,7 +336,7 @@ export function ProductForm({
               onChange={(event) => {
                 const value = event.target.value;
                 setNameEn(value);
-                if (!slugEnTouched) {
+                if (!enSlugLocked && !slugEnTouched) {
                   setSlugEn(slugifyName(value));
                 }
               }}
@@ -327,11 +345,17 @@ export function ProductForm({
               name="en.slug"
               label="Slug"
               value={slugEn}
-              disabled={pending}
-              onChange={(event) => {
-                setSlugEnTouched(true);
-                setSlugEn(event.target.value);
-              }}
+              disabled={pending && !enSlugLocked}
+              readOnly={enSlugLocked}
+              onChange={
+                enSlugLocked
+                  ? undefined
+                  : (event) => {
+                      setSlugEnTouched(true);
+                      setSlugEn(event.target.value);
+                    }
+              }
+              helperText={enSlugLocked ? PUBLISHED_PRODUCT_SLUG_LOCKED_MESSAGE : undefined}
             />
             <Textarea
               name="en.shortDescription"

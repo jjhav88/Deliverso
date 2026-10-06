@@ -20,6 +20,8 @@ const targets = [
   "/carrito",
   "/cuenta/iniciar-sesion",
   "/admin/login",
+  "/productos/cheescake-de-zarzamora",
+  "/productos/cheesecake-de-zarzamora",
   "/robots.txt",
   "/sitemap.xml",
 ];

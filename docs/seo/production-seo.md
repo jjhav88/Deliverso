@@ -63,7 +63,35 @@ Next.js por defecto sin slash final. Una sola forma.
 
 ## Slugs
 
-Admin puede editar slugs. No hay tabla de redirects históricos (requiere migration). Cambiar un slug publicado rompe la URL anterior.
+El slug de un producto `PUBLISHED` no se edita desde Admin (UI read-only + rechazo en la server action). Un `DRAFT` sí puede cambiar el slug, incluida la reactivación desde archivo. Un `ARCHIVED` que ya tuvo `publishedAt` queda bloqueado.
+
+No hay tabla de historial de slugs ni registry de redirects (deuda futura: SEO slug history / redirect registry). Un cambio de slug publicado requiere una migración SEO puntual con redirect 308 en `src/modules/seo/permanent-redirects.ts` y un script one-off, no el formulario.
+
+Redirect vigente M20B:
+
+- `/productos/cheescake-de-zarzamora` → `/productos/cheesecake-de-zarzamora` (308)
+
+No existe ficha EN de ese producto; no se inventó `/en/products/...`.
+
+## Dominios y HTTP
+
+Autoridad: `https://www.deliverso.com.mx`.
+
+| URL | Resultado observado (M20B) |
+| --- | --- |
+| `https://www.deliverso.com.mx` | 200, Next.js, `Server: Vercel` |
+| `https://deliverso.com.mx` | 308 → `https://www.deliverso.com.mx/` (`Server: Vercel`) |
+| `http://deliverso.com.mx` | 403 antes de Next.js (sin `Server: Vercel`, sin `X-Matched-Path`) |
+| `http://www.deliverso.com.mx` | 403 igual |
+
+DNS A de apex y www: `216.150.16.65` / `216.150.16.193` (anycast Vercel). NS: `dnsr001.mcm.net.mx`. El 403 HTTP llega a IPs de Vercel pero no a la app Next; no se añade middleware HTTP→HTTPS en Next.
+
+Acción humana (Julio / Vercel Dashboard → Settings → Domains):
+
+1. Confirmar `www.deliverso.com.mx` como dominio de producción.
+2. Confirmar `deliverso.com.mx` como redirect permanente a www, preservando path.
+3. Revisar Firewall / Deployment Protection: HTTP no debe bloquearse.
+4. Si el 403 en puerto 80 continúa, abrir ticket a Vercel. Next.js no puede corregirlo.
 
 ## Producto retirado
 

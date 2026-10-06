@@ -15,7 +15,7 @@ export function CustomerAuthShell({
       <div className="hidden lg:block">
         <BrandLogo mark="icon" className="h-16 w-auto" />
         <p className="type-label mt-8 tracking-[0.18em] text-secondary">DELIVERSO</p>
-        <h1 className="type-display-l mt-4 text-pretty">{title}</h1>
+        <p className="type-display-l mt-4 text-pretty">{title}</p>
         <p className="type-body mt-4 max-w-md text-muted-foreground">{intro}</p>
       </div>
       <div className="rounded-xl border border-border bg-surface-elevated p-6 sm:p-8">

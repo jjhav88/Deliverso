@@ -17,6 +17,13 @@ import {
 } from "@/modules/catalog/product-media";
 import { canPublishProduct, getPublishBlockers } from "@/modules/catalog/publish";
 import { isSafeSlug, slugifyName } from "@/modules/catalog/slug";
+import {
+  applyLockedProductSlugs,
+  isProductPublicSlugLocked,
+  publishedSlugMutationError,
+  PUBLISHED_PRODUCT_SLUG_LOCKED_MESSAGE,
+} from "@/modules/catalog/slug-guard";
+import { productDetailHref } from "@/modules/catalog/public/href";
 
 describe("money input helpers", () => {
   it("converts decimal UI strings to minor units", () => {
@@ -44,6 +51,79 @@ describe("slug validation", () => {
     expect(isSafeSlug("cheesecake-de-durazno")).toBe(true);
     expect(isSafeSlug("Cheesecake")).toBe(false);
     expect(isSafeSlug("a--b")).toBe(false);
+  });
+});
+
+describe("published product slug guard", () => {
+  it("locks PUBLISHED slugs and previously published ARCHIVED slugs", () => {
+    expect(
+      isProductPublicSlugLocked({ status: "PUBLISHED", publishedAt: new Date() }),
+    ).toBe(true);
+    expect(
+      isProductPublicSlugLocked({
+        status: "ARCHIVED",
+        publishedAt: new Date(),
+      }),
+    ).toBe(true);
+  });
+
+  it("keeps DRAFT slugs editable, including after reactivate", () => {
+    expect(
+      isProductPublicSlugLocked({ status: "DRAFT", publishedAt: null }),
+    ).toBe(false);
+    expect(
+      isProductPublicSlugLocked({ status: "DRAFT", publishedAt: new Date() }),
+    ).toBe(false);
+    expect(
+      isProductPublicSlugLocked({ status: "ARCHIVED", publishedAt: null }),
+    ).toBe(false);
+  });
+
+  it("rejects a published slug mutation server-side even if the form is tampered", () => {
+    expect(
+      publishedSlugMutationError({
+        submittedEsSlug: "cheesecake-de-zarzamora",
+        submittedEnSlug: "",
+        storedEsSlug: "cheescake-de-zarzamora",
+        storedEnSlug: null,
+      }),
+    ).toBe(PUBLISHED_PRODUCT_SLUG_LOCKED_MESSAGE);
+    expect(
+      publishedSlugMutationError({
+        submittedEsSlug: "cheescake-de-zarzamora",
+        submittedEnSlug: "changed-en",
+        storedEsSlug: "cheescake-de-zarzamora",
+        storedEnSlug: "blackberry-cheesecake",
+      }),
+    ).toBe(PUBLISHED_PRODUCT_SLUG_LOCKED_MESSAGE);
+  });
+
+  it("accepts the stored slug and overwrites submitted values when locked", () => {
+    expect(
+      publishedSlugMutationError({
+        submittedEsSlug: "cheesecake-de-zarzamora",
+        submittedEnSlug: "",
+        storedEsSlug: "cheesecake-de-zarzamora",
+        storedEnSlug: null,
+      }),
+    ).toBeNull();
+
+    const next = applyLockedProductSlugs(
+      {
+        es: { slug: "tampered-slug" },
+        en: { slug: "tampered-en" },
+      },
+      { es: "cheesecake-de-zarzamora", en: null },
+    );
+    expect(next.es.slug).toBe("cheesecake-de-zarzamora");
+    expect(next.en.slug).toBe("tampered-en");
+  });
+
+  it("builds public product hrefs from the current catalog slug", () => {
+    expect(productDetailHref("cheesecake-de-zarzamora")).toEqual({
+      pathname: "/productos/[slug]",
+      params: { slug: "cheesecake-de-zarzamora" },
+    });
   });
 });
 

@@ -42,6 +42,30 @@ test.describe("SEO smoke", () => {
     expect(html).not.toMatch(/AggregateRating/);
   });
 
+  test("login has exactly one H1 and stays noindex", async ({ page }) => {
+    const response = await page.goto("/cuenta/iniciar-sesion");
+    expect(response?.ok()).toBeTruthy();
+    await expect(page.locator("h1")).toHaveCount(1);
+    expect(robotsContent(await page.content())).toMatch(/noindex/i);
+  });
+
+  test("register shares the auth shell with a single H1", async ({ page }) => {
+    const response = await page.goto("/cuenta/registro");
+    expect(response?.ok()).toBeTruthy();
+    await expect(page.locator("h1")).toHaveCount(1);
+    expect(robotsContent(await page.content())).toMatch(/noindex/i);
+  });
+
+  test("old cheesecake typo slug permanently redirects", async ({ request }) => {
+    const response = await request.get("/productos/cheescake-de-zarzamora", {
+      maxRedirects: 0,
+    });
+    expect([301, 308]).toContain(response.status());
+    expect(response.headers()["location"] ?? "").toMatch(
+      /\/productos\/cheesecake-de-zarzamora\/?$/,
+    );
+  });
+
   test("private routes send noindex", async ({ page }) => {
     const cart = await page.goto("/carrito");
     expect(cart?.ok()).toBeTruthy();

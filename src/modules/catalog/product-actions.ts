@@ -9,6 +9,11 @@ import { parseProductForm } from "@/modules/catalog/form-parse";
 import { persistProductRecord, resolvePriceMinor } from "@/modules/catalog/persist";
 import { getPublishBlockers } from "@/modules/catalog/publish";
 import { revalidateAdminCatalog } from "@/modules/catalog/revalidate";
+import {
+  applyLockedProductSlugs,
+  isProductPublicSlugLocked,
+  publishedSlugMutationError,
+} from "@/modules/catalog/slug-guard";
 import { uniqueConstraintMessage } from "@/modules/catalog/unique-error";
 import { productSaveSchema } from "@/modules/catalog/validation";
 import { getPrisma } from "@/server/db/prisma";
@@ -35,7 +40,12 @@ async function saveProduct(formData: FormData, mode: "save" | "publish") {
   const existing = parsed.data.id
     ? await getPrisma().product.findUnique({
         where: { id: parsed.data.id },
-        select: { id: true, status: true, publishedAt: true },
+        select: {
+          id: true,
+          status: true,
+          publishedAt: true,
+          translations: { select: { locale: true, slug: true } },
+        },
       })
     : null;
 
@@ -43,14 +53,42 @@ async function saveProduct(formData: FormData, mode: "save" | "publish") {
     return { error: "El producto no existe.", success: null };
   }
 
+  const storedEsSlug =
+    existing?.translations.find((item) => item.locale === "es-MX")?.slug ?? null;
+  const storedEnSlug =
+    existing?.translations.find((item) => item.locale === "en-US")?.slug ?? null;
+  const slugLocked = existing
+    ? isProductPublicSlugLocked({
+        status: existing.status,
+        publishedAt: existing.publishedAt,
+      })
+    : false;
+
+  let persistInput = parsed.data;
+  if (slugLocked) {
+    const mutationError = publishedSlugMutationError({
+      submittedEsSlug: parsed.data.es.slug,
+      submittedEnSlug: parsed.data.en.slug,
+      storedEsSlug,
+      storedEnSlug,
+    });
+    if (mutationError) {
+      return { error: mutationError, success: null };
+    }
+    persistInput = applyLockedProductSlugs(parsed.data, {
+      es: storedEsSlug,
+      en: storedEnSlug,
+    });
+  }
+
   let nextStatus = existing?.status ?? "DRAFT";
   if (mode === "publish") {
     const blockers = getPublishBlockers({
-      type: parsed.data.type,
-      businessLineId: parsed.data.businessLineId,
-      nameEs: parsed.data.es.name,
-      slugEs: parsed.data.es.slug,
-      primaryMediaAssetId: parsed.data.primaryMediaAssetId,
+      type: persistInput.type,
+      businessLineId: persistInput.businessLineId,
+      nameEs: persistInput.es.name,
+      slugEs: persistInput.es.slug,
+      primaryMediaAssetId: persistInput.primaryMediaAssetId,
       priceMinor,
     });
     if (blockers.length > 0) {
@@ -66,9 +104,17 @@ async function saveProduct(formData: FormData, mode: "save" | "publish") {
     productId = await getPrisma().$transaction(async (tx) => {
       const id = await persistProductRecord(
         tx,
-        parsed.data,
+        persistInput,
         nextStatus,
         parsed.data.id,
+        slugLocked
+          ? {
+              lockedPublicSlugs: {
+                es: storedEsSlug ?? persistInput.es.slug,
+                en: storedEnSlug,
+              },
+            }
+          : undefined,
       );
 
       if (mode === "publish") {
@@ -100,7 +146,7 @@ async function saveProduct(formData: FormData, mode: "save" | "publish") {
     resourceId: productId,
     metadata: {
       status: nextStatus,
-      type: parsed.data.type,
+      type: persistInput.type,
     },
   });
 

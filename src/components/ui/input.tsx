@@ -46,6 +46,7 @@ export function Input({
           "transition-colors duration-[var(--duration-fast)] ease-[var(--easing-standard)]",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
           "disabled:cursor-not-allowed disabled:bg-muted disabled:text-muted-foreground disabled:opacity-70",
+          "read-only:cursor-not-allowed read-only:bg-muted read-only:text-muted-foreground",
           error ? "border-destructive" : "border-border-strong",
           className,
         )}

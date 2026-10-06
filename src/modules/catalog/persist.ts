@@ -8,8 +8,18 @@ import type { ProductStatus } from "@/modules/catalog/domain";
 
 type CatalogTx = Prisma.TransactionClient;
 
-function hasEnglishProduct(input: ProductSaveInput["en"]): boolean {
-  return Boolean(input.name && input.slug);
+export type PersistProductOptions = {
+  lockedPublicSlugs?: {
+    es: string;
+    en: string | null;
+  };
+};
+
+function hasEnglishProduct(
+  input: ProductSaveInput["en"],
+  slug: string = input.slug,
+): boolean {
+  return Boolean(input.name && slug);
 }
 
 function hasEnglishTaxonomy(input: { name: string; slug: string }): boolean {
@@ -33,7 +43,10 @@ export async function persistProductRecord(
   input: ProductSaveInput,
   status: ProductStatus,
   existingId: string | null,
+  options?: PersistProductOptions,
 ): Promise<string> {
+  const esSlug = options?.lockedPublicSlugs?.es ?? input.es.slug;
+  const enSlug = options?.lockedPublicSlugs?.en ?? input.en.slug;
   const priceMinor = resolvePriceMinor(input);
   const minimumLeadTimeMinutes = leadTimeToMinutes({
     value: input.leadTimeValue,
@@ -78,7 +91,7 @@ export async function persistProductRecord(
       productId: product.id,
       locale: "es-MX",
       name: input.es.name,
-      slug: input.es.slug,
+      slug: esSlug,
       shortDescription: input.es.shortDescription,
       description: input.es.description,
       seoTitle: input.es.seoTitle,
@@ -86,7 +99,7 @@ export async function persistProductRecord(
     },
     update: {
       name: input.es.name,
-      slug: input.es.slug,
+      slug: esSlug,
       shortDescription: input.es.shortDescription,
       description: input.es.description,
       seoTitle: input.es.seoTitle,
@@ -94,14 +107,14 @@ export async function persistProductRecord(
     },
   });
 
-  if (hasEnglishProduct(input.en)) {
+  if (hasEnglishProduct(input.en, enSlug)) {
     await tx.productTranslation.upsert({
       where: { productId_locale: { productId: product.id, locale: "en-US" } },
       create: {
         productId: product.id,
         locale: "en-US",
         name: input.en.name,
-        slug: input.en.slug,
+        slug: enSlug,
         shortDescription: input.en.shortDescription,
         description: input.en.description,
         seoTitle: input.en.seoTitle,
@@ -109,7 +122,7 @@ export async function persistProductRecord(
       },
       update: {
         name: input.en.name,
-        slug: input.en.slug,
+        slug: enSlug,
         shortDescription: input.en.shortDescription,
         description: input.en.description,
         seoTitle: input.en.seoTitle,

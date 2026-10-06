@@ -8,6 +8,11 @@ import {
   seoRobots,
 } from "@/modules/seo/env";
 import { buildOrganizationJsonLd, buildWebSiteJsonLd } from "@/modules/seo/json-ld";
+import {
+  CHEESECAKE_ZARZAMORA_NEW_SLUG,
+  CHEESECAKE_ZARZAMORA_OLD_SLUG,
+  permanentSeoRedirects,
+} from "@/modules/seo/permanent-redirects";
 import { buildRobotsDocument, isPrivateSeoPath } from "@/modules/seo/robots-document";
 import {
   brandPageTitle,
@@ -17,6 +22,11 @@ import {
   publicPageMetadata,
   withXDefault,
 } from "@/modules/seo/canonical";
+import {
+  buildBreadcrumbJsonLd,
+  buildProductJsonLd,
+} from "@/modules/catalog/public/json-ld";
+import { indexableTranslationSlugs } from "@/modules/catalog/public/seo";
 
 const productionEnv = {
   VERCEL_ENV: "production",
@@ -88,11 +98,11 @@ describe("canonical and hreflang helpers", () => {
     expect(buildCanonicalUrl("/en", productionPublicOrigin)).toBe(
       "https://www.deliverso.com.mx/en",
     );
-    expect(buildCanonicalUrl("/productos/cheesecake-zarzamora", productionPublicOrigin)).toBe(
-      "https://www.deliverso.com.mx/productos/cheesecake-zarzamora",
+    expect(buildCanonicalUrl("/productos/cheesecake-de-zarzamora", productionPublicOrigin)).toBe(
+      "https://www.deliverso.com.mx/productos/cheesecake-de-zarzamora",
     );
-    expect(buildCanonicalUrl("/en/products/cheesecake-zarzamora", productionPublicOrigin)).toBe(
-      "https://www.deliverso.com.mx/en/products/cheesecake-zarzamora",
+    expect(buildCanonicalUrl("/en/products/cheesecake-de-zarzamora", productionPublicOrigin)).toBe(
+      "https://www.deliverso.com.mx/en/products/cheesecake-de-zarzamora",
     );
   });
 
@@ -125,13 +135,13 @@ describe("canonical and hreflang helpers", () => {
   it("maps product and universe language pairs with self, alternate and x-default", () => {
     const product = catalogLanguages(
       [
-        { locale: "es-MX", path: "/productos/cheesecake-zarzamora" },
+        { locale: "es-MX", path: "/productos/cheesecake-de-zarzamora" },
         { locale: "en-US", path: "/en/products/blackberry-cheesecake" },
       ],
       productionPublicOrigin,
     );
     expect(product?.["es-MX"]).toBe(
-      "https://www.deliverso.com.mx/productos/cheesecake-zarzamora",
+      "https://www.deliverso.com.mx/productos/cheesecake-de-zarzamora",
     );
     expect(product?.["en-US"]).toBe(
       "https://www.deliverso.com.mx/en/products/blackberry-cheesecake",
@@ -172,10 +182,10 @@ describe("public and private metadata", () => {
     const metadata = await publicPageMetadata({
       title: "Cheesecake de Zarzamora",
       description: "Crema y fruta.",
-      pathname: "/productos/cheesecake-zarzamora",
+      pathname: "/productos/cheesecake-de-zarzamora",
       locale: "es-MX",
       languages: withXDefault({
-        "es-MX": "https://www.deliverso.com.mx/productos/cheesecake-zarzamora",
+        "es-MX": "https://www.deliverso.com.mx/productos/cheesecake-de-zarzamora",
         "en-US": "https://www.deliverso.com.mx/en/products/blackberry-cheesecake",
       }),
       images: [{ url: "https://cdn.example/cheesecake.jpg", alt: "Cheesecake de Zarzamora" }],
@@ -183,7 +193,7 @@ describe("public and private metadata", () => {
     });
 
     expect(metadata.alternates?.canonical).toBe(
-      "https://www.deliverso.com.mx/productos/cheesecake-zarzamora",
+      "https://www.deliverso.com.mx/productos/cheesecake-de-zarzamora",
     );
     expect(metadata.openGraph?.url).toBe(metadata.alternates?.canonical);
     expect(metadata.openGraph?.siteName).toBe("DELIVERSO");
@@ -259,5 +269,65 @@ describe("copy and structured data", () => {
 
   it("forces noindex when the environment is not production", () => {
     expect(seoRobots(true)).toEqual({ index: false, follow: false });
+  });
+});
+
+describe("cheesecake typo slug cleanup", () => {
+  it("permanently redirects the old ES slug before render", () => {
+    expect(permanentSeoRedirects).toEqual([
+      {
+        source: `/productos/${CHEESECAKE_ZARZAMORA_OLD_SLUG}`,
+        destination: `/productos/${CHEESECAKE_ZARZAMORA_NEW_SLUG}`,
+        permanent: true,
+      },
+    ]);
+    expect(permanentSeoRedirects[0]?.destination).not.toContain(
+      CHEESECAKE_ZARZAMORA_OLD_SLUG,
+    );
+  });
+
+  it("keeps the corrected ES slug in sitemap candidates and omits the typo", () => {
+    const slugs = indexableTranslationSlugs([
+      {
+        locale: "es-MX",
+        slug: CHEESECAKE_ZARZAMORA_NEW_SLUG,
+        name: "Cheesecake de Zarzamora",
+        shortDescription: "Cheesecake de Zarzamora",
+      },
+      {
+        locale: "en-US",
+        slug: CHEESECAKE_ZARZAMORA_OLD_SLUG,
+        name: "Cheesecake",
+      },
+    ]).map((item) => item.slug);
+
+    expect(slugs).toEqual([CHEESECAKE_ZARZAMORA_NEW_SLUG]);
+    expect(slugs).not.toContain(CHEESECAKE_ZARZAMORA_OLD_SLUG);
+  });
+
+  it("emits Product and Breadcrumb JSON-LD with the new canonical URL", () => {
+    const url = `https://www.deliverso.com.mx/productos/${CHEESECAKE_ZARZAMORA_NEW_SLUG}`;
+    const product = buildProductJsonLd({
+      name: "Cheesecake de Zarzamora",
+      description: "Cheesecake de Zarzamora",
+      image: null,
+      url,
+      type: "STANDARD",
+      price: { amountMinor: 10000, currency: "MXN" },
+    });
+    expect(product.offers).toMatchObject({ url });
+    expect(JSON.stringify(product)).not.toContain(CHEESECAKE_ZARZAMORA_OLD_SLUG);
+
+    const breadcrumbs = buildBreadcrumbJsonLd({
+      items: [
+        { name: "Inicio", url: "https://www.deliverso.com.mx/" },
+        { name: "Productos", url: "https://www.deliverso.com.mx/productos" },
+        { name: "Cheesecake de Zarzamora", url },
+      ],
+    });
+    const last = (
+      breadcrumbs.itemListElement as Array<{ item: string }>
+    ).at(-1);
+    expect(last?.item).toBe(url);
   });
 });
