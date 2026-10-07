@@ -15,10 +15,9 @@ type CustomerRegisterFormProps = {
     password: string;
     confirm: string;
     requirements: string;
+    legalNote: string;
     terms: string;
     privacy: string;
-    acceptPrefix: string;
-    and: string;
     submit: string;
     pending: string;
     checkEmail: string;
@@ -67,24 +66,16 @@ export function CustomerRegisterForm({ nextPath, labels }: CustomerRegisterFormP
         minLength={CUSTOMER_PASSWORD_MIN}
         disabled={pending}
       />
-      <label className="flex items-start gap-3 type-body-sm">
-        <input type="checkbox" name="termsAccepted" required className="mt-1" />
-        <span>
-          {labels.acceptPrefix}{" "}
-          <Link href="/terminos" className="text-secondary">
-            {labels.terms}
-          </Link>
-        </span>
-      </label>
-      <label className="flex items-start gap-3 type-body-sm">
-        <input type="checkbox" name="privacyAccepted" required className="mt-1" />
-        <span>
-          {labels.acceptPrefix}{" "}
-          <Link href="/aviso-de-privacidad" className="text-secondary">
-            {labels.privacy}
-          </Link>
-        </span>
-      </label>
+      <p className="type-body-sm text-muted-foreground">
+        {labels.legalNote}{" "}
+        <Link href="/terminos" className="text-secondary">
+          {labels.terms}
+        </Link>
+        {" · "}
+        <Link href="/aviso-de-privacidad" className="text-secondary">
+          {labels.privacy}
+        </Link>
+      </p>
       {state.error ? (
         <p role="alert" className="type-caption text-destructive">
           {state.error}

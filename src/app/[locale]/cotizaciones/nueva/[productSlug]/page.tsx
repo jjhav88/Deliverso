@@ -64,6 +64,8 @@ export default async function NewQuotationPage({ params }: PageProps) {
               notes: t("notes"),
               attachments: t("attachments"),
               attachmentsHelp: t("attachmentsHelp"),
+              privacyNotice: t("privacyNotice"),
+              privacyLink: t("privacyLink"),
               submit: t("submit"),
             }}
           />

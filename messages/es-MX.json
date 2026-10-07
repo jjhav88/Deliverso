@@ -145,8 +145,11 @@
       "email": "Correo",
       "whatsapp": "WhatsApp",
       "address": "Dirección",
-      "terms": "Términos",
-      "privacy": "Aviso de privacidad"
+      "terms": "Términos y Condiciones",
+      "privacy": "Aviso de Privacidad",
+      "delivery": "Entregas y recogidas",
+      "refunds": "Cancelaciones y reembolsos",
+      "cookies": "Cookies"
     }
   },
   "placeholders": {
@@ -191,7 +194,9 @@
     "whatsapp": "WhatsApp",
     "address": "Ubicación",
     "empty": "Los canales de contacto públicos se mostrarán aquí cuando estén configurados.",
-    "home": "Inicio"
+    "home": "Inicio",
+    "privacyNotice": "Usaremos tus datos para atender tu solicitud. Consulta el Aviso de Privacidad.",
+    "privacyLink": "Aviso de Privacidad"
   },
   "notFound": {
     "title": "Página no encontrada",
@@ -485,10 +490,9 @@
       "title": "Crear cuenta",
       "intro": "Regístrate para agregar productos al carrito. Te enviaremos un enlace de confirmación.",
       "submit": "Crear cuenta",
-      "accept": "He leído y acepto",
-      "and": "y",
-      "terms": "los términos",
-      "privacy": "el aviso de privacidad",
+      "legalNote": "Al crear tu cuenta podrás consultar nuestros Términos y Aviso de Privacidad.",
+      "terms": "Términos y Condiciones",
+      "privacy": "Aviso de Privacidad",
       "checkEmail": "Revisa tu correo",
       "checkEmailBody": "Te enviamos un enlace para confirmar tu cuenta. Si puedes crear o recuperar una cuenta con este correo, recibirás las instrucciones correspondientes.",
       "home": "Volver al inicio",
@@ -578,7 +582,14 @@
     "ready": "Tu checkout está listo. El cobro se procesará en MXN.",
     "continuePayment": "Continuar al pago",
     "paymentCurrencyNote": "El cobro se procesará en MXN.",
-    "backCart": "Volver al carrito"
+    "backCart": "Volver al carrito",
+    "acceptTerms": "He leído y acepto los Términos y Condiciones y las políticas aplicables a mi compra.",
+    "termsLink": "Términos y Condiciones",
+    "deliveryLink": "Entrega y recogida",
+    "refundsLink": "Cancelaciones y reembolsos",
+    "privacyHint": "Consulta nuestro Aviso de Privacidad.",
+    "privacyLink": "Aviso de Privacidad",
+    "termsRequired": "Debes aceptar los Términos y Condiciones y las políticas aplicables para continuar."
   },
   "payment": {
     "title": "Pago",
@@ -687,7 +698,13 @@
     "guestCount": "Número de personas (opcional)",
     "notes": "Notas",
     "attachments": "Imágenes de referencia",
-    "attachmentsHelp": "JPEG, PNG o WEBP. Máximo 5 archivos de 5 MB.",
+    "attachmentsHelp": "JPEG, PNG o WEBP. Máximo 5 archivos de 5 MB. Evita subir información personal innecesaria o de terceros.",
+    "privacyNotice": "Usaremos tus datos para atender tu solicitud. Consulta el Aviso de Privacidad.",
+    "privacyLink": "Aviso de Privacidad",
+    "acceptTerms": "He leído y acepto los Términos y Condiciones y las políticas aplicables a esta compra.",
+    "termsLink": "Términos y Condiciones",
+    "deliveryLink": "Entrega y recogida",
+    "refundsLink": "Cancelaciones y reembolsos",
     "submit": "Enviar solicitud",
     "status": "Estado",
     "total": "Total cotizado",

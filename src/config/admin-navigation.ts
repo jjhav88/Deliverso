@@ -12,6 +12,7 @@ import {
   Users,
   FilePenLine,
   Ban,
+  Scale,
 } from "lucide-react";
 
 export const adminNavigationIds = [
@@ -26,6 +27,7 @@ export const adminNavigationIds = [
   "cancellations",
   "customers",
   "promotions",
+  "legal",
   "settings",
 ] as const;
 
@@ -117,6 +119,13 @@ export const adminNavigation: readonly AdminNavigationItem[] = [
     href: "/admin/promotions",
     label: "Promociones",
     icon: BadgePercent,
+    availability: "ready",
+  },
+  {
+    id: "legal",
+    href: "/admin/legal",
+    label: "Legal",
+    icon: Scale,
     availability: "ready",
   },
   {

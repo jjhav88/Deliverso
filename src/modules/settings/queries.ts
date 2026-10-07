@@ -18,6 +18,12 @@ export type PublicSiteSettings = {
   whatsapp: string | null;
   whatsappHref: string | null;
   physicalAddress: string | null;
+  legalEntityName: string | null;
+  rfc: string | null;
+  legalAddress: string | null;
+  legalPhone: string | null;
+  privacyEmail: string | null;
+  legalCountry: string;
   social: PublicSocialLink[];
 };
 
@@ -45,6 +51,12 @@ export async function getPublicSiteSettings(): Promise<PublicSiteSettings | null
     whatsapp: settings.whatsapp,
     whatsappHref: settings.whatsapp ? whatsappHref(settings.whatsapp) : null,
     physicalAddress: settings.physicalAddress,
+    legalEntityName: settings.legalEntityName,
+    rfc: settings.rfc,
+    legalAddress: settings.legalAddress,
+    legalPhone: settings.legalPhone,
+    privacyEmail: settings.privacyEmail,
+    legalCountry: settings.legalCountry || "México",
     social,
   };
 }
@@ -61,6 +73,12 @@ export async function getSettingsAdminState(): Promise<PublicSiteSettings> {
     whatsapp: null,
     whatsappHref: null,
     physicalAddress: null,
+    legalEntityName: null,
+    rfc: null,
+    legalAddress: null,
+    legalPhone: null,
+    privacyEmail: null,
+    legalCountry: "México",
     social: [],
   };
 }

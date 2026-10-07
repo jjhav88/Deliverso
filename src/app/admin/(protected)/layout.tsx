@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { AdminAppFrame } from "@/modules/admin/components/admin-app-frame";
 import { requireAdmin } from "@/modules/auth/authorization/require-admin";
 import { signAvatarUrl } from "@/modules/avatars/service";
+import { getLegalReadinessState } from "@/modules/legal/queries";
 
 type ProtectedAdminLayoutProps = {
   children: ReactNode;
@@ -20,6 +21,7 @@ export default async function ProtectedAdminLayout({
   );
 
   const avatarUrl = await signAvatarUrl(admin.avatarPath);
+  const { readiness } = await getLegalReadinessState();
 
   return (
     <AdminAppFrame
@@ -29,6 +31,7 @@ export default async function ProtectedAdminLayout({
         avatarUrl,
         role: admin.role,
       }}
+      legalReadiness={readiness}
     >
       {children}
     </AdminAppFrame>

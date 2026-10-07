@@ -145,8 +145,11 @@
       "email": "Email",
       "whatsapp": "WhatsApp",
       "address": "Address",
-      "terms": "Terms",
-      "privacy": "Privacy notice"
+      "terms": "Terms and Conditions",
+      "privacy": "Privacy Notice",
+      "delivery": "Delivery and pickup",
+      "refunds": "Cancellations and refunds",
+      "cookies": "Cookies"
     }
   },
   "placeholders": {
@@ -191,7 +194,9 @@
     "whatsapp": "WhatsApp",
     "address": "Location",
     "empty": "Public contact channels will appear here once they are configured.",
-    "home": "Home"
+    "home": "Home",
+    "privacyNotice": "We will use your data to handle your request. See the Privacy Notice.",
+    "privacyLink": "Privacy Notice"
   },
   "notFound": {
     "title": "Page not found",
@@ -485,10 +490,9 @@
       "title": "Create account",
       "intro": "Register to add products to the cart. We will send you a confirmation link.",
       "submit": "Create account",
-      "accept": "I have read and accept",
-      "and": "and",
-      "terms": "the terms",
-      "privacy": "the privacy notice",
+      "legalNote": "When you create your account you can review our Terms and Privacy Notice.",
+      "terms": "Terms and Conditions",
+      "privacy": "Privacy Notice",
       "checkEmail": "Check your email",
       "checkEmailBody": "We sent you a link to confirm your account. If you can create or recover an account with this email, you will receive the corresponding instructions.",
       "home": "Back to home",
@@ -578,7 +582,14 @@
     "ready": "Your checkout is ready. The charge will be processed in MXN.",
     "continuePayment": "Continue to payment",
     "paymentCurrencyNote": "The charge will be processed in MXN.",
-    "backCart": "Back to cart"
+    "backCart": "Back to cart",
+    "acceptTerms": "I have read and accept the Terms and Conditions and the policies that apply to my purchase.",
+    "termsLink": "Terms and Conditions",
+    "deliveryLink": "Delivery and pickup",
+    "refundsLink": "Cancellations and refunds",
+    "privacyHint": "See our Privacy Notice.",
+    "privacyLink": "Privacy Notice",
+    "termsRequired": "You must accept the Terms and Conditions and applicable policies to continue."
   },
   "payment": {
     "title": "Payment",
@@ -687,7 +698,13 @@
     "guestCount": "Number of guests (optional)",
     "notes": "Notes",
     "attachments": "Reference images",
-    "attachmentsHelp": "JPEG, PNG or WEBP. Up to 5 files, 5 MB each.",
+    "attachmentsHelp": "JPEG, PNG or WEBP. Up to 5 files, 5 MB each. Avoid uploading unnecessary personal information or third-party data.",
+    "privacyNotice": "We will use your data to handle your request. See the Privacy Notice.",
+    "privacyLink": "Privacy Notice",
+    "acceptTerms": "I have read and accept the Terms and Conditions and the policies that apply to this purchase.",
+    "termsLink": "Terms and Conditions",
+    "deliveryLink": "Delivery and pickup",
+    "refundsLink": "Cancellations and refunds",
     "submit": "Send request",
     "status": "Status",
     "total": "Quoted total",

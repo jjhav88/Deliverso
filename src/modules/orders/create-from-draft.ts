@@ -16,6 +16,8 @@ import {
   toScheduleDays,
 } from "@/modules/checkout/queries";
 import { generateOrderNumber } from "@/modules/orders/domain/order-number";
+import { legalAcceptanceRows, orderLegalFieldData } from "@/modules/legal/domain/order-snapshot";
+import type { OrderLegalSnapshot } from "@/modules/legal/domain/types";
 import { buildOrderItemSnapshots } from "@/modules/orders/snapshots";
 import { resolveCartPromotion } from "@/modules/promotions/resolve";
 import { createPromotionReservation } from "@/modules/promotions/reservation";
@@ -64,6 +66,7 @@ export async function createOrderFromCheckoutDraft(input: {
   locale: AppLocale;
   displayCurrency: CurrencyCode;
   rateSet: ExchangeRateSet;
+  legal: OrderLegalSnapshot;
 }): Promise<CreateOrderResult> {
   const prisma = getPrisma();
   const existing = await prisma.order.findUnique({
@@ -307,6 +310,10 @@ export async function createOrderFromCheckoutDraft(input: {
             pickupLocationName: selectedPickup?.name ?? null,
             pickupAddressSnapshot: pickupAddress,
             pickupInstructionsSnapshot: selectedPickup?.instructions ?? null,
+            ...orderLegalFieldData(input.legal),
+            legalAcceptances: {
+              create: legalAcceptanceRows(draft.customerId, input.legal),
+            },
             expiresAt,
             items: {
               create: snapshots.map((item) => ({

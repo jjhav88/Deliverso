@@ -3,12 +3,13 @@ import { countCatalogDashboard } from "@/modules/catalog/queries";
 import { getHomeAdminState } from "@/modules/home/admin-queries";
 import { countAdminMedia } from "@/modules/media/queries";
 import { getSettingsAdminState } from "@/modules/settings/queries";
+import { getLegalReadinessState } from "@/modules/legal/queries";
 import { countQuotationDashboard } from "@/modules/quotations/admin-queries";
 import { countCancellationDashboard } from "@/modules/cancellations/queries";
 import { countOperationsDashboard } from "@/modules/operations/queries";
 
 export default async function AdminDashboardPage() {
-  const [home, mediaCount, settings, catalog, quotations, cancellations, operations] = await Promise.all([
+  const [home, mediaCount, settings, catalog, quotations, cancellations, operations, legal] = await Promise.all([
     getHomeAdminState(),
     countAdminMedia(),
     getSettingsAdminState(),
@@ -16,6 +17,7 @@ export default async function AdminDashboardPage() {
     countQuotationDashboard(),
     countCancellationDashboard(),
     countOperationsDashboard(),
+    getLegalReadinessState(),
   ]);
 
   return (
@@ -69,6 +71,12 @@ export default async function AdminDashboardPage() {
           title="Cancelaciones"
           description={`Solicitudes pendientes ${cancellations.pendingRequests}.`}
           status={`Refunds fallidos ${cancellations.failedRefunds}`}
+        />
+        <DashboardCard
+          href="/admin/legal"
+          title="Legal y privacidad"
+          description="Documentos versionados, ARCO y aviso de identidad del responsable."
+          status={legal.readiness.status === "READY" ? "Listo" : "Configuración legal incompleta"}
         />
       </div>
     </div>

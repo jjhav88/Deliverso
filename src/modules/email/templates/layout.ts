@@ -29,6 +29,10 @@ export function emailShell(input: {
     input.locale === "en-US"
       ? "This link does not sign you in. Please log in to view your order."
       : "Este enlace no inicia sesión. Entra a tu cuenta para ver el pedido.";
+  const legalLinks =
+    input.locale === "en-US"
+      ? "Privacy notice: https://www.deliverso.com.mx/en/privacy — Contact: https://www.deliverso.com.mx/en/contact"
+      : "Aviso de Privacidad: https://www.deliverso.com.mx/aviso-de-privacidad — Contacto: https://www.deliverso.com.mx/contacto";
 
   return `<!DOCTYPE html>
 <html lang="${lang}">
@@ -82,6 +86,7 @@ export function emailShell(input: {
                 <div style="margin-top:6px;font-size:12px;line-height:1.5;color:${gold};">${escapeHtml(tagline)}</div>
                 <p style="margin:12px 0 0 0;font-size:12px;line-height:1.55;color:${navy};">${escapeHtml(transactional)}</p>
                 <p style="margin:8px 0 0 0;font-size:12px;line-height:1.55;color:${navy};">${escapeHtml(signInNote)}</p>
+                <p style="margin:8px 0 0 0;font-size:12px;line-height:1.55;color:${navy};">${escapeHtml(legalLinks)}</p>
               </td>
             </tr>
           </table>

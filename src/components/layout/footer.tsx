@@ -56,6 +56,14 @@ export async function Footer() {
             ))}
             <li>
               <Link
+                href="/aviso-de-privacidad"
+                className="inline-flex min-h-6 items-center type-body-sm text-surface-dark-foreground/75 transition-colors hover:text-surface-dark-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+              >
+                {t("footer.privacy")}
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/terminos"
                 className="inline-flex min-h-6 items-center type-body-sm text-surface-dark-foreground/75 transition-colors hover:text-surface-dark-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
@@ -64,10 +72,26 @@ export async function Footer() {
             </li>
             <li>
               <Link
-                href="/aviso-de-privacidad"
+                href="/entregas-y-recogidas"
                 className="inline-flex min-h-6 items-center type-body-sm text-surface-dark-foreground/75 transition-colors hover:text-surface-dark-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
               >
-                {t("footer.privacy")}
+                {t("footer.delivery")}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/cancelaciones-y-reembolsos"
+                className="inline-flex min-h-6 items-center type-body-sm text-surface-dark-foreground/75 transition-colors hover:text-surface-dark-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+              >
+                {t("footer.refunds")}
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/cookies"
+                className="inline-flex min-h-6 items-center type-body-sm text-surface-dark-foreground/75 transition-colors hover:text-surface-dark-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-focus-ring"
+              >
+                {t("footer.cookies")}
               </Link>
             </li>
           </ul>

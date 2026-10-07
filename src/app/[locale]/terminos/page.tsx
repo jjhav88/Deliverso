@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { hasLocale } from "next-intl";
-import { getTranslations, setRequestLocale } from "next-intl/server";
+import { setRequestLocale } from "next-intl/server";
 import { notFound } from "next/navigation";
-import { Container } from "@/components/layout/container";
-import { Section } from "@/components/layout/section";
 import { routing } from "@/i18n/routing";
 import { isAppLocale } from "@/config/i18n";
-import { privatePageMetadata } from "@/modules/seo/urls";
+import { getPathname } from "@/i18n/navigation";
+import { LegalPublicPage } from "@/modules/legal/components/legal-public-page";
+import { legalPageMetadata } from "@/modules/legal/legal-metadata";
 
 export const dynamic = "force-dynamic";
 
@@ -17,10 +17,12 @@ type PageProps = {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { locale } = await params;
   if (!hasLocale(routing.locales, locale) || !isAppLocale(locale)) {
-    return {};
+    return { robots: { index: false, follow: true } };
   }
-  const t = await getTranslations({ locale, namespace: "legal" });
-  return privatePageMetadata({ title: t("terms.title") });
+  return legalPageMetadata({
+    title: "Términos y Condiciones",
+    pathname: getPathname({ locale, href: "/terminos" }),
+  });
 }
 
 export default async function TermsPage({ params }: PageProps) {
@@ -29,13 +31,5 @@ export default async function TermsPage({ params }: PageProps) {
     notFound();
   }
   setRequestLocale(locale);
-  const t = await getTranslations("legal");
-  return (
-    <Section>
-      <Container>
-        <h1 className="type-display-l">{t("terms.title")}</h1>
-        <p className="type-body mt-6 max-w-2xl text-muted-foreground">{t("terms.body")}</p>
-      </Container>
-    </Section>
-  );
+  return <LegalPublicPage type="TERMS" locale={locale} />;
 }

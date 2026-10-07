@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { emptyQuotationActionState } from "@/modules/quotations/action-state";
 import {
@@ -29,6 +30,10 @@ type Labels = {
   postalCode: string;
   reference: string;
   saveAddress: string;
+  acceptTerms: string;
+  termsLink: string;
+  deliveryLink: string;
+  refundsLink: string;
 };
 
 export function QuoteCustomerActions({
@@ -131,9 +136,26 @@ export function QuoteCustomerActions({
       ) : null}
 
       {canAccept ? (
-        <form action={acceptAction}>
+        <form action={acceptAction} className="grid gap-3">
           <input type="hidden" name="quotationId" value={quotationId} />
-          {acceptState.error ? <p role="alert" className="mb-3 type-caption text-destructive">{acceptState.error}</p> : null}
+          <label className="flex items-start gap-3 type-body-sm">
+            <input type="checkbox" name="acceptedTerms" required className="mt-1" />
+            <span>
+              {labels.acceptTerms}{" "}
+              <Link href="/terminos" className="text-secondary">
+                {labels.termsLink}
+              </Link>
+              {" · "}
+              <Link href="/entregas-y-recogidas" className="text-secondary">
+                {labels.deliveryLink}
+              </Link>
+              {" · "}
+              <Link href="/cancelaciones-y-reembolsos" className="text-secondary">
+                {labels.refundsLink}
+              </Link>
+            </span>
+          </label>
+          {acceptState.error ? <p role="alert" className="type-caption text-destructive">{acceptState.error}</p> : null}
           <Button type="submit" loading={acceptPending} disabled={acceptPending}>
             {labels.accept}
           </Button>

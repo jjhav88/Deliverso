@@ -70,6 +70,44 @@ export function SettingsForm({ initial }: SettingsFormProps) {
       </section>
 
       <section className="rounded-lg border border-border bg-[var(--admin-surface)] p-5">
+        <h3 className="type-h3">Identidad legal</h3>
+        <p className="mt-2 type-body-sm text-muted-foreground">
+          No inventes estos datos. Déjalos vacíos hasta que Julio los proporcione. El storefront
+          mostrará “pendiente de publicación” mientras falten.
+        </p>
+        <div className="mt-4 grid gap-4">
+          <Input
+            name="legalEntityName"
+            label="Nombre / razón social del responsable"
+            defaultValue={initial.legalEntityName ?? ""}
+            disabled={pending}
+          />
+          <Input name="rfc" label="RFC" defaultValue={initial.rfc ?? ""} disabled={pending} />
+          <Textarea
+            name="legalAddress"
+            label="Domicilio legal"
+            defaultValue={initial.legalAddress ?? ""}
+            disabled={pending}
+            rows={3}
+          />
+          <Input
+            name="legalPhone"
+            label="Teléfono legal"
+            defaultValue={initial.legalPhone ?? ""}
+            disabled={pending}
+          />
+          <Input
+            name="privacyEmail"
+            type="email"
+            label="Correo de privacidad / ARCO"
+            defaultValue={initial.privacyEmail ?? ""}
+            disabled={pending}
+          />
+          <p className="type-caption text-muted-foreground">País: México (fijo).</p>
+        </div>
+      </section>
+
+      <section className="rounded-lg border border-border bg-[var(--admin-surface)] p-5">
         <h3 className="type-h3">Redes sociales</h3>
         <div className="mt-4 grid gap-6">
           <div className="grid gap-3">

@@ -23,6 +23,13 @@ const optionalText = z
   .optional()
   .transform((value) => (value ? value : undefined));
 
+const optionalLegalText = z
+  .string()
+  .trim()
+  .max(500)
+  .optional()
+  .transform((value) => (value ? value : undefined));
+
 const optionalHttpsUrl = z
   .string()
   .trim()
@@ -34,6 +41,11 @@ export const siteSettingsSaveSchema = z.object({
   contactEmail: optionalEmail,
   whatsapp: optionalWhatsapp,
   physicalAddress: optionalText,
+  legalEntityName: optionalLegalText,
+  rfc: optionalText,
+  legalAddress: optionalLegalText,
+  legalPhone: optionalText,
+  privacyEmail: optionalEmail,
   facebookUrl: optionalHttpsUrl,
   facebookActive: z.boolean(),
   instagramUrl: optionalHttpsUrl,

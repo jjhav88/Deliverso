@@ -7,6 +7,7 @@ import { Container } from "@/components/layout/container";
 import { Section } from "@/components/layout/section";
 import { routing } from "@/i18n/routing";
 import { isAppLocale } from "@/config/i18n";
+import { Link } from "@/i18n/navigation";
 import { CatalogBreadcrumbs } from "@/modules/catalog/components/catalog-breadcrumbs";
 import { JsonLd } from "@/modules/catalog/components/json-ld";
 import { buildBreadcrumbJsonLd } from "@/modules/catalog/public/json-ld";
@@ -146,6 +147,12 @@ export default async function ContactPage({ params }: PageProps) {
         ) : (
           <p className="type-body mt-10 max-w-xl text-muted-foreground">{t("empty")}</p>
         )}
+        <p className="type-caption mt-10 max-w-xl text-muted-foreground">
+          {t("privacyNotice")}{" "}
+          <Link href="/aviso-de-privacidad" className="text-secondary">
+            {t("privacyLink")}
+          </Link>
+        </p>
       </Container>
     </Section>
   );

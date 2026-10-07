@@ -471,13 +471,14 @@ model AdminAccount {
   createdAt   DateTime    @default(now()) @db.Timestamptz
   updatedAt   DateTime    @updatedAt @db.Timestamptz
 
-  auditLogs             AdminAuditLog[]
-  createdPromotions     Promotion[]           @relation("PromotionCreatedBy")
-  updatedPromotions     Promotion[]           @relation("PromotionUpdatedBy")
-  quoteOffers           QuoteOffer[]
-  quoteMessages         QuoteMessage[]
-  reviewedCancellations CancellationRequest[] @relation("CancellationReviewedBy")
-  requestedRefunds      Refund[]              @relation("RefundRequestedBy")
+  auditLogs               AdminAuditLog[]
+  createdPromotions       Promotion[]           @relation("PromotionCreatedBy")
+  updatedPromotions       Promotion[]           @relation("PromotionUpdatedBy")
+  quoteOffers             QuoteOffer[]
+  quoteMessages           QuoteMessage[]
+  reviewedCancellations   CancellationRequest[] @relation("CancellationReviewedBy")
+  requestedRefunds        Refund[]              @relation("RefundRequestedBy")
+  reviewedPrivacyRequests PrivacyRequest[]      @relation("PrivacyRequestReviewedBy")
 
   @@index([status])
   @@index([role])
@@ -542,6 +543,12 @@ model SiteSettings {
   contactEmail    String?
   whatsapp        String?
   physicalAddress String?
+  legalEntityName String?
+  rfc             String?
+  legalAddress    String?
+  legalPhone      String?
+  privacyEmail    String?
+  legalCountry    String   @default("México")
   createdAt       DateTime @default(now()) @db.Timestamptz
   updatedAt       DateTime @updatedAt @db.Timestamptz
 }
@@ -590,6 +597,8 @@ model CustomerAccount {
   quotations            Quotation[]
   quoteMessages         QuoteMessage[]
   cancellationRequests  CancellationRequest[]
+  legalAcceptances      LegalAcceptance[]
+  privacyRequests       PrivacyRequest[]
 
   @@index([status])
   @@index([email])
@@ -903,6 +912,9 @@ model Order {
   pickupLocationName             String?
   pickupAddressSnapshot          String?
   pickupInstructionsSnapshot     String?
+  termsVersion                   String?
+  refundPolicyVersion            String?
+  deliveryPolicyVersion          String?
   stripePaymentIntentId          String?               @unique
   paidAt                         DateTime?             @db.Timestamptz
   cancelledAt                    DateTime?             @db.Timestamptz
@@ -925,6 +937,7 @@ model Order {
   events               OrderEvent[]
   cancellationRequests CancellationRequest[]
   refunds              Refund[]
+  legalAcceptances     LegalAcceptance[]
 
   @@index([customerId, createdAt])
   @@index([quotationId])
@@ -1507,4 +1520,88 @@ model RefundEvent {
   refund Refund @relation(fields: [refundId], references: [id], onDelete: Cascade)
 
   @@index([refundId, createdAt])
+}
+
+enum LegalDocumentType {
+  PRIVACY_NOTICE
+  TERMS
+  DELIVERY_POLICY
+  REFUND_POLICY
+  COOKIE_POLICY
+}
+
+enum LegalDocumentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum PrivacyRequestType {
+  ACCESS
+  RECTIFICATION
+  CANCELLATION
+  OPPOSITION
+  OTHER
+}
+
+enum PrivacyRequestStatus {
+  RECEIVED
+  IN_REVIEW
+  RESOLVED
+  REJECTED
+}
+
+model LegalDocument {
+  id          String              @id @default(uuid()) @db.Uuid
+  type        LegalDocumentType
+  locale      String
+  version     String
+  status      LegalDocumentStatus @default(DRAFT)
+  title       String
+  body        String              @db.Text
+  effectiveAt DateTime            @db.Timestamptz
+  publishedAt DateTime?           @db.Timestamptz
+  archivedAt  DateTime?           @db.Timestamptz
+  createdAt   DateTime            @default(now()) @db.Timestamptz
+  updatedAt   DateTime            @updatedAt @db.Timestamptz
+
+  @@unique([type, locale, version])
+  @@index([type, locale, status])
+  @@index([status, publishedAt])
+}
+
+model LegalAcceptance {
+  id              String            @id @default(uuid()) @db.Uuid
+  customerId      String            @db.Uuid
+  orderId         String?           @db.Uuid
+  documentType    LegalDocumentType
+  documentVersion String
+  acceptedAt      DateTime          @default(now()) @db.Timestamptz
+
+  customer CustomerAccount @relation(fields: [customerId], references: [id], onDelete: Restrict)
+  order    Order?          @relation(fields: [orderId], references: [id], onDelete: SetNull)
+
+  @@index([customerId, acceptedAt])
+  @@index([orderId])
+  @@index([documentType, documentVersion])
+}
+
+model PrivacyRequest {
+  id           String               @id @default(uuid()) @db.Uuid
+  type         PrivacyRequestType
+  customerId   String?              @db.Uuid
+  email        String
+  status       PrivacyRequestStatus @default(RECEIVED)
+  message      String               @db.Text
+  adminNotes   String?              @db.Text
+  createdAt    DateTime             @default(now()) @db.Timestamptz
+  resolvedAt   DateTime?            @db.Timestamptz
+  reviewedById String?              @db.Uuid
+
+  customer   CustomerAccount? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  reviewedBy AdminAccount?    @relation("PrivacyRequestReviewedBy", fields: [reviewedById], references: [id], onDelete: SetNull)
+
+  @@index([status, createdAt])
+  @@index([email])
+  @@index([customerId])
 }

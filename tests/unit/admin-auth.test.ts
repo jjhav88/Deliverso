@@ -54,6 +54,7 @@ describe("admin navigation", () => {
       "/admin/cancellations",
       "/admin/customers",
       "/admin/promotions",
+      "/admin/legal",
       "/admin/settings",
     ]);
     expect(getAdminNavigationItem("/admin/home").id).toBe("home");

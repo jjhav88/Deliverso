@@ -133,6 +133,12 @@ function ContactStep({ draft, labels }: CheckoutFlowProps) {
       <Input name="contactName" label={labels.name} autoComplete="name" defaultValue={draft.contactName ?? ""} required disabled={pending} />
       <Input name="contactEmail" type="email" label={labels.email} autoComplete="email" value={draft.contactEmail ?? ""} readOnly disabled />
       <Input name="contactPhone" label={labels.phone} autoComplete="tel" defaultValue={draft.contactPhone ?? ""} required disabled={pending} />
+      <p className="type-caption text-muted-foreground">
+        {labels.privacyHint}{" "}
+        <Link href="/aviso-de-privacidad" className="text-secondary">
+          {labels.privacyLink}
+        </Link>
+      </p>
       {state.error ? <p role="alert" className="type-caption text-destructive">{state.error}</p> : null}
       <Button type="submit" disabled={pending} loading={pending}>{labels.continue}</Button>
     </form>
@@ -356,7 +362,40 @@ function ReviewStep(props: CheckoutFlowProps) {
         <form action={payAction} className="grid gap-3">
           <p role="status" className="type-body text-secondary">{props.labels.ready}</p>
           <p className="type-body-sm text-muted-foreground">{props.labels.paymentCurrencyNote}</p>
-          {payState.error ? <p role="alert" className="type-caption text-destructive">{payState.error}</p> : null}
+          <label className="flex items-start gap-3 type-body-sm">
+            <input
+              type="checkbox"
+              name="acceptedTerms"
+              required
+              className="mt-1"
+              aria-describedby="checkout-terms-error"
+            />
+            <span>
+              {props.labels.acceptTerms}{" "}
+              <Link href="/terminos" className="text-secondary">
+                {props.labels.termsLink}
+              </Link>
+              {" · "}
+              <Link href="/entregas-y-recogidas" className="text-secondary">
+                {props.labels.deliveryLink}
+              </Link>
+              {" · "}
+              <Link href="/cancelaciones-y-reembolsos" className="text-secondary">
+                {props.labels.refundsLink}
+              </Link>
+            </span>
+          </label>
+          <p className="type-caption text-muted-foreground">
+            {props.labels.privacyHint}{" "}
+            <Link href="/aviso-de-privacidad" className="text-secondary">
+              {props.labels.privacyLink}
+            </Link>
+          </p>
+          {payState.error ? (
+            <p id="checkout-terms-error" role="alert" className="type-caption text-destructive">
+              {payState.error}
+            </p>
+          ) : null}
           <Button type="submit" disabled={payPending} loading={payPending}>
             {props.labels.continuePayment}
           </Button>

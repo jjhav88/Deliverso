@@ -95,6 +95,43 @@ test.describe("storefront smoke", () => {
     await expect(page).toHaveURL(/admin\/login/);
     await expect(page.getByText(/Acceso administrativo/i)).toBeVisible();
   });
+
+  test("privacy notice page loads", async ({ page }) => {
+    const response = await page.goto("/aviso-de-privacidad");
+    expect(response?.ok()).toBeTruthy();
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.locator('footer a[href*="aviso-de-privacidad"]')).toBeVisible();
+  });
+
+  test("terms page loads", async ({ page }) => {
+    const response = await page.goto("/terminos");
+    expect(response?.ok()).toBeTruthy();
+    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  });
+
+  test("footer legal links are visible", async ({ page }) => {
+    await page.goto("/");
+    const footer = page.locator("footer");
+    await expect(footer.getByRole("link", { name: /Aviso de Privacidad/i })).toBeVisible();
+    await expect(footer.getByRole("link", { name: /Términos y Condiciones/i })).toBeVisible();
+    await expect(footer.getByRole("link", { name: /Entregas y recogidas/i })).toBeVisible();
+    await expect(footer.getByRole("link", { name: /Cancelaciones y reembolsos/i })).toBeVisible();
+    await expect(footer.getByRole("link", { name: /^Cookies$/i })).toBeVisible();
+  });
+
+  test("checkout requires login before terms checkbox", async ({ page }) => {
+    await page.goto("/checkout");
+    await expect(page).toHaveURL(/iniciar-sesion|account\/login|checkout/);
+    if (/checkout/.test(page.url()) && !/iniciar-sesion|account\/login/.test(page.url())) {
+      await expect(page.getByLabel(/He leído y acepto los Términos/i)).toHaveCount(0);
+    }
+  });
+
+  test("admin legal protected", async ({ page }) => {
+    await page.goto("/admin/legal");
+    await expect(page).toHaveURL(/admin\/login/);
+    await expect(page.getByText(/Acceso administrativo/i)).toBeVisible();
+  });
 });
 
 test.describe("ops smoke", () => {

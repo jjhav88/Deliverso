@@ -45,10 +45,6 @@ function parseIso(value: unknown): Date | null {
   return Number.isNaN(date.getTime()) ? null : date;
 }
 
-function booleanFromForm(value: FormDataEntryValue | null): boolean {
-  return value === "on" || value === "true" || value === "1";
-}
-
 export async function registerCustomerAction(
   previousState: CustomerActionState,
   formData: FormData,
@@ -58,8 +54,6 @@ export async function registerCustomerAction(
     email: formData.get("email"),
     password: formData.get("password"),
     confirmPassword: formData.get("confirmPassword"),
-    termsAccepted: booleanFromForm(formData.get("termsAccepted")),
-    privacyAccepted: booleanFromForm(formData.get("privacyAccepted")),
     next: formData.get("next") || undefined,
   });
   if (!parsed.success) {
@@ -71,17 +65,12 @@ export async function registerCustomerAction(
 
   const next = getSafeCustomerPath(parsed.data.next);
   const origin = await resolveAppOrigin();
-  const acceptedAt = new Date().toISOString();
   const supabase = await createSupabaseServerClient();
   await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
       emailRedirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(next)}`,
-      data: {
-        termsAcceptedAt: acceptedAt,
-        privacyAcceptedAt: acceptedAt,
-      },
     },
   });
 

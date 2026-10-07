@@ -4,10 +4,13 @@ import { getPrisma } from "@/server/db/prisma";
 import { generateOrderNumber } from "@/modules/orders/domain/order-number";
 import { queueTransactionalEmail } from "@/modules/email/queue";
 import { evaluateQuotationConversion } from "@/modules/quotations/domain/conversion";
+import { legalAcceptanceRows, orderLegalFieldData } from "@/modules/legal/domain/order-snapshot";
+import type { OrderLegalSnapshot } from "@/modules/legal/domain/types";
 
 export async function acceptQuotationAndCreateOrder(input: {
   quotationId: string;
   customerId: string;
+  legal: OrderLegalSnapshot;
 }) {
   const prisma = getPrisma();
   const now = new Date();
@@ -107,6 +110,10 @@ export async function acceptQuotationAndCreateOrder(input: {
               ? [pickup.addressLine, pickup.city, pickup.state, pickup.postalCode].filter(Boolean).join(", ")
               : null,
             pickupInstructionsSnapshot: pickup?.instructions ?? null,
+            ...orderLegalFieldData(input.legal),
+            legalAcceptances: {
+              create: legalAcceptanceRows(quote.customerId, input.legal),
+            },
             expiresAt: new Date(now.getTime() + pendingOrderTtlMs),
             items: {
               create: {

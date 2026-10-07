@@ -192,6 +192,10 @@ export default async function CustomerQuotationDetailPage({ params, searchParams
               postalCode: t("postalCode"),
               reference: t("reference"),
               saveAddress: t("saveAddress"),
+              acceptTerms: t("acceptTerms"),
+              termsLink: t("termsLink"),
+              deliveryLink: t("deliveryLink"),
+              refundsLink: t("refundsLink"),
             }}
           />
         </div>

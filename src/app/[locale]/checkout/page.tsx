@@ -161,6 +161,12 @@ export default async function CheckoutPage({ params, searchParams }: PageProps) 
             continuePayment: t("continuePayment"),
             paymentCurrencyNote: t("paymentCurrencyNote"),
             backCart: t("backCart"),
+            acceptTerms: t("acceptTerms"),
+            termsLink: t("termsLink"),
+            deliveryLink: t("deliveryLink"),
+            refundsLink: t("refundsLink"),
+            privacyHint: t("privacyHint"),
+            privacyLink: t("privacyLink"),
           }}
         />
       </Container>

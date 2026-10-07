@@ -187,6 +187,9 @@ describe("public and private metadata", () => {
     expect(isPrivateSeoPath("/checkout")).toBe(true);
     expect(isPrivateSeoPath("/pago/DEL-1")).toBe(true);
     expect(isPrivateSeoPath("/cotizaciones")).toBe(true);
+    expect(isPrivateSeoPath("/aviso-de-privacidad")).toBe(true);
+    expect(isPrivateSeoPath("/terminos")).toBe(true);
+    expect(isPrivateSeoPath("/cookies")).toBe(true);
     expect(isPrivateSeoPath("/productos")).toBe(false);
   });
 
@@ -309,6 +312,16 @@ describe("cheesecake typo slug cleanup", () => {
       {
         source: `/productos/${CHEESECAKE_ZARZAMORA_OLD_SLUG}`,
         destination: `/productos/${CHEESECAKE_ZARZAMORA_NEW_SLUG}`,
+        permanent: true,
+      },
+      {
+        source: "/terminos-y-condiciones",
+        destination: "/terminos",
+        permanent: true,
+      },
+      {
+        source: "/en/terms-and-conditions",
+        destination: "/en/terms",
         permanent: true,
       },
     ]);

@@ -10,8 +10,6 @@ export const customerRegisterSchema = z
     email: emailField,
     password: z.string().min(CUSTOMER_PASSWORD_MIN).max(72),
     confirmPassword: z.string(),
-    termsAccepted: z.literal(true),
-    privacyAccepted: z.literal(true),
     next: z.string().optional(),
   })
   .refine((value) => value.password === value.confirmPassword, {

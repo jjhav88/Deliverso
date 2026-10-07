@@ -16,6 +16,9 @@ import { createOrGetPaymentIntentForOrder } from "@/modules/payments/create-inte
 import { applySucceededPaymentIntentIfNeeded } from "@/modules/payments/sync-succeeded";
 import { ORDER_CHANGED_MESSAGE, type OrderActionState } from "@/modules/orders/action-state";
 import { canAccessCustomerOrder } from "@/modules/orders/domain/ownership";
+import { formAccepted } from "@/modules/legal/domain/acceptance";
+import { TERMS_REQUIRED_MESSAGE } from "@/modules/legal/domain/types";
+import { getPublishedOrderLegalSnapshot } from "@/modules/legal/queries";
 
 function paymentPath(locale: string, orderNumber: string) {
   const safe = isAppLocale(locale) ? locale : "es-MX";
@@ -40,8 +43,14 @@ export async function startOrderPayment(
   formData: FormData,
 ): Promise<OrderActionState> {
   void previousState;
-  void formData;
+  if (!formAccepted(formData.get("acceptedTerms"))) {
+    return { error: TERMS_REQUIRED_MESSAGE, success: null };
+  }
   const locale = await getLocale();
+  const legal = await getPublishedOrderLegalSnapshot();
+  if (!legal) {
+    return { error: "No hay políticas publicadas para este pedido.", success: null };
+  }
   const context = await requireCheckoutContext();
   const result = await createOrderFromCheckoutDraft({
     customerId: context.customer.id,
@@ -49,6 +58,7 @@ export async function startOrderPayment(
     locale: isAppLocale(locale) ? locale : "es-MX",
     displayCurrency: await getDisplayCurrency(),
     rateSet: await getExchangeRateSet(),
+    legal,
   });
 
   if (!result.ok) {

@@ -56,6 +56,14 @@ const privatePathPrefixes = [
   "/en/terms",
   "/aviso-de-privacidad",
   "/en/privacy",
+  "/entregas-y-recogidas",
+  "/en/delivery-and-pickup",
+  "/cancelaciones-y-reembolsos",
+  "/en/cancellations-and-refunds",
+  "/cookies",
+  "/en/cookies",
+  "/privacidad",
+  "/en/privacy/arco-rights",
 ] as const;
 
 export function isPrivateSeoPath(pathname: string): boolean {

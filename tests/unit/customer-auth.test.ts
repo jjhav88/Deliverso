@@ -58,13 +58,11 @@ describe("account creation mapping", () => {
 });
 
 describe("registration consent", () => {
-  it("requires matching passwords and both consents", () => {
+  it("requires matching passwords and does not require contractual checkboxes", () => {
     const base = {
       email: "cliente@deliverso.com",
       password: "abcdefgh",
       confirmPassword: "abcdefgh",
-      termsAccepted: true,
-      privacyAccepted: true,
     };
     expect(customerRegisterSchema.safeParse(base).success).toBe(true);
     expect(
@@ -72,12 +70,6 @@ describe("registration consent", () => {
     ).toBe(false);
     expect(
       customerRegisterSchema.safeParse({ ...base, confirmPassword: "otherpass" }).success,
-    ).toBe(false);
-    expect(
-      customerRegisterSchema.safeParse({ ...base, termsAccepted: false }).success,
-    ).toBe(false);
-    expect(
-      customerRegisterSchema.safeParse({ ...base, privacyAccepted: false }).success,
     ).toBe(false);
     expect(CUSTOMER_PASSWORD_MIN).toBe(8);
   });

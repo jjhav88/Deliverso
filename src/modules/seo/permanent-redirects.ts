@@ -7,4 +7,14 @@ export const permanentSeoRedirects = [
     destination: `/productos/${CHEESECAKE_ZARZAMORA_NEW_SLUG}`,
     permanent: true,
   },
+  {
+    source: "/terminos-y-condiciones",
+    destination: "/terminos",
+    permanent: true,
+  },
+  {
+    source: "/en/terms-and-conditions",
+    destination: "/en/terms",
+    permanent: true,
+  },
 ] as const;

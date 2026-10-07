@@ -86,6 +86,22 @@ export const appPathnames = {
     "es-MX": "/aviso-de-privacidad",
     "en-US": "/privacy",
   },
+  "/entregas-y-recogidas": {
+    "es-MX": "/entregas-y-recogidas",
+    "en-US": "/delivery-and-pickup",
+  },
+  "/cancelaciones-y-reembolsos": {
+    "es-MX": "/cancelaciones-y-reembolsos",
+    "en-US": "/cancellations-and-refunds",
+  },
+  "/cookies": {
+    "es-MX": "/cookies",
+    "en-US": "/cookies",
+  },
+  "/privacidad/derechos-arco": {
+    "es-MX": "/privacidad/derechos-arco",
+    "en-US": "/privacy/arco-rights",
+  },
   "/design-system": "/design-system",
 } as const;
 

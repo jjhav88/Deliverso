@@ -53,6 +53,10 @@ export const adminAuditActions = [
   "REFUND_CREATED",
   "REFUND_SUCCEEDED",
   "REFUND_FAILED",
+  "LEGAL_DOCUMENT_PUBLISHED",
+  "LEGAL_DOCUMENT_ARCHIVED",
+  "PRIVACY_REQUEST_UPDATED",
+  "SITE_LEGAL_SETTINGS_UPDATED",
 ] as const;
 
 export type AdminAuditAction = (typeof adminAuditActions)[number];

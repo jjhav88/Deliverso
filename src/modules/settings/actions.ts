@@ -27,6 +27,11 @@ export async function saveSiteSettingsAction(
     contactEmail: formData.get("contactEmail"),
     whatsapp: formData.get("whatsapp"),
     physicalAddress: formData.get("physicalAddress"),
+    legalEntityName: formData.get("legalEntityName"),
+    rfc: formData.get("rfc"),
+    legalAddress: formData.get("legalAddress"),
+    legalPhone: formData.get("legalPhone"),
+    privacyEmail: formData.get("privacyEmail"),
     facebookUrl: formData.get("facebookUrl"),
     facebookActive: booleanFromForm(formData.get("facebookActive")),
     instagramUrl: formData.get("instagramUrl"),
@@ -36,7 +41,7 @@ export async function saveSiteSettingsAction(
   });
 
   if (!parsed.success) {
-    return { error: "Revisa el correo, WhatsApp o las URLs sociales.", success: null };
+    return { error: "Revisa el correo, WhatsApp, datos legales o las URLs sociales.", success: null };
   }
 
   const whatsapp = parsed.data.whatsapp
@@ -78,11 +83,23 @@ export async function saveSiteSettingsAction(
         contactEmail: parsed.data.contactEmail ?? null,
         whatsapp,
         physicalAddress: parsed.data.physicalAddress ?? null,
+        legalEntityName: parsed.data.legalEntityName ?? null,
+        rfc: parsed.data.rfc ?? null,
+        legalAddress: parsed.data.legalAddress ?? null,
+        legalPhone: parsed.data.legalPhone ?? null,
+        privacyEmail: parsed.data.privacyEmail ?? null,
+        legalCountry: "México",
       },
       update: {
         contactEmail: parsed.data.contactEmail ?? null,
         whatsapp,
         physicalAddress: parsed.data.physicalAddress ?? null,
+        legalEntityName: parsed.data.legalEntityName ?? null,
+        rfc: parsed.data.rfc ?? null,
+        legalAddress: parsed.data.legalAddress ?? null,
+        legalPhone: parsed.data.legalPhone ?? null,
+        privacyEmail: parsed.data.privacyEmail ?? null,
+        legalCountry: "México",
       },
     });
 

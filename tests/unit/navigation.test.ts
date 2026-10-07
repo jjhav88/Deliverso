@@ -73,6 +73,30 @@ describe("mainNavigation", () => {
       "es-MX": "/cotizaciones/[quoteNumber]",
       "en-US": "/quotes/[quoteNumber]",
     });
+    expect(appPathnames["/terminos"]).toEqual({
+      "es-MX": "/terminos",
+      "en-US": "/terms",
+    });
+    expect(appPathnames["/aviso-de-privacidad"]).toEqual({
+      "es-MX": "/aviso-de-privacidad",
+      "en-US": "/privacy",
+    });
+    expect(appPathnames["/entregas-y-recogidas"]).toEqual({
+      "es-MX": "/entregas-y-recogidas",
+      "en-US": "/delivery-and-pickup",
+    });
+    expect(appPathnames["/cancelaciones-y-reembolsos"]).toEqual({
+      "es-MX": "/cancelaciones-y-reembolsos",
+      "en-US": "/cancellations-and-refunds",
+    });
+    expect(appPathnames["/cookies"]).toEqual({
+      "es-MX": "/cookies",
+      "en-US": "/cookies",
+    });
+    expect(appPathnames["/privacidad/derechos-arco"]).toEqual({
+      "es-MX": "/privacidad/derechos-arco",
+      "en-US": "/privacy/arco-rights",
+    });
   });
 });
 

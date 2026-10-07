@@ -16,6 +16,9 @@ import {
 } from "@/modules/quotations/domain/lifecycle";
 import { uploadQuoteAttachment } from "@/modules/quotations/storage";
 import { acceptQuotationAndCreateOrder } from "@/modules/quotations/convert";
+import { formAccepted } from "@/modules/legal/domain/acceptance";
+import { TERMS_REQUIRED_MESSAGE } from "@/modules/legal/domain/types";
+import { getPublishedOrderLegalSnapshot } from "@/modules/legal/queries";
 import { createOrGetPaymentIntentForOrder } from "@/modules/payments/create-intent";
 import type { QuotationActionState } from "@/modules/quotations/action-state";
 
@@ -212,12 +215,20 @@ export async function acceptQuotationAction(
   formData: FormData,
 ): Promise<QuotationActionState> {
   void previousState;
+  if (!formAccepted(formData.get("acceptedTerms"))) {
+    return { error: TERMS_REQUIRED_MESSAGE, success: null };
+  }
+  const legal = await getPublishedOrderLegalSnapshot();
+  if (!legal) {
+    return { error: "No hay políticas publicadas para este pedido.", success: null };
+  }
   const rawLocale = await getLocale();
   const locale = isAppLocale(rawLocale) ? rawLocale : "es-MX";
   const customer = await requireCustomer("/cotizaciones");
   const result = await acceptQuotationAndCreateOrder({
     quotationId: text(formData, "quotationId"),
     customerId: customer.id,
+    legal,
   });
   if (!result.ok) {
     return {

@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import { Link } from "@/i18n/navigation";
 import { Button } from "@/components/ui/button";
 import { emptyQuotationActionState } from "@/modules/quotations/action-state";
 import { submitQuotationAction } from "@/modules/quotations/customer-actions";
@@ -14,6 +15,8 @@ type Labels = {
   notes: string;
   attachments: string;
   attachmentsHelp: string;
+  privacyNotice: string;
+  privacyLink: string;
   submit: string;
 };
 
@@ -84,6 +87,12 @@ export function QuoteRequestForm({
         />
         <span className="type-caption text-muted-foreground">{labels.attachmentsHelp}</span>
       </label>
+      <p className="type-caption text-muted-foreground">
+        {labels.privacyNotice}{" "}
+        <Link href="/aviso-de-privacidad" className="text-secondary">
+          {labels.privacyLink}
+        </Link>
+      </p>
       {state.error ? (
         <p role="alert" className="type-caption text-destructive">
           {state.error}
